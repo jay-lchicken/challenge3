@@ -10,22 +10,26 @@ import SwiftUI
 struct ContentView: View {
     @State var currentTab: Int = 0
     @State var showSheet = false
+    
     var body: some View {
+        
+        
         TabView(){
             
             
             Tab("Home", systemImage: "house"){
-                Text("home")
+                HomeView()
             }
 
             Tab("Finance", systemImage: "bitcoinsign.circle"){
-                Text("finance")
+                FinanceView()
             }
 
             Tab("Add", systemImage: "plus", role: .search) {
                 Text("add")
             }
         }
+        .font(.custom("Roboto-Regular", size: 16)) // Base app font
         .onChange(of: currentTab) { newValue, oldValue in
             if newValue == 2 {
                 showSheet = true
@@ -33,12 +37,34 @@ struct ContentView: View {
             }
         }
         .tabBarMinimizeBehavior(.onScrollDown)
-        .tabViewBottomAccessory {
-            TextField("What would you like to do today?", text: .constant(""))
-                .textFieldStyle(.plain)
-                .padding()
+        .tabViewBottomAccessory{
+            Button{
+                showSheet.toggle()
                 
+                
+            }label:{
+                HStack{
+                    TextField("What would you like to do today?", text: .constant(""))
+                        .padding()
+                        .disabled(true)
+                        
+                    Button{
+                        
+                    }label:{
+                        Image(systemName: "arrow.up.circle")
+                            .font(.title2)
+                            .padding()
+                    }
+
+                }
+                .glassEffect(.clear.interactive(), in: .capsule)
+           
+            }
         }
+        .sheet(isPresented: $showSheet){
+            ChatView()
+        }
+        
     }
 }
 
