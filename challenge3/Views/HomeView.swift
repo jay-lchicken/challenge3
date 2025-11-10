@@ -22,6 +22,7 @@ struct HomeView: View {
                             HStack{
                                 Text("Spent: $10 ")
                                 Spacer()
+
                                 Text("Saved: $500 ")
                             }
                             ForEach(expenses, id: \.self){item in
