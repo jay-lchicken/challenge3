@@ -6,6 +6,7 @@
 //
 //ME (HONG YU) takes CREDITS for this ENTIRE PAGE and bro......ye......🫠
 import SwiftUI
+import FoundationModels
 extension Font {
     static func system(
         size: CGFloat,
@@ -22,18 +23,61 @@ extension Font {
 struct ChatView: View {
     @FocusState private var isTextFieldFocused: Bool
     @State var viewModel = FoundationModelViewModel()
-    
+    func segmentsToString(segments: [Transcript.Segment]) -> String{
+        let strings = segments.compactMap {segment -> String? in
+            if case let .text(textSegment) = segment{
+                return textSegment.content
+            }
+            return nil
+            
+        }
+        return strings.reduce("", +)
+        
+    }
 
     var body: some View {
         ZStack{
             
             VStack{
+                
                 if let response = viewModel.generatedResponse?.response{
-                    Text(response)
-                        .opacity(viewModel.isGenerating ? 0.85 : 1.0)
-                        .animation(.smooth(duration: 0.4), value: viewModel.isGenerating)
-                        .scaleEffect(viewModel.isGenerating ? 0.98 : 1.0)
-                        .animation(.smooth(duration: 0.3), value: viewModel.isGenerating)
+                    ScrollView{
+                        ForEach(viewModel.session.transcript){ entry in
+                            switch entry {
+                            case .prompt(let response):
+                                HStack{
+                                    Spacer()
+                                    Text(response.segments[0].description)
+                                        .padding()
+                                        .background(.blue.opacity(0.3))
+                                        .cornerRadius(12)
+                                        .padding(.horizontal)
+                                }
+                            case .response(let response):
+                                HStack{
+                                    Text(response.segments[0].description)
+                                        .padding()
+                                        .background(.green.opacity(0.3))
+                                        .cornerRadius(12)
+                                        .padding(.horizontal)
+                                    Spacer()
+                                }
+                            case .toolOutput(let response):
+                                HStack{
+                                    Text(response.description)
+                                        .padding()
+                                        .background(.orange.opacity(0.3))
+                                        .cornerRadius(12)
+                                        .padding(.horizontal)
+                                    Spacer()
+                                }
+                            default:
+                                EmptyView()
+                            }
+                            
+                        }
+                    }
+                    
                 }else{
                     Text("Bro")
                         .font(.system(size:40,weight: .heavy, width: .expanded))
@@ -47,7 +91,6 @@ struct ChatView: View {
                 
                 
             }
-            .animation(.easeOut, value: viewModel.generatedResponse?.response ?? "")
             VStack{
                 Spacer()
                 HStack{
