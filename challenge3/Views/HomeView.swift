@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
-
+import SwiftData
 struct HomeView: View {
-    @State var expenses: [ExpenseItem] = [ExpenseItem(name: "Starbucks Overpriceeed Moccha latte", amount: 12.0, date: Date().timeIntervalSince1970, category: "beverage")]
+
+    @Environment(\.modelContext) var modelContext
+    @Query var expenses:[ExpenseItem]
     @AppStorage("question") var query: String = ""
     var body: some View {
         NavigationStack{
@@ -27,6 +29,7 @@ struct HomeView: View {
                         }
                     }
                 }
+                
                 
             }
             .navigationTitle("Home")

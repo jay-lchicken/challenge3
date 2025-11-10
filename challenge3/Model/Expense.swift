@@ -6,9 +6,18 @@
 //
 
 import Foundation
-struct ExpenseItem: Codable, Hashable{
+import SwiftData
+
+@Model
+class ExpenseItem: Equatable{
     var name: String
     var amount: Double
     var date: TimeInterval
     var category: String
+    init(name: String, amount: Double, date: TimeInterval, category: String) {
+        self.name = name
+        self.amount = amount
+        self.date = date
+        self.category = category
+    }
 }

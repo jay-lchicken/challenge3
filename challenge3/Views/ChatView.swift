@@ -21,7 +21,7 @@ extension Font {
 }
 struct ChatView: View {
     @FocusState private var isTextFieldFocused: Bool
-    @StateObject var viewModel = FoundationModelViewModel()
+    @State var viewModel = FoundationModelViewModel()
     
 
     var body: some View {

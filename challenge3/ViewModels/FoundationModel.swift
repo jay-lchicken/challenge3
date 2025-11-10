@@ -8,6 +8,7 @@
 import Foundation
 import FoundationModels
 import Combine
+import SwiftData
 @Generable
 struct ModelResponse{
     @Guide(description: "The main response you have to the user's query")
@@ -15,10 +16,38 @@ struct ModelResponse{
 }
 
 struct AddExpenseTool: Tool {
+    var modelContext: ModelContext? = nil
+    var modelContainer: ModelContainer? = nil
+    
+    @MainActor
+    init(inMemory: Bool) {
+        do {
+            let configuration = ModelConfiguration(isStoredInMemoryOnly: inMemory)
+            let container = try ModelContainer(for: ExpenseItem.self, configurations: configuration)
+            modelContainer = container
+            modelContext = container.mainContext
+            modelContext?.autosaveEnabled = true
+            
+        } catch(let error) {
+            print(error)
+            print(error.localizedDescription)
+        }
+    }
+    func save() {
+        guard let modelContext = modelContext else {
+            return
+        }
+        do {
+            try modelContext.save()
+        } catch (let error) {
+            print(error)
+        }
+    }
     let name = "addExpense"
     let description = "Add an expense to your expense tracker and get a return bool on whether it was successful"
+    
     @Generable
-    struct Arguments{
+    struct Arguments {
         @Guide(description: "The name of the expense")
         var name: String
         @Guide(description: "The amount of the expense")
@@ -26,19 +55,51 @@ struct AddExpenseTool: Tool {
         @Guide(description: "The category of the expense")
         var category: String
     }
+    func queryExpenses() -> [ExpenseItem] {
+        guard let modelContext = modelContext else {
+            return []
+        }
+        let expenseDescriptor = FetchDescriptor<ExpenseItem>()
+        do {
+            let expenses = try modelContext.fetch(expenseDescriptor)
+            return expenses
+        } catch(let error) {
+            
+        }
+        return []
+    }
+    
     func call(arguments: Arguments) async throws -> Bool {
-        
-        print("Added expense: \(arguments.name) with amount: \(arguments.amount) with category: \(arguments.category)")
-        return true
+        return await MainActor.run {
+            guard let modelContext = modelContext else {
+                print("ERROR")
+                return false
+            }
+            
+            let newExpense = ExpenseItem(
+                name: arguments.name,
+                amount: arguments.amount,
+                date: Date().timeIntervalSince1970,
+                category: arguments.category
+            )
+            modelContext.insert(newExpense)
+            save()
+            print("SUCCESS!!!")
+            print(queryExpenses())
+            
+            return true
+        }
     }
 }
-class FoundationModelViewModel: ObservableObject{
+@Observable
+class FoundationModelViewModel{
     init(){}
-    @Published var isGenerating: Bool = false
-    @Published var query: String = ""
-    @Published var generatedResponse: ModelResponse.PartiallyGenerated?
-    @Published var showAlert = false
-    @Published var alertMessage: String = ""
+    var isGenerating: Bool = false
+    var query: String = ""
+    var generatedResponse: ModelResponse.PartiallyGenerated?
+    var showAlert = false
+    var alertMessage: String = ""
+    
     let instructions =
     """
     Role: You are “Bro,” a friendly, professional personal finance assistant. Respond only in English.
@@ -62,7 +123,7 @@ class FoundationModelViewModel: ObservableObject{
     • Do not provide legal, tax, or investment advice beyond general education.
     • If asked for non–finance help, redirect to finance-related assistance.
     """
-    lazy var session = LanguageModelSession(tools: [AddExpenseTool()],instructions: instructions)
+    @ObservationIgnored lazy var session = LanguageModelSession(tools: [AddExpenseTool(inMemory: false)], instructions: instructions)
     func generateResponse() async{
         isGenerating = true
         let stream = session.streamResponse(to: query, generating: ModelResponse.self)
