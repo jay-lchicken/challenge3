@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+
 struct HomeView: View {
     //SWIFT DATA
     @Environment(\.modelContext) var modelContext

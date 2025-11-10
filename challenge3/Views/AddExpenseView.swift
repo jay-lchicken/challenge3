@@ -39,6 +39,8 @@ struct AddExpenseView: View {
                 }
 
                 Button("Add Expense") {
+                    self.showToast(message: "✅", font: .systemFont(ofSize: 12.0))
+
                     guard
                         let amt = parseAmount(amount),
                         !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
