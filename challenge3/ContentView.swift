@@ -44,9 +44,10 @@ struct ContentView: View {
                 
             }label:{
                 HStack{
-                    TextField("What would you like to do today?", text: .constant(""))
+                    Text("What would you like to do today?")
+                        .foregroundStyle(.gray)
                         .padding()
-                        .disabled(true)
+                    Spacer()
                         
                     Button{
                         
@@ -57,8 +58,8 @@ struct ContentView: View {
                     }
 
                 }
-                .glassEffect(.clear.interactive(), in: .capsule)
-           
+
+                           
             }
         }
         .sheet(isPresented: $showSheet){
