@@ -30,7 +30,10 @@ struct ChatView: View {
             VStack{
                 if let response = viewModel.generatedResponse?.response{
                     Text(response)
-                        .contentTransition(.opacity)
+                        .opacity(viewModel.isGenerating ? 0.85 : 1.0)
+                        .animation(.smooth(duration: 0.4), value: viewModel.isGenerating)
+                        .scaleEffect(viewModel.isGenerating ? 0.98 : 1.0)
+                        .animation(.smooth(duration: 0.3), value: viewModel.isGenerating)
                 }else{
                     Text("Bro")
                         .font(.system(size:40,weight: .heavy, width: .expanded))
@@ -62,7 +65,6 @@ struct ChatView: View {
                             .font(.title2)
                             .padding()
                     }
-                    .glassEffect(.clear.interactive())
 
                 }
                 .glassEffect(.clear.interactive(), in: .capsule)
