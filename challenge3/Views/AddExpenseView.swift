@@ -54,18 +54,19 @@ struct AddExpenseView: View {
                     )
                     modelContext.insert(expense)
                     
+                    category = "beverage"
+                    name = ""
+                    date = Date()
+                    amount = ""
+                    
                     showAlert = true
                 }
                 .buttonStyle(.borderedProminent)
                 .frame(maxWidth: .infinity, alignment: .center)
             }
             .alert("Expense Added!", isPresented: $showAlert) {
-                Button("OK", role: .cancel) {
+                Button("OK") {
                     dismiss()
-                    category = "beverage"
-                    name = ""
-                    date = Date()
-                    amount = ""
                 }
             }
             .navigationTitle("Add Expense")
