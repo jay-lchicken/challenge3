@@ -26,7 +26,7 @@ struct ContentView: View {
             }
 
             Tab("Add", systemImage: "plus", role: .search) {
-                
+                AddExpenseView()
             }
         }
         .font(.custom("Roboto-Regular", size: 16)) // Base app font
