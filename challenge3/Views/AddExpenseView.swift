@@ -16,8 +16,10 @@ struct AddExpenseView: View {
     @State private var name = ""
     @State private var date = Date()
     @State private var amount = ""
-
+    
     let categories = ["beverage", "food", "transport", "entertainment", "bills", "shopping", "others"]
+    
+    @State private var showConfirmation = false
 
     var body: some View {
         NavigationStack {
@@ -51,13 +53,36 @@ struct AddExpenseView: View {
                         category: category
                     )
                     modelContext.insert(expense)
-                    dismiss()
+                    
+                    showConfirmation = true
+                    
+                    category = "beverage"
+                    name = ""
+                    date = Date()
+                    amount = ""
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                        showConfirmation = false
+                        dismiss()
+                    }
                 }
                 .buttonStyle(.borderedProminent)
                 .frame(maxWidth: .infinity, alignment: .center)
             }
             .navigationTitle("Add Expense")
-        }
+        }.overlay(
+            Group {
+                if showConfirmation {
+                    Text("Expense Added!")
+                        .padding()
+                        .background(.green.opacity(0.8))
+                        .cornerRadius(10)
+                        .foregroundColor(.white)
+                        .transition(.scale.combined(with: .opacity))
+                        .zIndex(1)
+                }
+            }
+        )
     }
 
     private func parseAmount(_ text: String) -> Double? {

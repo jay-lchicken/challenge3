@@ -27,7 +27,7 @@ struct ContentView: View {
                 AddExpenseView()
             }
         }
-        .font(.custom("Roboto-Regular", size: 16)) // Base app font
+        .font(.custom("Roboto-Regular", size: 16)) 
         .onChange(of: currentTab) { newValue, oldValue in
             if newValue == 2 {
                 showSheet = true
