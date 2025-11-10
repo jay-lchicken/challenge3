@@ -212,6 +212,7 @@ class FoundationModelViewModel{
                 generatedResponse = partial.content
                 
             }
+            print("Finished generating")
         }catch{
             alertMessage = error.localizedDescription
             showAlert.toggle()
