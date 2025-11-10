@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 struct HomeView: View {
-
+    //SWIFT DATA
     @Environment(\.modelContext) var modelContext
     @Query var expenses:[ExpenseItem]
     @AppStorage("question") var query: String = ""

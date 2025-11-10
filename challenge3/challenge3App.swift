@@ -7,13 +7,29 @@
 
 import SwiftUI
 import SwiftData
+import FoundationModels
+
 @main
 struct challenge3App: App {
+    private let model = SystemLanguageModel.default
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .tint(.yellow)
-                .modelContainer(for: ExpenseItem.self)
+            switch model.availability {
+                case .available:
+                    ContentView()
+                        .tint(.yellow)
+                        .modelContainer(for: ExpenseItem.self)
+                case .unavailable(.appleIntelligenceNotEnabled):
+                    Text("Apple Intelligence is not enabled. Please enable it in Settings.")
+                case .unavailable(.deviceNotEligible):
+                    Text("This device does not support Apple Intelligence.")
+                case .unavailable(.modelNotReady):
+                    Text("Foundation Model is not yet ready. Please try again later.")
+                default:
+                    Text("Foundation Model is unavailable. Check device settings and try again.")
+            }
+            
         }
     }
 }
