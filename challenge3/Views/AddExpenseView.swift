@@ -19,7 +19,7 @@ struct AddExpenseView: View {
     
     let categories = ["beverage", "food", "transport", "entertainment", "bills", "shopping", "others"]
     
-    @State private var showConfirmation = false
+    @State private var showAlert = false
 
     var body: some View {
         NavigationStack {
@@ -54,35 +54,22 @@ struct AddExpenseView: View {
                     )
                     modelContext.insert(expense)
                     
-                    showConfirmation = true
-                    
-                    category = "beverage"
-                    name = ""
-                    date = Date()
-                    amount = ""
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                        showConfirmation = false
-                        dismiss()
-                    }
+                    showAlert = true
                 }
                 .buttonStyle(.borderedProminent)
                 .frame(maxWidth: .infinity, alignment: .center)
             }
-            .navigationTitle("Add Expense")
-        }.overlay(
-            Group {
-                if showConfirmation {
-                    Text("Expense Added!")
-                        .padding()
-                        .background(.green.opacity(0.8))
-                        .cornerRadius(10)
-                        .foregroundColor(.white)
-                        .transition(.scale.combined(with: .opacity))
-                        .zIndex(1)
+            .alert("Expense Added!", isPresented: $showAlert) {
+                Button("OK", role: .cancel) {
+                    dismiss()
+                    category = "beverage"
+                    name = ""
+                    date = Date()
+                    amount = ""
                 }
             }
-        )
+            .navigationTitle("Add Expense")
+        }
     }
 
     private func parseAmount(_ text: String) -> Double? {
