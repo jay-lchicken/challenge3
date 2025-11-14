@@ -8,20 +8,23 @@
 import Foundation
 import SwiftUI
 import SwiftData
+
 struct ExpenseDetailView: View {
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) var dismiss
 
     var expense: ExpenseItem
-   
+
     @State private var name: String
     @State private var category: String
     @State private var date: Date
     @State private var amount: String
-    
+
+    @State private var isEditing = false
+
     // alerts
-    @State private var showDelete: Bool = false
-    @State private var showEdit: Bool = false
+    @State private var showDelete = false
+    @State private var showEditConfirm = false
 
     let categories = ["beverage", "food", "transport", "entertainment", "bills", "shopping", "others"]
 
@@ -36,71 +39,82 @@ struct ExpenseDetailView: View {
     var body: some View {
         Form {
             Picker("Category", selection: $category) {
-                ForEach(categories, id: \.self) {
-                    Text($0)
+                ForEach(categories, id: \.self) { cat in
+                    Text(cat.capitalized)
                 }
             }
+            .disabled(!isEditing)
 
             TextField("Expense name", text: $name)
-            
+                .disabled(!isEditing)
+
             DatePicker("Date", selection: $date, displayedComponents: .date)
+                .disabled(!isEditing)
 
             HStack {
                 Text("$")
                 TextField("Amount", text: $amount)
                     .keyboardType(.decimalPad)
+                    .disabled(!isEditing)
             }
 
-            Button(action: {
-                showEdit = true
-            }) {
-                Image(systemName: "pencil")
-                    .font(.title3)
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(Color.blue)
-                    .clipShape(Circle())
-                    .shadow(radius: 3)
-            }
-
-            
-            Button(action: {
+            Button(role: .destructive) {
                 showDelete = true
-            }) {
+            } label: {
                 HStack {
                     Image(systemName: "trash")
-                        .font(.body)
                     Text("Delete")
                 }
-                .padding()
-                .glassEffect(.regular.tint(.red).interactive(), in: Capsule())
-               
+                .frame(maxWidth: .infinity)
             }
-
         }
         .navigationTitle("Expense Detail")
-        .alert("Confirm Edits?", isPresented: $showEdit) {
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(isEditing ? "Done" : "Edit") {
+                    if isEditing {
+                        showEditConfirm = true
+                    } else {
+                        isEditing = true
+                    }
+                }
+            }
+        }
+        .alert("Confirm Edits?", isPresented: $showEditConfirm) {
             Button("Yes") {
-                guard let amt = Double(amount) else { return }
-                
-                expense.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
-                expense.category = category
-                expense.date = date.timeIntervalSince1970
-                expense.amount = amt
-                
-                dismiss()
+                applyEdits()
             }
             Button("No", role: .cancel) {
+                revertChanges()
+                isEditing = false
             }
         }
         .alert("Are you sure?", isPresented: $showDelete) {
             Button("Yes", role: .destructive) {
-                guard let amt = Double(amount) else { return }
-                
                 modelContext.delete(expense)
                 dismiss()
             }
-            Button("No", role: .cancel) {}
         }
     }
+    
+    // functiosn
+    
+    private func applyEdits() {
+        guard let amt = Double(amount) else { return }
+
+        expense.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        expense.category = category
+        expense.date = date.timeIntervalSince1970
+        expense.amount = amt
+
+        isEditing = false
+    }
+
+    private func revertChanges() {
+        name = expense.name
+        category = expense.category
+        date = Date(timeIntervalSince1970: expense.date)
+        amount = String(expense.amount)
+    }
 }
+
