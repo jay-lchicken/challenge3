@@ -6,14 +6,65 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		ACA64FB82EC71F0C00AB53F3 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ACA64FB72EC71F0C00AB53F3 /* WidgetKit.framework */; };
+		ACA64FBA2EC71F0C00AB53F3 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ACA64FB92EC71F0C00AB53F3 /* SwiftUI.framework */; };
+		ACA64FCB2EC71F0D00AB53F3 /* LockscreenWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = ACA64FB52EC71F0C00AB53F3 /* LockscreenWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		ACA64FC92EC71F0D00AB53F3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 06E7EDD72EBB3DD400BD5A49 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = ACA64FB42EC71F0C00AB53F3;
+			remoteInfo = LockscreenWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		ACA64FCC2EC71F0D00AB53F3 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				ACA64FCB2EC71F0D00AB53F3 /* LockscreenWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		06E7EDDF2EBB3DD400BD5A49 /* challenge3.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = challenge3.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		ACA64FB52EC71F0C00AB53F3 /* LockscreenWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LockscreenWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		ACA64FB72EC71F0C00AB53F3 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		ACA64FB92EC71F0C00AB53F3 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		ACA64FCF2EC71F0D00AB53F3 /* Exceptions for "LockscreenWidget" folder in "LockscreenWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = ACA64FB42EC71F0C00AB53F3 /* LockscreenWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		06E7EDE12EBB3DD400BD5A49 /* challenge3 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = challenge3;
+			sourceTree = "<group>";
+		};
+		ACA64FBB2EC71F0C00AB53F3 /* LockscreenWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				ACA64FCF2EC71F0D00AB53F3 /* Exceptions for "LockscreenWidget" folder in "LockscreenWidgetExtension" target */,
+			);
+			path = LockscreenWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -26,6 +77,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		ACA64FB22EC71F0C00AB53F3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ACA64FBA2EC71F0C00AB53F3 /* SwiftUI.framework in Frameworks */,
+				ACA64FB82EC71F0C00AB53F3 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -33,6 +93,8 @@
 			isa = PBXGroup;
 			children = (
 				06E7EDE12EBB3DD400BD5A49 /* challenge3 */,
+				ACA64FBB2EC71F0C00AB53F3 /* LockscreenWidget */,
+				ACA64FB62EC71F0C00AB53F3 /* Frameworks */,
 				06E7EDE02EBB3DD400BD5A49 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,8 +103,18 @@
 			isa = PBXGroup;
 			children = (
 				06E7EDDF2EBB3DD400BD5A49 /* challenge3.app */,
+				ACA64FB52EC71F0C00AB53F3 /* LockscreenWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		ACA64FB62EC71F0C00AB53F3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				ACA64FB72EC71F0C00AB53F3 /* WidgetKit.framework */,
+				ACA64FB92EC71F0C00AB53F3 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -55,10 +127,12 @@
 				06E7EDDB2EBB3DD400BD5A49 /* Sources */,
 				06E7EDDC2EBB3DD400BD5A49 /* Frameworks */,
 				06E7EDDD2EBB3DD400BD5A49 /* Resources */,
+				ACA64FCC2EC71F0D00AB53F3 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				ACA64FCA2EC71F0D00AB53F3 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				06E7EDE12EBB3DD400BD5A49 /* challenge3 */,
@@ -69,6 +143,28 @@
 			productName = challenge3;
 			productReference = 06E7EDDF2EBB3DD400BD5A49 /* challenge3.app */;
 			productType = "com.apple.product-type.application";
+		};
+		ACA64FB42EC71F0C00AB53F3 /* LockscreenWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = ACA64FD02EC71F0D00AB53F3 /* Build configuration list for PBXNativeTarget "LockscreenWidgetExtension" */;
+			buildPhases = (
+				ACA64FB12EC71F0C00AB53F3 /* Sources */,
+				ACA64FB22EC71F0C00AB53F3 /* Frameworks */,
+				ACA64FB32EC71F0C00AB53F3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				ACA64FBB2EC71F0C00AB53F3 /* LockscreenWidget */,
+			);
+			name = LockscreenWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = LockscreenWidgetExtension;
+			productReference = ACA64FB52EC71F0C00AB53F3 /* LockscreenWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -82,6 +178,9 @@
 				TargetAttributes = {
 					06E7EDDE2EBB3DD400BD5A49 = {
 						CreatedOnToolsVersion = 26.1;
+					};
+					ACA64FB42EC71F0C00AB53F3 = {
+						CreatedOnToolsVersion = 26.1.1;
 					};
 				};
 			};
@@ -100,12 +199,20 @@
 			projectRoot = "";
 			targets = (
 				06E7EDDE2EBB3DD400BD5A49 /* challenge3 */,
+				ACA64FB42EC71F0C00AB53F3 /* LockscreenWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		06E7EDDD2EBB3DD400BD5A49 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ACA64FB32EC71F0C00AB53F3 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +229,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		ACA64FB12EC71F0C00AB53F3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		ACA64FCA2EC71F0D00AB53F3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = ACA64FB42EC71F0C00AB53F3 /* LockscreenWidgetExtension */;
+			targetProxy = ACA64FC92EC71F0D00AB53F3 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		06E7EDE82EBB3DD500BD5A49 /* Debug */ = {
@@ -253,7 +375,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = WM9DF32U97;
+				DEVELOPMENT_TEAM = DW56FJMFQ5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Money Mapr";
@@ -267,7 +389,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = bytegenius.challenge3;
+				PRODUCT_BUNDLE_IDENTIFIER = bytegenius.challenge;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -290,7 +412,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = U4G2VPB6FH;
+				DEVELOPMENT_TEAM = DW56FJMFQ5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Money Mapr";
@@ -304,7 +426,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = bytegenius.challenge3;
+				PRODUCT_BUNDLE_IDENTIFIER = bytegenius.challenge;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -317,6 +439,66 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		ACA64FCD2EC71F0D00AB53F3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = DW56FJMFQ5;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LockscreenWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = LockscreenWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = bytegenius.challenge.LockscreenWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		ACA64FCE2EC71F0D00AB53F3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = DW56FJMFQ5;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LockscreenWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = LockscreenWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = bytegenius.challenge.LockscreenWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -337,6 +519,15 @@
 			buildConfigurations = (
 				06E7EDEB2EBB3DD500BD5A49 /* Debug */,
 				06E7EDEC2EBB3DD500BD5A49 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		ACA64FD02EC71F0D00AB53F3 /* Build configuration list for PBXNativeTarget "LockscreenWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ACA64FCD2EC71F0D00AB53F3 /* Debug */,
+				ACA64FCE2EC71F0D00AB53F3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
