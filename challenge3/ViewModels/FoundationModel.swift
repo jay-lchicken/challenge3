@@ -49,8 +49,8 @@ struct GetExpenseTool: Tool {
     
     @Generable
     struct Arguments {
-        @Guide(description: "Time to fetch the expenses from")
-        var date: TimeInterval
+        @Guide(description: "Number of days to look back")
+        var daysToLookBack: Int
         
     }
     
@@ -59,18 +59,37 @@ struct GetExpenseTool: Tool {
             guard let modelContext = modelContext else {
                 return []
             }
-            let expenseDescriptor = FetchDescriptor<ExpenseItem>()
+            
+            let calendar = Calendar.current
+            let startOfToday = calendar.startOfDay(for: Date())
+            let days = max(arguments.daysToLookBack, 1)
+            let lowerDate = calendar.date(byAdding: .day, value: -(days - 1), to: startOfToday) ?? startOfToday
+            let upperDate = calendar.date(byAdding: .day, value: 1, to: startOfToday) ?? startOfToday.addingTimeInterval(86_400)
+            
+            let lowerBound = lowerDate.timeIntervalSince1970
+            let upperBound = upperDate.timeIntervalSince1970
+            
+            let predicate = #Predicate<ExpenseItem> { item in
+                item.date >= lowerBound && item.date < upperBound
+            }
+            
+            let expenseDescriptor = FetchDescriptor<ExpenseItem>(
+                predicate: predicate,
+                sortBy: [SortDescriptor(\ExpenseItem.date, order: .reverse)]
+            )
+            
             do {
                 let expenses = try modelContext.fetch(expenseDescriptor)
                 let formattedExpenses = expenses.map { expense in
                     "Name: \(expense.name), Amount: \(expense.amount), Category: \(expense.category), Date: \(Date(timeIntervalSince1970: expense.date).formatted())"
                 }
+                print(formattedExpenses)
                 return formattedExpenses
+                
             } catch(let error) {
                 print(error)
             }
             return []
-            
         }
     }
 }

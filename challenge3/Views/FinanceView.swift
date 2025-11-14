@@ -1,3 +1,10 @@
+//
+//  FinanceView.swift
+//  challenge3
+//
+//  Created by Aletheus Ang on 7/11/25.
+//
+
 import SwiftUI
 import SwiftData
 import Charts

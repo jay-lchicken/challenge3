@@ -20,6 +20,10 @@ extension Font {
             )
         }
 }
+struct GetExpenseToolArgument: Decodable {
+    let daysToLookBack: Int
+}
+
 struct ChatView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) var modelContext
@@ -36,6 +40,14 @@ struct ChatView: View {
         }
         return strings.reduce("", +)
         
+    }
+    func daysToLookBack(_ x: String) -> Int {
+        guard let jsonData = x.data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
+              let days = json["daysToLookBack"] as? Int else {
+            return 0 // Default value
+        }
+        return days
     }
 
     var body: some View {
@@ -77,8 +89,9 @@ struct ChatView: View {
                                     Spacer()
                                 }
                             case .toolOutput(let response):
-                                HStack{
                                     if response.toolName == "addExpense"{
+                                        HStack{
+
                                         if (response.segments[0].description == "false"){
                                             Text("Failed to add expense")
                                                 .padding()
@@ -106,12 +119,25 @@ struct ChatView: View {
                                             }
                                            
                                         }
-                                    }
-                                    Spacer()
+                                            Spacer()
 
+                                            
+                                        }
+                                    }
+
+                                   
+                                
+                            case .toolCalls(let response):
+                                if response[0].toolName == "getExpense"{
+                                    HStack{
+                                        Text("Expense: \(response[0].arguments)")
+
+                                        
                                     
+                                    }
+                                 
                                 }
-                             
+                                
                             default:
                                 EmptyView()
                             }
