@@ -196,7 +196,7 @@ class FoundationModelViewModel{
     Before using it, make sure you have:
         •    Name: what the expense is for
         •    Amount: numeric value
-        •    Category: "beverage", "food", "transport", "entertainment", "taxes", "shopping", "others" (PLEASE CHOOSE FROM THESE CATEGORIES ONLY)
+        •    Category: "beverage", "Food", "Transport", "Social Life", "Payments", "Shopping", "Others" (PLEASE CHOOSE FROM THESE CATEGORIES ONLY)
 
     If any details are missing:
         •    Infer them logically from context (e.g., “$4 coffee” → name: coffee, category: beverage, e.g. "I spent $300 at IKEA" → name: IKEA, category: shopping).

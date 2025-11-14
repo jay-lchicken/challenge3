@@ -23,7 +23,7 @@ struct ExpenseDetailView: View {
     @State private var showDelete: Bool = false
     @State private var showEdit: Bool = false
 
-    let categories = ["beverage", "food", "transport", "entertainment", "bills", "shopping", "others"]
+    let categories = ["Social Life", "Food", "Transport", "Payments", "Shopping", "Others"]
 
     init(expense: ExpenseItem) {
         self.expense = expense

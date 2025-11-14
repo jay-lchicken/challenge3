@@ -17,8 +17,7 @@ struct AddExpenseView: View {
     @State private var date = Date()
     @State private var amount = ""
     
-    let categories = ["beverage", "food", "transport", "entertainment", "bills", "shopping", "others"]
-    
+    let categories = ["Food", "Transport","Social Life", "Payments", "Shopping", "Others"]
     @State private var showAlert = false
 
     var body: some View {
