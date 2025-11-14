@@ -63,15 +63,18 @@ struct ExpenseDetailView: View {
     @Environment(\.dismiss) var dismiss
 
     var expense: ExpenseItem
-   
+
+    /// Local editable copies
     @State private var name: String
     @State private var category: String
     @State private var date: Date
     @State private var amount: String
-    
+
+    @State private var isEditing = false
+
     // alerts
-    @State private var showDelete: Bool = false
-    @State private var showEdit: Bool = false
+    @State private var showDelete = false
+    @State private var showEditConfirm = false
 
     let categories = ["beverage", "food", "transport", "entertainment", "bills", "shopping", "others"]
 
@@ -90,72 +93,79 @@ struct ExpenseDetailView: View {
                     Text(cat.capitalized)
                 }
             }
+            .disabled(!isEditing)
 
             TextField("Expense name", text: $name)
-            
+                .disabled(!isEditing)
+
             DatePicker("Date", selection: $date, displayedComponents: .date)
+                .disabled(!isEditing)
 
             HStack {
                 Text("$")
                 TextField("Amount", text: $amount)
                     .keyboardType(.decimalPad)
+                    .disabled(!isEditing)
             }
-            
-            HStack (spacing: 20) {
-                Button(action: {
-                    showEdit = true
-                }) {
-                    Image(systemName: "pencil")
-                        .font(.title3)
-                        .foregroundColor(.white)
-                        .padding()
-                        .background(Color.blue)
-                        .clipShape(Circle())
-                        .shadow(radius: 3)
-                    Text("Add Edits")
+
+            Button(role: .destructive) {
+                showDelete = true
+            } label: {
+                HStack {
+                    Image(systemName: "trash")
+                    Text("Delete")
                 }
-                
-                
-                Button(action: {
-                    showDelete = true
-                }) {
-                    HStack {
-                        Image(systemName: "trash")
-                            .font(.body)
-                        Text("Delete")
-                    }
-                    .foregroundColor(.white)
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 14)
-                    .background(Color.red)
-                    .cornerRadius(10)
-                }
+                .frame(maxWidth: .infinity)
             }
         }
         .navigationTitle("Expense Detail")
-        .alert("Confirm Edits?", isPresented: $showEdit) {
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(isEditing ? "Done" : "Edit") {
+                    if isEditing {
+                        showEditConfirm = true
+                    } else {
+                        isEditing = true
+                    }
+                }
+            }
+        }
+        .alert("Confirm Edits?", isPresented: $showEditConfirm) {
             Button("Yes") {
-                guard let amt = Double(amount) else { return }
-                
-                expense.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
-                expense.category = category
-                expense.date = date.timeIntervalSince1970
-                expense.amount = amt
-                
-                dismiss()
+                applyEdits()
             }
             Button("No", role: .cancel) {
+                revertChanges()
+                isEditing = false
             }
         }
         .alert("Are you sure?", isPresented: $showDelete) {
             Button("Yes", role: .destructive) {
-                guard let amt = Double(amount) else { return }
-                
                 modelContext.delete(expense)
                 dismiss()
             }
             Button("No", role: .cancel) {}
         }
+    }
+
+    // MARK: - Helpers
+
+    private func applyEdits() {
+        guard let amt = Double(amount) else { return }
+
+        expense.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        expense.category = category
+        expense.date = date.timeIntervalSince1970
+        expense.amount = amt
+
+        isEditing = false
+    }
+
+    private func revertChanges() {
+        name = expense.name
+        category = expense.category
+        date = Date(timeIntervalSince1970: expense.date)
+        amount = String(expense.amount)
     }
 }
 
