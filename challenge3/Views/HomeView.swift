@@ -18,27 +18,23 @@ struct HomeView: View {
             VStack{
                 List {
                     Section(header: Text("Today's Spending")) {
-                        List {
-                            Section(header: Text("Today's Spending")) {
 
-                                HStack {
-                                    Text("Spent: $10")
-                                    Spacer()
-                                    Text("Saved: $500")
-                                }
+                        HStack {
+                            Text("Spent: $10")
+                            Spacer()
+                            Text("Saved: $500")
+                        }
 
-                                ForEach(expenses, id: \.self) { item in
-                                    NavigationLink {
-                                        ExpenseDetailView(expense: item)
-                                    } label: {
-                                        ExpenseItemView(
-                                            title: item.name,
-                                            date: Date(timeIntervalSince1970: item.date),
-                                            amount: item.amount,
-                                            category: item.category
-                                        )
-                                    }
-                                }
+                        ForEach(expenses, id: \.self) { item in
+                            NavigationLink {
+                                ExpenseDetailView(expense: item)
+                            } label: {
+                                ExpenseItemView(
+                                    title: item.name,
+                                    date: Date(timeIntervalSince1970: item.date),
+                                    amount: item.amount,
+                                    category: item.category
+                                )
                             }
                         }
                     }
@@ -168,6 +164,7 @@ struct ExpenseDetailView: View {
         amount = String(expense.amount)
     }
 }
+
 
 
 #Preview {

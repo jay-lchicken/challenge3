@@ -113,7 +113,16 @@ struct AddExpenseTool: Tool {
         @Guide(description: "The amount of the expense")
         var amount: Double
         @Guide(description: "The category of the expense")
-        var category: String
+        var category: categoryOptions.RawValue
+        enum categoryOptions: String, CaseIterable {
+            case beverage
+            case food
+            case transport
+            case entertainment
+            case bills
+            case shopping
+            case others
+        }
     }
     func queryExpenses() -> [ExpenseItem] {
         guard let modelContext = modelContext else {
