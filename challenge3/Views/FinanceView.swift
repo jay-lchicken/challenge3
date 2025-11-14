@@ -6,20 +6,44 @@
 //
 
 import SwiftUI
+import SwiftData
+import Charts
 
 struct FinanceView: View {
+    @Environment(\.modelContext) var modelContext
+    @Query(sort: \ExpenseItem.date, order: .reverse) var expenses: [ExpenseItem]
+
     @State private var selectedTab = "Overview"
     @State private var selectedExpenseTab = "Today’s expenses"
     @State private var budget: Double = 1500
-    @State private var food: Double = 300
-    @State private var utilities: Double = 25
-    @State private var transport: Double = 12
 
-    private var totalExpenses: Double {
-        food + utilities + transport
+    
+    private var filteredExpenses: [ExpenseItem] {
+        let calendar = Calendar.current
+        switch selectedExpenseTab {
+        case "Today’s expenses":
+            return expenses.filter { calendar.isDateInToday(Date(timeIntervalSince1970: $0.date)) }
+        case "Monthly Expenses":
+            return expenses.filter { calendar.isDate(Date(timeIntervalSince1970: $0.date), equalTo: Date(), toGranularity: .month) }
+        default:
+            return expenses
+        }
     }
-    private var saved: Double {
-        max(budget - totalExpenses, 0)
+
+    private var categoryTotals: [(category: String, total: Double)] {
+        let grouped = Dictionary(grouping: filteredExpenses, by: { $0.category })
+        return grouped.map { (key, value) in
+            (category: key, total: value.reduce(0) { $0 + $1.amount })
+        }
+        .sorted { $0.total > $1.total }
+    }
+
+    private var totalSpent: Double {
+        filteredExpenses.reduce(0) { $0 + $1.amount }
+    }
+
+    private var remainingBudget: Double {
+        max(budget - totalSpent, 0)
     }
 
     var body: some View {
@@ -54,30 +78,42 @@ struct FinanceView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                         }
 
+                      
+                        if !categoryTotals.isEmpty {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("Expense Categories").font(.caption)
+                                Chart(categoryTotals, id: \.category) { item in
+                                    SectorMark(
+                                        angle: .value("Total", item.total),
+                                        innerRadius: .ratio(0.5),
+                                        angularInset: 1
+                                    )
+                                    .foregroundStyle(by: .value("Category", item.category))
+                                }
+                                .frame(height: 250)
+                                .padding(.horizontal)
+                            }
+                        }
+
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Expense Breakdown").font(.caption)
 
                             GeometryReader { geometry in
                                 let totalWidth = geometry.size.width
-                                let total = max(budget, 1)
-                                let foodWidth = totalWidth * (food / total)
-                                let utilWidth = totalWidth * (utilities / total)
-                                let transportWidth = totalWidth * (transport / total)
-                                let savedWidth = totalWidth * (saved / total)
+                                let spentWidth = totalWidth * (min(totalSpent / budget, 1))
+                                let remainingWidth = totalWidth - spentWidth
 
                                 ZStack(alignment: .leading) {
                                     Capsule().fill(Color.gray.opacity(0.2)).frame(height: 20)
                                     HStack(spacing: 0) {
-                                        Capsule().fill(Color.green).frame(width: foodWidth, height: 20)
-                                        Capsule().fill(Color.yellow).frame(width: utilWidth, height: 20)
-                                        Capsule().fill(Color.red).frame(width: transportWidth, height: 20)
-                                        Capsule().fill(Color.gray).frame(width: savedWidth, height: 20)
+                                        Capsule().fill(Color.red).frame(width: spentWidth, height: 20)
+                                        Capsule().fill(Color.green).frame(width: remainingWidth, height: 20)
                                     }
                                 }
                             }
                             .frame(height: 20)
 
-                            Text("Budget: $\(Int(budget)) | Spent: $\(Int(totalExpenses)) | Saved: $\(Int(saved))")
+                            Text("Budget: $\(Int(budget)) | Spent: $\(Int(totalSpent)) | Saved: $\(Int(remainingBudget))")
                                 .font(.caption)
                                 .foregroundColor(.gray)
                         }
@@ -85,26 +121,27 @@ struct FinanceView: View {
                         HStack(spacing: 30) {
                             VStack(alignment: .leading, spacing: 10) {
                                 HStack {
-                                    Text("Food: $\(Int(food))")
+                                    Text("Food: $\(Int(filteredExpenses.filter { $0.category == "food" }.reduce(0) { $0 + $1.amount }))")
                                     Circle().fill(Color.green).frame(width: 15)
                                 }
                                 HStack {
-                                    Text("Utilities: $\(Int(utilities))")
+                                    Text("Utilities: $\(Int(filteredExpenses.filter { $0.category == "bills" }.reduce(0) { $0 + $1.amount }))")
                                     Circle().fill(Color.yellow).frame(width: 15)
                                 }
                             }
                             VStack(alignment: .leading, spacing: 10) {
                                 HStack {
-                                    Text("Transport: $\(Int(transport))")
+                                    Text("Transport: $\(Int(filteredExpenses.filter { $0.category == "transport" }.reduce(0) { $0 + $1.amount }))")
                                     Circle().fill(Color.red).frame(width: 15)
                                 }
                                 HStack {
-                                    Text("Saved: $\(Int(saved))")
+                                    Text("Saved: $\(Int(remainingBudget))")
                                     Circle().fill(Color.gray).frame(width: 15)
                                 }
                             }
                         }
 
+                       
                         VStack(alignment: .leading, spacing: 10) {
                             HStack {
                                 Text("Goals:")
@@ -148,4 +185,5 @@ struct FinanceView: View {
 
 #Preview {
     FinanceView()
+        .modelContainer(for: ExpenseItem.self)
 }

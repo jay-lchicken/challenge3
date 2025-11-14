@@ -50,8 +50,8 @@ struct ExpenseDetailView: View {
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) var dismiss
 
-    @ObservedObject var expense: ExpenseItem
-
+    var expense: ExpenseItem
+   
     @State private var name: String
     @State private var category: String
     @State private var date: Date
@@ -111,3 +111,4 @@ struct ExpenseDetailView: View {
 #Preview {
     HomeView()
 }
+
