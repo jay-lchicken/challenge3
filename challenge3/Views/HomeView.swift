@@ -140,7 +140,6 @@ struct ExpenseDetailView: View {
                 modelContext.delete(expense)
                 dismiss()
             }
-            Button("No", role: .cancel) {}
         }
     }
 
