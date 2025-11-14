@@ -114,6 +114,7 @@ struct AddExpenseTool: Tool {
         var amount: Double
         @Guide(description: "The category of the expense")
         var category: String
+        
     }
     func queryExpenses() -> [ExpenseItem] {
         guard let modelContext = modelContext else {
@@ -195,16 +196,10 @@ class FoundationModelViewModel{
     Before using it, make sure you have:
         •    Name: what the expense is for
         •    Amount: numeric value
-        •    Must be any of these categories only or when you infer use these only.
-    -Food 
-    -Social Life
-    -Transport
-    -Shopping
-    -Bills
-    -Payments
-    
+        •    Category: "beverage", "food", "transport", "entertainment", "taxes", "shopping", "others" (PLEASE CHOOSE FROM THESE CATEGORIES ONLY)
+
     If any details are missing:
-        •    Infer them logically from context (e.g., “$4 coffee” → name: coffee, category: food & drink, e.g. "I spent $300 at IKEA" → name: IKEA, category: furnitures).
+        •    Infer them logically from context (e.g., “$4 coffee” → name: coffee, category: beverage, e.g. "I spent $300 at IKEA" → name: IKEA, category: shopping).
         •    If it’s too vague, ask a short follow-up question for clarification.
 
     After adding an expense:
