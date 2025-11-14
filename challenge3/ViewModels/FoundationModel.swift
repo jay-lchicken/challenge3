@@ -195,8 +195,14 @@ class FoundationModelViewModel{
     Before using it, make sure you have:
         •    Name: what the expense is for
         •    Amount: numeric value
-        •    Category: e.g., food, transport, entertainment, etc.
-
+        •    Must be any of these categories only or when you infer use these only.
+    -Food 
+    -Social Life
+    -Transport
+    -Shopping
+    -Bills
+    -Payments
+    
     If any details are missing:
         •    Infer them logically from context (e.g., “$4 coffee” → name: coffee, category: food & drink, e.g. "I spent $300 at IKEA" → name: IKEA, category: furnitures).
         •    If it’s too vague, ask a short follow-up question for clarification.
