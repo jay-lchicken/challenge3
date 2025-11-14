@@ -8,99 +8,94 @@
 import Foundation
 import SwiftUI
 import SwiftData
+
 struct ExpenseDetailView: View {
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) var dismiss
 
-    var expense: ExpenseItem
-   
-    @State private var name: String
-    @State private var category: String
-    @State private var date: Date
-    @State private var amount: String
-    
+    @State private var isEditing = false
+
     // alerts
-    @State private var showDelete: Bool = false
-    @State private var showEdit: Bool = false
+    @State private var showDelete = false
+    @Bindable var expense: ExpenseItem
 
     let categories = ["Social Life", "Food", "Transport", "Payments", "Shopping", "Others"]
 
-    init(expense: ExpenseItem) {
-        self.expense = expense
-        _name = State(initialValue: expense.name)
-        _category = State(initialValue: expense.category)
-        _date = State(initialValue: Date(timeIntervalSince1970: expense.date))
-        _amount = State(initialValue: String(expense.amount))
+    private var dateBinding: Binding<Date> {
+        Binding<Date>(
+            get: { Date(timeIntervalSince1970: expense.date) },
+            set: { expense.date = $0.timeIntervalSince1970 }
+        )
+    }
+    private var amountStringBinding: Binding<String> {
+        Binding<String>(
+            get: {
+                if expense.amount.truncatingRemainder(dividingBy: 1) == 0 {
+                    return String(Int(expense.amount))
+                } else {
+                    return String(expense.amount)
+                }
+            },
+            set: { newValue in
+                let cleaned = newValue.replacingOccurrences(of: "[^0-9.]", with: "", options: .regularExpression)
+                if let val = Double(cleaned) {
+                    expense.amount = val
+                }
+            }
+        )
     }
 
     var body: some View {
         Form {
-            Picker("Category", selection: $category) {
+            Picker("Category", selection: $expense.category) {
                 ForEach(categories, id: \.self) {
                     Text($0)
                 }
             }
+            .disabled(!isEditing)
 
-            TextField("Expense name", text: $name)
-            
-            DatePicker("Date", selection: $date, displayedComponents: .date)
+            TextField("Expense name", text: $expense.name)
+                .disabled(!isEditing)
+
+            DatePicker("Date", selection: dateBinding, displayedComponents: .date)
+                .disabled(!isEditing)
 
             HStack {
                 Text("$")
-                TextField("Amount", text: $amount)
+                TextField("Amount", text: amountStringBinding)
                     .keyboardType(.decimalPad)
+                    .disabled(!isEditing)
             }
 
-            Button(action: {
-                showEdit = true
-            }) {
-                Image(systemName: "pencil")
-                    .font(.title3)
-                    .foregroundColor(.white)
+            if isEditing{
+                Button(action: {
+                    showDelete = true
+                }, label: {
+                    HStack {
+                        Image(systemName: "trash")
+                        Text("Delete")
+                    }
+                    .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.blue)
-                    .clipShape(Circle())
-                    .shadow(radius: 3)
+                    .glassEffect(.regular.tint(.red).interactive(), in: Capsule())
+                })
+                .disabled(!isEditing)
             }
-
-            
-            Button(action: {
-                showDelete = true
-            }) {
-                HStack {
-                    Image(systemName: "trash")
-                        .font(.body)
-                    Text("Delete")
-                }
-                .padding()
-                .glassEffect(.regular.tint(.red).interactive(), in: Capsule())
-               
-            }
-
         }
         .navigationTitle("Expense Detail")
-        .alert("Confirm Edits?", isPresented: $showEdit) {
-            Button("Yes") {
-                guard let amt = Double(amount) else { return }
-                
-                expense.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
-                expense.category = category
-                expense.date = date.timeIntervalSince1970
-                expense.amount = amt
-                
-                dismiss()
-            }
-            Button("No", role: .cancel) {
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(isEditing ? "Done" : "Edit") {
+                    isEditing.toggle()
+                }
             }
         }
         .alert("Are you sure?", isPresented: $showDelete) {
             Button("Yes", role: .destructive) {
-                guard let amt = Double(amount) else { return }
-                
                 modelContext.delete(expense)
                 dismiss()
             }
-            Button("No", role: .cancel) {}
+            Button("Cancel", role: .cancel) {}
         }
     }
 }

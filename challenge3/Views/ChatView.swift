@@ -21,6 +21,9 @@ extension Font {
         }
 }
 struct ChatView: View {
+    @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) var modelContext
+    @Environment(\.undoManager) var undoManager
     @FocusState private var isTextFieldFocused: Bool
     @State var viewModel = FoundationModelViewModel()
     func segmentsToString(segments: [Transcript.Segment]) -> String{
@@ -88,6 +91,20 @@ struct ChatView: View {
                                                 .background(.green.opacity(0.3))
                                                 .cornerRadius(12)
                                                 .padding(.horizontal)
+                                            if (undoManager?.canUndo == true){
+                                                Button{
+                                                    undoManager?.undo()
+
+
+                                                    
+                                                }label:{
+                                                    Text("Revert")
+                                                        .padding()
+                                                        .glassEffect(.clear.interactive())
+                                                }
+                                                
+                                            }
+                                           
                                         }
                                     }
                                     Spacer()
