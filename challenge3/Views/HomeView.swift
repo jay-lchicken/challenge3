@@ -100,35 +100,37 @@ struct ExpenseDetailView: View {
                 TextField("Amount", text: $amount)
                     .keyboardType(.decimalPad)
             }
-
-            Button(action: {
-                showEdit = true
-            }) {
-                Image(systemName: "pencil")
-                    .font(.title3)
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(Color.blue)
-                    .clipShape(Circle())
-                    .shadow(radius: 3)
-            }
-
             
-            Button(action: {
-                showDelete = true
-            }) {
-                HStack {
-                    Image(systemName: "trash")
-                        .font(.body)
-                    Text("Delete")
+            HStack (spacing: 20) {
+                Button(action: {
+                    showEdit = true
+                }) {
+                    Image(systemName: "pencil")
+                        .font(.title3)
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(Color.blue)
+                        .clipShape(Circle())
+                        .shadow(radius: 3)
+                    Text("Add Edits")
                 }
-                .foregroundColor(.white)
-                .padding(.vertical, 8)
-                .padding(.horizontal, 14)
-                .background(Color.red)
-                .cornerRadius(10)
+                
+                
+                Button(action: {
+                    showDelete = true
+                }) {
+                    HStack {
+                        Image(systemName: "trash")
+                            .font(.body)
+                        Text("Delete")
+                    }
+                    .foregroundColor(.white)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 14)
+                    .background(Color.red)
+                    .cornerRadius(10)
+                }
             }
-
         }
         .navigationTitle("Expense Detail")
         .alert("Confirm Edits?", isPresented: $showEdit) {
