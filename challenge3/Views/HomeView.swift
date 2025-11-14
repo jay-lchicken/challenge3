@@ -45,6 +45,15 @@ struct HomeView: View {
                 }
             }
             .navigationTitle("Home")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink(destination: ProfileView()) {
+                        Image(systemName: "person.circle")
+                            .imageScale(.large)
+                            .accessibilityLabel("Profile")
+                    }
+                }
+            }
         }
     }
 }
@@ -143,7 +152,7 @@ struct ExpenseDetailView: View {
                 modelContext.delete(expense)
                 dismiss()
             }
-            Button("No", roll: .cancel) {}
+            Button("No", role: .cancel) {}
         }
     }
 }
