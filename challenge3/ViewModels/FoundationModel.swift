@@ -113,16 +113,8 @@ struct AddExpenseTool: Tool {
         @Guide(description: "The amount of the expense")
         var amount: Double
         @Guide(description: "The category of the expense")
-        var category: categoryOptions.RawValue
-        enum categoryOptions: String, CaseIterable {
-            case beverage
-            case food
-            case transport
-            case entertainment
-            case bills
-            case shopping
-            case others
-        }
+        var category: String
+        
     }
     func queryExpenses() -> [ExpenseItem] {
         guard let modelContext = modelContext else {
@@ -204,10 +196,10 @@ class FoundationModelViewModel{
     Before using it, make sure you have:
         •    Name: what the expense is for
         •    Amount: numeric value
-        •    Category: e.g., food, transport, entertainment, etc.
+        •    Category: "beverage", "food", "transport", "entertainment", "taxes", "shopping", "others" (PLEASE CHOOSE FROM THESE CATEGORIES ONLY)
 
     If any details are missing:
-        •    Infer them logically from context (e.g., “$4 coffee” → name: coffee, category: food & drink, e.g. "I spent $300 at IKEA" → name: IKEA, category: furnitures).
+        •    Infer them logically from context (e.g., “$4 coffee” → name: coffee, category: beverage, e.g. "I spent $300 at IKEA" → name: IKEA, category: shopping).
         •    If it’s too vague, ask a short follow-up question for clarification.
 
     After adding an expense:
