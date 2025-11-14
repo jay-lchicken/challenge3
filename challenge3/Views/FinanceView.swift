@@ -14,7 +14,6 @@ struct FinanceView: View {
     @Query(sort: \ExpenseItem.date, order: .reverse) var expenses: [ExpenseItem]
     
     @State private var selectedTab = "Overview"
-    @State private var selectedExpenseTab = "Budget"
     @State private var budget: Double = 1500
     @State private var selectedTimeRange = "Daily"
     let timeRanges = ["Daily", "Monthly", "Yearly"]
@@ -62,6 +61,7 @@ struct FinanceView: View {
                 
                 Picker("", selection: $selectedTab) {
                     Text("Overview").tag("Overview")
+                    Text("Budget").tag("Budget")
                     Text("Expenses").tag("Expenses")
                 }
                 .pickerStyle(.segmented)
@@ -69,24 +69,15 @@ struct FinanceView: View {
                 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
-                        HStack {
-                            Picker("", selection: $selectedExpenseTab) {
-                                Text("Categories").tag("Categories")
-                                Text("Budget").tag("Budget")
+                        Picker("", selection: $selectedTimeRange) {
+                            ForEach(timeRanges, id: \.self) { range in
+                                Text(range)
                             }
-                            .pickerStyle(.segmented)
-                            .frame(maxWidth: .infinity)
-                            
-                            Picker("", selection: $selectedTimeRange) {
-                                ForEach(timeRanges, id: \.self) { range in
-                                    Text(range)
-                                }
-                            }
-                            .pickerStyle(.menu)
-                            .padding(.horizontal)
                         }
+                        .pickerStyle(.menu)
+                        .padding(.horizontal)
                         
-                        if selectedExpenseTab == "Budget" {
+                        if selectedTab == "Budget" {
                             VStack(alignment: .leading, spacing: 20) {
                                 Text("Category Budgets")
                                     .font(.caption)
@@ -208,9 +199,9 @@ struct FinanceView: View {
                 }
             }
             .ignoresSafeArea(edges: .bottom)
+            .navigationBarHidden(true)
+            .navigationBarBackButtonHidden(true)
         }
-        .navigationBarHidden(true)
-        .navigationBarBackButtonHidden(true)
     }
 }
 
