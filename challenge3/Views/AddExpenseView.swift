@@ -17,6 +17,8 @@ struct AddExpenseView: View {
     @State private var date = Date()
     @State private var amount = ""
     
+    @FocusState private var isAmountFocused: Bool
+
     let categories = ["Food", "Transport","Social Life", "Payments", "Shopping", "Others"]
     @State private var showAlert = false
 
@@ -37,9 +39,20 @@ struct AddExpenseView: View {
                     Text("$")
                     TextField("Amount", text: $amount)
                         .keyboardType(.decimalPad)
+                        .focused($isAmountFocused)
+                        .toolbar {
+                            ToolbarItemGroup(placement: .keyboard) {
+                                Spacer()
+                                Button("Done") {
+                                    isAmountFocused = false
+                                }
+                            }
+                        }
                 }
 
                 Button("Add Expense") {
+                    isAmountFocused = false
+                    
                     guard
                         let amt = parseAmount(amount),
                         !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -69,6 +82,9 @@ struct AddExpenseView: View {
                 }
             }
             .navigationTitle("Add Expense")
+        }
+        .onTapGesture {                    
+            isAmountFocused = false
         }
     }
 
