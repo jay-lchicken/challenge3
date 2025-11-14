@@ -76,8 +76,11 @@ struct FinanceView: View {
                         }
                         .pickerStyle(.menu)
                         .padding(.horizontal)
-                        
-                        if selectedTab == "Budget" {
+                        if selectedTab == "Expenses" {
+                            ExpenseView()
+                                .modelContainer(for: ExpenseItem.self)
+                        }
+                        else if selectedTab == "Budget" {
                             VStack(alignment: .leading, spacing: 20) {
                                 Text("Category Budgets")
                                     .font(.caption)
