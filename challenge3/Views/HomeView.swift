@@ -9,16 +9,19 @@ import SwiftUI
 import SwiftData
 
 struct HomeView: View {
-    //SWIFT DATA
+    // SWIFT DATA
     @Environment(\.modelContext) var modelContext
-    @Query var expenses:[ExpenseItem]
+    @Query var expenses: [ExpenseItem]
     @AppStorage("question") var query: String = ""
+
+    @State private var selectedExpense: ExpenseItem? = nil
+    @State private var showExpenseDetail = false
+
     var body: some View {
-        NavigationStack{
-            VStack{
+        NavigationStack {
+            VStack {
                 List {
                     Section(header: Text("Today's Spending")) {
-
                         HStack {
                             Text("Spent: $10")
                             Spacer()
@@ -26,8 +29,9 @@ struct HomeView: View {
                         }
 
                         ForEach(expenses, id: \.self) { item in
-                            NavigationLink {
-                                ExpenseDetailView(expense: item)
+                            Button {
+                                selectedExpense = item
+                                showExpenseDetail = true
                             } label: {
                                 ExpenseItemView(
                                     title: item.name,
@@ -50,8 +54,20 @@ struct HomeView: View {
                     }
                 }
             }
+            .sheet(isPresented: $showExpenseDetail) {
+                if let expense = selectedExpense {
+                    NavigationStack {
+                        ExpenseDetailView(expense: expense)
+                    }
+                }
+            }
         }
     }
+}
+
+#Preview {
+    HomeView()
+        .modelContainer(for: ExpenseItem.self)
 }
 
 
