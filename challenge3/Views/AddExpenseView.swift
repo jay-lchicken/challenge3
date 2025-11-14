@@ -80,5 +80,6 @@ struct AddExpenseView: View {
 
 #Preview {
     AddExpenseView()
-        .modelContainer(for: ExpenseItem.self)
+        .modelContainer(for: [ExpenseItem.self, GoalItem.self])
+
 }

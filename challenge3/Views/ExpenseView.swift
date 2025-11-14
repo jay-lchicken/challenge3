@@ -103,5 +103,6 @@ struct ExpenseView: View {
 
 #Preview {
     ExpenseView()
-        .modelContainer(for: ExpenseItem.self)
+        .modelContainer(for: [ExpenseItem.self, GoalItem.self])
+
 }

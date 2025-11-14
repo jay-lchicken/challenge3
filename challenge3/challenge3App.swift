@@ -19,7 +19,8 @@ struct challenge3App: App {
                 case .available:
                 ContentView()
                     .tint(.yellow)
-                    .modelContainer(for: ExpenseItem.self, isUndoEnabled: true)
+                    .modelContainer(for: [ExpenseItem.self, GoalItem.self], isUndoEnabled: true)
+
                 case .unavailable(.appleIntelligenceNotEnabled):
                     Text("Apple Intelligence is not enabled. Please enable it in Settings.")
                 case .unavailable(.deviceNotEligible):
