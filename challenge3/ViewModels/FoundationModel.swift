@@ -9,11 +9,13 @@ import Foundation
 import FoundationModels
 import Combine
 import SwiftData
+
 @Generable
 struct ModelResponse{
     @Guide(description: "The main response you have to the user's query")
     var response: String
 }
+
 struct GetExpenseTool: Tool {
     var modelContext: ModelContext? = nil
     var modelContainer: ModelContainer? = nil
@@ -43,16 +45,13 @@ struct GetExpenseTool: Tool {
         }
     }
     let name = "getExpense"
-    let description = "To collect expenses from expense tracker and get a return on all the expenses the user has spent on"
+    let description = "To collect expenses from expense tracker and get a return on the expenses the user has spent on"
     
     @Generable
     struct Arguments {
-        @Guide(description: "The name of the expense")
-        var name: String
-        @Guide(description: "The amount of the expense")
-        var amount: Double
-        @Guide(description: "The category of the expense")
-        var category: String
+        @Guide(description: "Time to fetch the expenses from")
+        var date: TimeInterval
+        
     }
     
     func call(arguments: Arguments) async throws -> [String] {
@@ -68,13 +67,14 @@ struct GetExpenseTool: Tool {
                 }
                 return formattedExpenses
             } catch(let error) {
-                
+                print(error)
             }
             return []
             
         }
     }
 }
+
 struct AddExpenseTool: Tool {
     var modelContext: ModelContext? = nil
     var modelContainer: ModelContainer? = nil
@@ -124,16 +124,16 @@ struct AddExpenseTool: Tool {
             let expenses = try modelContext.fetch(expenseDescriptor)
             return expenses
         } catch(let error) {
-            
+            print(error)
         }
         return []
     }
     
-    func call(arguments: Arguments) async throws -> Bool {
+    func call(arguments: Arguments) async throws -> String {
         return await MainActor.run {
             guard let modelContext = modelContext else {
                 print("ERROR")
-                return false
+                return "false"
             }
             
             let newExpense = ExpenseItem(
@@ -147,16 +147,18 @@ struct AddExpenseTool: Tool {
             print("SUCCESS!!!")
             print(queryExpenses())
             
-            return true
+            return "\(arguments.amount)"
+
         }
     }
 }
+
 @Observable
 class FoundationModelViewModel{
-    init(){}
+    init() {}
     var isGenerating: Bool = false
     var query: String = ""
-    var generatedResponse: ModelResponse.PartiallyGenerated?
+    var generatedResponse: String? = nil
     var showAlert = false
     var alertMessage: String = ""
     var chatHistory: [ChatMessage] = []
@@ -171,46 +173,77 @@ class FoundationModelViewModel{
     ⸻
 
     Objectives
-        •    Offer clear, accurate, and practical guidance on personal finance topics — including budgeting, expenses, savings, debt, and cash flow.
-        •    If the user brings up topics unrelated to personal finance, politely redirect the conversation back to finance.
-        •    When a user mentions or implies a new expense, help them record it using the AddExpenseTool with the appropriate name, amount, and category.
-        •    If information is missing or unclear, infer what you reasonably can.
-        •    If it’s too vague, ask brief, targeted follow-up questions.
-        •    After the expense is added, give concise, constructive feedback (e.g., acknowledgment or a short financial insight).
+
+    Your main goal is to help the user manage their personal finances effectively.
+    That includes budgeting, tracking expenses, saving, managing debt, and maintaining healthy cash flow.
+
+    You should:
+        •    Give clear, accurate, and practical financial guidance.
+        •    Track expenses automatically whenever the user mentions or implies a purchase or payment.
+        •    Review spending history to give personalized insights and feedback.
+        •    Keep your advice short, friendly, and actionable — like a knowledgeable friend helping them stay on top of money matters.
+
+    ⸻
+
+    Tool Usage
+
+    AddExpenseTool
+    Use this tool whenever:
+        •    The user mentions or implies a new expense.
+        •    An expense needs to be logged or categorized.
+
+    Before using it, make sure you have:
+        •    Name: what the expense is for
+        •    Amount: numeric value
+        •    Category: e.g., food, transport, entertainment, etc.
+
+    If any details are missing:
+        •    Infer them logically from context (e.g., “$4 coffee” → name: coffee, category: food & drink, e.g. "I spent $300 at IKEA" → name: IKEA, category: furnitures).
+        •    If it’s too vague, ask a short follow-up question for clarification.
+
+    After adding an expense:
+        •    Acknowledge it naturally and, if useful, give a quick financial insight or encouragement.
+
+    ⸻
+
+    GetExpenseTool
+    Use this tool whenever:
+        •    The user asks to review, analyze, or get feedback on their past expenses.
+        •    The user asks questions like:
+        •    “What did I spend on today?”
+        •    “How much did I spend last week?”
+        •    “Show my transport expenses.”
+        •    “Am I spending too much on food?”
+
+    When you retrieve expenses:
+        •    Summarize the data clearly and briefly.
+        •    Point out patterns or trends (e.g., “You’ve spent more on dining out this week than last.”).
+        •    Offer constructive advice or small adjustments to improve financial habits.
 
     ⸻
 
     Style
         •    Be concise, encouraging, and easy to understand.
-        •    Use plain, conversational language with concrete suggestions.
-        •    Avoid jargon unless necessary — and explain any financial terms you use.
-        •    Maintain a friendly, approachable tone — like a supportive friend who knows their stuff.
-
-    ⸻
-
-    Tool Usage — AddExpenseTool
-        •    Use the tool whenever the user wants to log an expense or when it’s clearly appropriate to do so.
-        •    Ensure the following fields are valid before calling the tool:
-        •    Name (what the expense is)
-        •    Amount (numeric value)
-        •    Category (e.g., food, transport, entertainment, etc.)
-        •    Infer missing details if context allows (e.g., “$4 for coffee” → name: coffee, category: food & drink).
-        •    If the tool responds with success or failure, acknowledge the result naturally.
+        •    Use plain language and concrete examples.
+        •    Avoid jargon — if you must use a term, explain it simply.
+        •    Sound friendly and supportive, like a financially savvy buddy who’s got the user’s back.
 
     ⸻
 
     Safety and Scope
-        •    Do not provide legal, tax, or investment advice beyond general education or broad principles.
-        •    If the user asks for non-finance-related help, gently steer them back to personal finance.
+        •    Stick to personal finance — budgeting, spending, saving, and debt management.
+        •    Politely steer the user back if they go off-topic.
+        •    Avoid legal, tax, or investment advice, except for broad educational guidance.
+
     """
     @ObservationIgnored lazy var session = LanguageModelSession(tools: [AddExpenseTool(inMemory: false), GetExpenseTool(inMemory: false)], instructions: instructions)
+    
     func generateResponse() async{
         isGenerating = true
-        let stream = session.streamResponse(to: query, generating: ModelResponse.self)
+        let stream = session.streamResponse(to: query)
         do{
             for try await partial in stream {
                 generatedResponse = partial.content
-                
             }
             print("Finished generating")
         }catch{
@@ -218,12 +251,8 @@ class FoundationModelViewModel{
             showAlert.toggle()
             print("\(error.localizedDescription)")
         }
-        chatHistory.append(ChatMessage(role: .user, content: query, isPartial: false))
-        chatHistory.append(ChatMessage(role: .assistant, content: generatedResponse?.response ?? "", isPartial: true))
-        
-
-        
+//        chatHistory.append(ChatMessage(role: .user, content: query, isPartial: false))
+//        chatHistory.append(ChatMessage(role: .assistant, content: generatedResponse?.response ?? "", isPartial: true))
         
     }
-    
 }

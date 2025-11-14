@@ -40,10 +40,21 @@ struct ChatView: View {
             
             VStack{
                 
-                if let response = viewModel.generatedResponse?.response{
+                if viewModel.generatedResponse != nil{
                     ScrollView{
                         ForEach(viewModel.session.transcript){ entry in
                             switch entry {
+//                            case .instructions(let response):
+//                                HStack{
+//                                    Text(response.toolDefinitions.description)
+//                                        .padding()
+//                                        .background(.green.opacity(0.3))
+//                                        .cornerRadius(12)
+//                                        .padding(.horizontal)
+//                                    Spacer()
+//                                }
+//                                
+                                
                             case .prompt(let response):
                                 HStack{
                                     Spacer()
@@ -64,13 +75,26 @@ struct ChatView: View {
                                 }
                             case .toolOutput(let response):
                                 HStack{
-                                    Text(response.description)
-                                        .padding()
-                                        .background(.orange.opacity(0.3))
-                                        .cornerRadius(12)
-                                        .padding(.horizontal)
+                                    if response.toolName == "addExpense"{
+                                        if (response.segments[0].description == "false"){
+                                            Text("Failed to add expense")
+                                                .padding()
+                                                .background(.red.opacity(0.3))
+                                                .cornerRadius(12)
+                                                .padding(.horizontal)
+                                        }else{
+                                            Text("+\(response.segments[0].description)")
+                                                .padding()
+                                                .background(.green.opacity(0.3))
+                                                .cornerRadius(12)
+                                                .padding(.horizontal)
+                                        }
+                                    }
                                     Spacer()
+
+                                    
                                 }
+                             
                             default:
                                 EmptyView()
                             }
