@@ -18,23 +18,26 @@ struct HomeView: View {
             VStack{
                 List {
                     Section(header: Text("Today's Spending")) {
-                        VStack {
-                            HStack {
-                                Text("Spent: $10")
-                                Spacer()
-                                Text("Saved: $500")
-                            }
+                        List {
+                            Section(header: Text("Today's Spending")) {
 
-                            ForEach(expenses, id: \.self) { item in
-                                NavigationLink {
-                                    ExpenseDetailView(expense: item)
-                                } label: {
-                                    ExpenseItemView(
-                                        title: item.name,
-                                        date: Date(timeIntervalSince1970: item.date),
-                                        amount: item.amount,
-                                        category: item.category
-                                    )
+                                HStack {
+                                    Text("Spent: $10")
+                                    Spacer()
+                                    Text("Saved: $500")
+                                }
+
+                                ForEach(expenses, id: \.self) { item in
+                                    NavigationLink {
+                                        ExpenseDetailView(expense: item)
+                                    } label: {
+                                        ExpenseItemView(
+                                            title: item.name,
+                                            date: Date(timeIntervalSince1970: item.date),
+                                            amount: item.amount,
+                                            category: item.category
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -56,6 +59,10 @@ struct ExpenseDetailView: View {
     @State private var category: String
     @State private var date: Date
     @State private var amount: String
+    
+    // alerts
+    @State private var showDelete: Bool = false
+    @State private var showEdit: Bool = false
 
     let categories = ["beverage", "food", "transport", "entertainment", "bills", "shopping", "others"]
 
@@ -85,7 +92,38 @@ struct ExpenseDetailView: View {
                     .keyboardType(.decimalPad)
             }
 
-            Button("Save Changes") {
+            Button(action: {
+                showEdit = true
+            }) {
+                Image(systemName: "pencil")
+                    .font(.title3)
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(Color.blue)
+                    .clipShape(Circle())
+                    .shadow(radius: 3)
+            }
+
+            
+            Button(action: {
+                showDelete = true
+            }) {
+                HStack {
+                    Image(systemName: "trash")
+                        .font(.body)
+                    Text("Delete")
+                }
+                .foregroundColor(.white)
+                .padding(.vertical, 8)
+                .padding(.horizontal, 14)
+                .background(Color.red)
+                .cornerRadius(10)
+            }
+
+        }
+        .navigationTitle("Expense Detail")
+        .alert("Confirm Edits?", isPresented: $showEdit) {
+            Button("Yes") {
                 guard let amt = Double(amount) else { return }
                 
                 expense.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -95,15 +133,18 @@ struct ExpenseDetailView: View {
                 
                 dismiss()
             }
-            .buttonStyle(.borderedProminent)
-            
-            Button("Delete Expense") {
+            Button("No", role: .cancel) {
+            }
+        }
+        .alert("Are you sure?", isPresented: $showDelete) {
+            Button("Yes", role: .destructive) {
+                guard let amt = Double(amount) else { return }
+                
                 modelContext.delete(expense)
                 dismiss()
             }
-            .foregroundColor(.red)
+            Button("No", roll: .cancel) {}
         }
-        .navigationTitle("Expense Detail")
     }
 }
 
