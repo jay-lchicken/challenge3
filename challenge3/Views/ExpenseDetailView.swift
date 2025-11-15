@@ -71,26 +71,28 @@ struct ExpenseDetailView: View {
                         .keyboardType(.decimalPad)
                         .disabled(!isEditing)
                 }
+                if isEditing {
+                    Button {
+                        showDelete = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "trash")
+                            Text("Delete")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .glassEffect(.regular.tint(.red).interactive(), in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal)
+                    .padding(.bottom)
+                }
+
+                
             }
 
-            if isEditing {
-                Button {
-                    showDelete = true
-                } label: {
-                    HStack {
-                        Image(systemName: "trash")
-                        Text("Delete")
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .glassEffect(.regular.tint(.red).interactive(), in: Capsule())
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(.white)
-                .padding(.horizontal)
-                .padding(.bottom)
-            }
-        }
         .navigationTitle("Expense Detail")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
