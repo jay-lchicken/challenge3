@@ -19,8 +19,7 @@ struct ExpenseDetailView: View {
     @State private var showDelete = false
     @Bindable var expense: ExpenseItem
 
-    let categories = ["beverage", "food", "transport", "lifestyle", "subscriptions", "shopping", "others"]
-
+    let categories = CategoryOptionsModel().category
     private var dateBinding: Binding<Date> {
         Binding<Date>(
             get: { Date(timeIntervalSince1970: expense.date) },

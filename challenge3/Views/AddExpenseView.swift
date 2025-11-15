@@ -19,7 +19,7 @@ struct AddExpenseView: View {
     
     @FocusState private var isAmountFocused: Bool
 
-    let categories = ["Food", "Transport","Social Life", "Payments", "Shopping", "Others"]
+    let categories = CategoryOptionsModel().category
     @State private var showAlert = false
 
     var body: some View {
@@ -28,8 +28,10 @@ struct AddExpenseView: View {
                 Picker("Category", selection: $category) {
                     ForEach(categories, id: \.self) { cat in
                         Text(cat.capitalized)
+                            .tag(cat)
                     }
                 }
+                .pickerStyle(.menu)
 
                 TextField("Expense name", text: $name)
 
