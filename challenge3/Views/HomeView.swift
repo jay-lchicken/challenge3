@@ -14,8 +14,6 @@ struct HomeView: View {
     @Query var expenses: [ExpenseItem]
     @AppStorage("question") var query: String = ""
 
-    @State private var selectedExpense: ExpenseItem? = nil
-    @State private var showExpenseDetail = false
 
     var body: some View {
         NavigationStack {
@@ -29,17 +27,15 @@ struct HomeView: View {
                         }
 
                         ForEach(expenses, id: \.self) { item in
-                            Button {
-                                selectedExpense = item
-                                showExpenseDetail = true
-                            } label: {
+                            
+                            NavigationLink(destination: ExpenseDetailView(expense: item), label: {
                                 ExpenseItemView(
                                     title: item.name,
                                     date: Date(timeIntervalSince1970: item.date),
                                     amount: item.amount,
                                     category: item.category
                                 )
-                            }
+                            })
                             .buttonStyle(.plain)
                         }
                     }
@@ -55,13 +51,7 @@ struct HomeView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showExpenseDetail) {
-                if let expense = selectedExpense {
-                    NavigationStack {
-                        ExpenseDetailView(expense: expense)
-                    }
-                }
-            }
+            
         }
     }
 }

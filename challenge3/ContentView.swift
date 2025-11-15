@@ -27,14 +27,14 @@ struct ContentView: View {
                 AddExpenseView()
             }
         }
-        .font(.custom("Roboto-Regular", size: 16)) 
+        .tabBarMinimizeBehavior(.automatic)
+        .font(.custom("Roboto-Regular", size: 16))
         .onChange(of: currentTab) { newValue, oldValue in
             if newValue == 2 {
                 showSheet = true
                 currentTab = oldValue
             }
         }
-        .tabBarMinimizeBehavior(.onScrollDown)
         .tabViewBottomAccessory{
             Button{
                 showSheet.toggle()
