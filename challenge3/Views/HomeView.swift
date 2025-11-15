@@ -40,6 +40,7 @@ struct HomeView: View {
                                     category: item.category
                                 )
                             }
+                            .buttonStyle(.plain)
                         }
                     }
                 }
