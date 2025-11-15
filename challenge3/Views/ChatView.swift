@@ -7,6 +7,8 @@
 //ME (HONG YU) takes CREDITS for this ENTIRE PAGE and bro......ye......🫠
 import SwiftUI
 import FoundationModels
+import Markdown
+import MarkdownUI
 extension Font {
     static func system(
         size: CGFloat,
@@ -20,6 +22,7 @@ extension Font {
             )
         }
 }
+
 struct GetExpenseToolArgument: Decodable {
     let daysToLookBack: Int
 }
@@ -30,47 +33,35 @@ struct ChatView: View {
     @Environment(\.undoManager) var undoManager
     @FocusState private var isTextFieldFocused: Bool
     @State var viewModel = FoundationModelViewModel()
+    @State var scrollPosition = ScrollPosition()
+
     func segmentsToString(segments: [Transcript.Segment]) -> String{
         let strings = segments.compactMap {segment -> String? in
             if case let .text(textSegment) = segment{
                 return textSegment.content
             }
             return nil
-            
         }
         return strings.reduce("", +)
-        
     }
+
     func daysToLookBack(_ x: String) -> Int {
         guard let jsonData = x.data(using: .utf8),
               let json = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
               let days = json["daysToLookBack"] as? Int else {
-            return 0 // Default value
+            return 0
         }
         return days
     }
 
     var body: some View {
         ZStack{
-            
             VStack{
-                
                 if viewModel.generatedResponse != nil{
                     NavigationView{
                         ScrollView{
                             ForEach(viewModel.session.transcript){ entry in
                                 switch entry {
-    //                            case .instructions(let response):
-    //                                HStack{
-    //                                    Text(response.toolDefinitions.description)
-    //                                        .padding()
-    //                                        .background(.green.opacity(0.3))
-    //                                        .cornerRadius(12)
-    //                                        .padding(.horizontal)
-    //                                    Spacer()
-    //                                }
-    //
-                                    
                                 case .prompt(let response):
                                     HStack{
                                         Spacer()
@@ -82,17 +73,17 @@ struct ChatView: View {
                                     }
                                 case .response(let response):
                                     HStack{
-                                        Text(response.segments[0].description)
-                                            .padding()
-                                            .background(.green.opacity(0.3))
-                                            .cornerRadius(12)
-                                            .padding(.horizontal)
-                                        Spacer()
-                                    }
+                                        Markdown(
+                                                    response.segments[0].description)
+                                                                                .padding()
+                                                                                .background(.green.opacity(0.3))
+                                                                                .cornerRadius(12)
+                                                                                .padding(.horizontal)
+                                                                            Spacer()
+                                                                        }
                                 case .toolOutput(let response):
-                                        if response.toolName == "addExpense"{
-                                            HStack{
-
+                                    if response.toolName == "addExpense"{
+                                        HStack{
                                             if (response.segments[0].description == "false"){
                                                 Text("Failed to add expense")
                                                     .padding()
@@ -108,26 +99,17 @@ struct ChatView: View {
                                                 if (undoManager?.canUndo == true){
                                                     Button{
                                                         undoManager?.undo()
-
-
-                                                        
                                                     }label:{
                                                         Text("Revert")
                                                             .padding()
                                                             .glassEffect(.clear.interactive())
                                                     }
-                                                    
                                                 }
-                                               
                                             }
-                                                Spacer()
-
-                                                
-                                            }
+                                            Spacer()
                                         }
+                                    }
 
-                                       
-                                    
                                 case .toolCalls(let response):
                                     if response[0].toolName == "getExpense"{
                                         HStack{
@@ -137,35 +119,29 @@ struct ChatView: View {
                                                 .cornerRadius(12)
                                                 .padding(.horizontal)
                                             Spacer()
-
-                                            
-                                        
                                         }
-                                     
                                     }
-                                    
+
                                 default:
                                     EmptyView()
                                 }
-                                
                             }
                             Spacer(minLength: 100)
                         }
+                        .scrollPosition($scrollPosition)
                         .navigationTitle("Bro")
+                        .onChange(of: viewModel.generatedResponse, {
+                            withAnimation{
+                                scrollPosition.scrollTo(edge: .bottom)
+                            }
+                        })
                     }
-                    
                 }else{
                     Text("Bro")
                         .font(.system(size:40,weight: .heavy, width: .expanded))
                     Text("Your Personal Finance Assistant")
                         .font(.system(size: 20, weight: .regular))
-
                 }
-
-                
-
-                
-                
             }
             VStack{
                 Spacer()
@@ -173,31 +149,29 @@ struct ChatView: View {
                     TextField("What would you like to do today?", text: $viewModel.query)
                         .padding()
                         .focused($isTextFieldFocused)
-                        
+
                     Button{
                         Task{
                             await viewModel.generateResponse()
-
                         }
                     }label:{
                         Image(systemName: "arrow.up.circle")
                             .font(.title2)
                             .padding()
                     }
-
                 }
                 .glassEffect(.clear.interactive(), in: .capsule)
                 .padding()
                 .onAppear {
-                            isTextFieldFocused = true
-                        }
-                
+                    isTextFieldFocused = true
+                }
             }
         }
         .alert(isPresented: $viewModel.showAlert){
             Alert(title: Text("Error"), message: Text(viewModel.alertMessage), dismissButton: .default(Text("awwww")))
         }
     }
+
 }
 
 #Preview {
