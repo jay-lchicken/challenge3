@@ -15,19 +15,22 @@ struct ExpenseItemView: View {
     var body: some View {
         HStack{
             VStack(alignment: .leading){
+                
                 Text(title)
+                    .bold()
                 Text(date.formatted())
                 
             }
             Spacer()
-            VStack{
+            HStack (spacing: 0){
+                Text("$")
                 Text(String(format: "%.2f", amount))
                 
             }
             
         }
         .padding()
-        .background(category == "beverage" ? Color.green.opacity(0.3) : Color.yellow.opacity(0.3))
+        .background(category.categoryColor)
         .cornerRadius(12)
     }
 }

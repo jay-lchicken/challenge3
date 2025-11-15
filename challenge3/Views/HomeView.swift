@@ -14,6 +14,7 @@ struct HomeView: View {
     @Query var expenses: [ExpenseItem]
     @AppStorage("question") var query: String = ""
 
+    @State private var selectedExpense: ExpenseItem? = nil
 
     var body: some View {
         NavigationStack {
@@ -55,13 +56,6 @@ struct HomeView: View {
         }
     }
 }
-
-#Preview {
-    HomeView()
-        .modelContainer(for: ExpenseItem.self)
-}
-
-
 
 #Preview {
     HomeView()
