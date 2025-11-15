@@ -9,7 +9,8 @@ import Foundation
 import SwiftData
 
 @Model
-class ExpenseItem: Equatable{
+class ExpenseItem{
+    var id = UUID()
     var name: String
     var amount: Double
     var date: TimeInterval

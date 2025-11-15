@@ -130,7 +130,12 @@ struct ChatView: View {
                             case .toolCalls(let response):
                                 if response[0].toolName == "getExpense"{
                                     HStack{
-                                        Text("Expense: \(response[0].arguments)")
+                                        Text("Read Expense")
+                                            .padding()
+                                            .background(.green.opacity(0.3))
+                                            .cornerRadius(12)
+                                            .padding(.horizontal)
+                                        Spacer()
 
                                         
                                     
