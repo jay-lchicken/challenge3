@@ -19,7 +19,7 @@ struct ExpenseDetailView: View {
     @State private var showDelete = false
     @Bindable var expense: ExpenseItem
 
-    let categories = ["Social Life", "Food", "Transport", "Payments", "Shopping", "Others"]
+    let categories = ["beverage", "food", "transport", "lifestyle", "subscriptions", "shopping", "others"]
 
     private var dateBinding: Binding<Date> {
         Binding<Date>(
@@ -49,7 +49,7 @@ struct ExpenseDetailView: View {
         Form {
             Picker("Category", selection: $expense.category) {
                 ForEach(categories, id: \.self) {
-                    Text($0)
+                    Text($0.prefix(1).uppercased() + $0.dropFirst())
                 }
             }
             .disabled(!isEditing)
