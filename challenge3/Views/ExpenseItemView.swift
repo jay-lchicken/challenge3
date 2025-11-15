@@ -25,7 +25,7 @@ struct ExpenseItemView: View {
             
         }
         .padding()
-        .background(category == "beverage" ? Color.green.opacity(0.3) : Color.yellow.opacity(0.3))
+        .background(category.categoryColor)
         .cornerRadius(12)
     }
 }

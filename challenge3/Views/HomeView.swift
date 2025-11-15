@@ -15,7 +15,6 @@ struct HomeView: View {
     @AppStorage("question") var query: String = ""
 
     @State private var selectedExpense: ExpenseItem? = nil
-    @State private var showExpenseDetail = false
 
     var body: some View {
         NavigationStack {
@@ -84,13 +83,7 @@ struct HomeView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showExpenseDetail) {
-                if let expense = selectedExpense {
-                    NavigationStack {
-                        ExpenseDetailView(expense: expense)
-                    }
-                }
-            }
+            
         }
     }
 }
@@ -122,13 +115,6 @@ struct FeedbackView: View {
         .shadow(radius: 5)
     }
 }
-
-#Preview {
-    HomeView()
-        .modelContainer(for: ExpenseItem.self)
-}
-
-
 
 #Preview {
     HomeView()

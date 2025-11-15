@@ -56,98 +56,102 @@ struct ChatView: View {
             VStack{
                 
                 if viewModel.generatedResponse != nil{
-                    ScrollView{
-                        ForEach(viewModel.session.transcript){ entry in
-                            switch entry {
-//                            case .instructions(let response):
-//                                HStack{
-//                                    Text(response.toolDefinitions.description)
-//                                        .padding()
-//                                        .background(.green.opacity(0.3))
-//                                        .cornerRadius(12)
-//                                        .padding(.horizontal)
-//                                    Spacer()
-//                                }
-//                                
-                                
-                            case .prompt(let response):
-                                HStack{
-                                    Spacer()
-                                    Text(response.segments[0].description)
-                                        .padding()
-                                        .background(.blue.opacity(0.3))
-                                        .cornerRadius(12)
-                                        .padding(.horizontal)
-                                }
-                            case .response(let response):
-                                HStack{
-                                    Text(response.segments[0].description)
-                                        .padding()
-                                        .background(.green.opacity(0.3))
-                                        .cornerRadius(12)
-                                        .padding(.horizontal)
-                                    Spacer()
-                                }
-                            case .toolOutput(let response):
-                                    if response.toolName == "addExpense"{
-                                        HStack{
-
-                                        if (response.segments[0].description == "false"){
-                                            Text("Failed to add expense")
-                                                .padding()
-                                                .background(.red.opacity(0.3))
-                                                .cornerRadius(12)
-                                                .padding(.horizontal)
-                                        }else{
-                                            Text("+\(response.segments[0].description)")
-                                                .padding()
-                                                .background(.green.opacity(0.3))
-                                                .cornerRadius(12)
-                                                .padding(.horizontal)
-                                            if (undoManager?.canUndo == true){
-                                                Button{
-                                                    undoManager?.undo()
-
-
-                                                    
-                                                }label:{
-                                                    Text("Revert")
-                                                        .padding()
-                                                        .glassEffect(.clear.interactive())
-                                                }
-                                                
-                                            }
-                                           
-                                        }
-                                            Spacer()
-
-                                            
-                                        }
-                                    }
-
-                                   
-                                
-                            case .toolCalls(let response):
-                                if response[0].toolName == "getExpense"{
+                    NavigationView{
+                        ScrollView{
+                            ForEach(viewModel.session.transcript){ entry in
+                                switch entry {
+    //                            case .instructions(let response):
+    //                                HStack{
+    //                                    Text(response.toolDefinitions.description)
+    //                                        .padding()
+    //                                        .background(.green.opacity(0.3))
+    //                                        .cornerRadius(12)
+    //                                        .padding(.horizontal)
+    //                                    Spacer()
+    //                                }
+    //
+                                    
+                                case .prompt(let response):
                                     HStack{
-                                        Text("Read Expense")
+                                        Spacer()
+                                        Text(response.segments[0].description)
+                                            .padding()
+                                            .background(.blue.opacity(0.3))
+                                            .cornerRadius(12)
+                                            .padding(.horizontal)
+                                    }
+                                case .response(let response):
+                                    HStack{
+                                        Text(response.segments[0].description)
                                             .padding()
                                             .background(.green.opacity(0.3))
                                             .cornerRadius(12)
                                             .padding(.horizontal)
                                         Spacer()
-
-                                        
-                                    
                                     }
-                                 
+                                case .toolOutput(let response):
+                                        if response.toolName == "addExpense"{
+                                            HStack{
+
+                                            if (response.segments[0].description == "false"){
+                                                Text("Failed to add expense")
+                                                    .padding()
+                                                    .background(.red.opacity(0.3))
+                                                    .cornerRadius(12)
+                                                    .padding(.horizontal)
+                                            }else{
+                                                Text("+\(response.segments[0].description)")
+                                                    .padding()
+                                                    .background(.green.opacity(0.3))
+                                                    .cornerRadius(12)
+                                                    .padding(.horizontal)
+                                                if (undoManager?.canUndo == true){
+                                                    Button{
+                                                        undoManager?.undo()
+
+
+                                                        
+                                                    }label:{
+                                                        Text("Revert")
+                                                            .padding()
+                                                            .glassEffect(.clear.interactive())
+                                                    }
+                                                    
+                                                }
+                                               
+                                            }
+                                                Spacer()
+
+                                                
+                                            }
+                                        }
+
+                                       
+                                    
+                                case .toolCalls(let response):
+                                    if response[0].toolName == "getExpense"{
+                                        HStack{
+                                            Text("Read Expense")
+                                                .padding()
+                                                .background(.green.opacity(0.3))
+                                                .cornerRadius(12)
+                                                .padding(.horizontal)
+                                            Spacer()
+
+                                            
+                                        
+                                        }
+                                     
+                                    }
+                                    
+                                default:
+                                    EmptyView()
                                 }
                                 
-                            default:
-                                EmptyView()
                             }
-                            
+                            Spacer(minLength: 100)
                         }
+                        .navigationTitle("Bro")
                     }
                     
                 }else{
