@@ -261,6 +261,7 @@ class FoundationModelViewModel{
     func generateResponse() async{
         isGenerating = true
         let stream = session.streamResponse(to: query)
+        query = ""
         do{
             for try await partial in stream {
                 generatedResponse = partial.content
@@ -271,6 +272,7 @@ class FoundationModelViewModel{
             showAlert.toggle()
             print("\(error.localizedDescription)")
         }
+        
 //        chatHistory.append(ChatMessage(role: .user, content: query, isPartial: false))
 //        chatHistory.append(ChatMessage(role: .assistant, content: generatedResponse?.response ?? "", isPartial: true))
         

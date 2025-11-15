@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		06E0FEAB2EC8724000979439 /* Markdown in Frameworks */ = {isa = PBXBuildFile; productRef = 06E0FEAA2EC8724000979439 /* Markdown */; };
+		06E0FED82EC8732800979439 /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 06E0FED72EC8732800979439 /* MarkdownUI */; };
 		ACA64FB82EC71F0C00AB53F3 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ACA64FB72EC71F0C00AB53F3 /* WidgetKit.framework */; };
 		ACA64FBA2EC71F0C00AB53F3 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ACA64FB92EC71F0C00AB53F3 /* SwiftUI.framework */; };
 		ACA64FCB2EC71F0D00AB53F3 /* LockscreenWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = ACA64FB52EC71F0C00AB53F3 /* LockscreenWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -74,6 +76,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				06E0FEAB2EC8724000979439 /* Markdown in Frameworks */,
+				06E0FED82EC8732800979439 /* MarkdownUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -139,6 +143,8 @@
 			);
 			name = challenge3;
 			packageProductDependencies = (
+				06E0FEAA2EC8724000979439 /* Markdown */,
+				06E0FED72EC8732800979439 /* MarkdownUI */,
 			);
 			productName = challenge3;
 			productReference = 06E7EDDF2EBB3DD400BD5A49 /* challenge3.app */;
@@ -193,6 +199,10 @@
 			);
 			mainGroup = 06E7EDD62EBB3DD400BD5A49;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				06E0FEA92EC8724000979439 /* XCRemoteSwiftPackageReference "swiftui-markdown" */,
+				06E0FED62EC872FF00979439 /* XCRemoteSwiftPackageReference "MarkdownUI" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 06E7EDE02EBB3DD400BD5A49 /* Products */;
 			projectDirPath = "";
@@ -533,6 +543,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		06E0FEA92EC8724000979439 /* XCRemoteSwiftPackageReference "swiftui-markdown" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/jaywcjlove/swiftui-markdown";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+		06E0FED62EC872FF00979439 /* XCRemoteSwiftPackageReference "MarkdownUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/gonzalezreal/MarkdownUI/";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.4.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		06E0FEAA2EC8724000979439 /* Markdown */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 06E0FEA92EC8724000979439 /* XCRemoteSwiftPackageReference "swiftui-markdown" */;
+			productName = Markdown;
+		};
+		06E0FED72EC8732800979439 /* MarkdownUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 06E0FED62EC872FF00979439 /* XCRemoteSwiftPackageReference "MarkdownUI" */;
+			productName = MarkdownUI;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 06E7EDD72EBB3DD400BD5A49 /* Project object */;
 }

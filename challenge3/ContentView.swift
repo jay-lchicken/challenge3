@@ -27,7 +27,7 @@ struct ContentView: View {
                 AddExpenseView()
             }
         }
-        .tabBarMinimizeBehavior(.automatic)
+        .tabBarMinimizeBehavior(.onScrollDown)
         .font(.custom("Roboto-Regular", size: 16))
         .onChange(of: currentTab) { newValue, oldValue in
             if newValue == 2 {
