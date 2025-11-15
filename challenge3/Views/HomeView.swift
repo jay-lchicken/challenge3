@@ -28,16 +28,15 @@ struct HomeView: View {
                         }
 
                         ForEach(expenses, id: \.self) { item in
-                            Button {
-                                selectedExpense = item
-                            } label: {
+                            
+                            NavigationLink(destination: ExpenseDetailView(expense: item), label: {
                                 ExpenseItemView(
                                     title: item.name,
                                     date: Date(timeIntervalSince1970: item.date),
                                     amount: item.amount,
                                     category: item.category
                                 )
-                            }
+                            })
                             .buttonStyle(.plain)
                         }
                     }
@@ -53,11 +52,7 @@ struct HomeView: View {
                     }
                 }
             }
-            .sheet(item: $selectedExpense) { expense in
-                    NavigationStack {
-                        ExpenseDetailView(expense: expense)
-                    }
-            }
+            
         }
     }
 }

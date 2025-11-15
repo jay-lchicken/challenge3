@@ -94,9 +94,16 @@ struct ExpenseDetailView: View {
         .navigationTitle("Expense Detail")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button(isEditing ? "Done" : "Edit") {
+                Button(){
                     isEditing.toggle()
+                } label: {
+                    if isEditing{
+                        Text("Done")
+                    } else {
+                        Image(systemName: "pencil")
+                    }
                 }
+                .buttonStyle(.plain)
             }
         }
         .alert("Are you sure?", isPresented: $showDelete) {

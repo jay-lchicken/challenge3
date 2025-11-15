@@ -21,6 +21,11 @@ struct AddExpenseView: View {
 
     let categories = CategoryOptionsModel().category
     @State private var showAlert = false
+    
+    var clickButton: Bool {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        return !trimmedName.isEmpty && parseAmount(amount) != nil
+    }
 
     var body: some View {
         NavigationStack {
@@ -77,6 +82,8 @@ struct AddExpenseView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .frame(maxWidth: .infinity, alignment: .center)
+                .disabled(!clickButton)
+                .opacity(clickButton ? 1.0 : 0.5)
             }
             .alert("Expense Added!", isPresented: $showAlert) {
                 Button("OK") {
