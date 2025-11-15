@@ -19,35 +19,64 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            VStack {
-                List {
-                    Section(header: Text("Today's Spending")) {
-                        HStack {
-                            Text("Spent: $10")
-                            Spacer()
-                            Text("Saved: $500")
-                        }
+            List {
+                Section(header:
+                    HStack(spacing: 10) {
+                        Image(systemName: "questionmark.circle")
+                            .font(.title3)
+                        Text("Feedback")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                        Spacer()
+                    }
+                    .foregroundColor(.primary)
+                ) {
+                    FeedbackView()
+                        .listRowInsets(EdgeInsets())
+                        .frame(maxWidth: .infinity)
+                }
+                
+                Section(header:
+                    HStack(spacing: 10) {
+                        Image(systemName: "dollarsign.circle")
+                            .font(.title3)
+                        Text("Today's Spending")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                        Spacer()
+                    }
+                    .foregroundColor(.primary)
+                ) {
+                    HStack {
+                        Text("Spent: $10")
+                        Spacer()
+                        Text("Saved: $500")
+                    }
+                    
+                    ExpenseView()
 
-                        ForEach(expenses, id: \.self) { item in
-                            Button {
-                                selectedExpense = item
-                                showExpenseDetail = true
-                            } label: {
-                                ExpenseItemView(
-                                    title: item.name,
-                                    date: Date(timeIntervalSince1970: item.date),
-                                    amount: item.amount,
-                                    category: item.category
-                                )
-                            }
-                            .buttonStyle(.plain)
+                    ForEach(expenses, id: \.self) { item in
+                        NavigationLink(
+                            tag: item,
+                            selection: $selectedExpense
+                        ) {
+                            ExpenseDetailView(expense: item)
+                        } label: {
+                            ExpenseItemView(
+                                title: item.name,
+                                date: Date(timeIntervalSince1970: item.date),
+                                amount: item.amount,
+                                category: item.category
+                            )
                         }
                     }
                 }
             }
-            .navigationTitle("Home")
+            .listStyle(.insetGrouped)
+            .navigationTitle("Home").font(.title2).bold()
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     NavigationLink(destination: ProfileView()) {
                         Image(systemName: "person.circle")
                             .imageScale(.large)
@@ -63,6 +92,34 @@ struct HomeView: View {
                 }
             }
         }
+    }
+}
+
+import FoundationModels
+struct FeedbackView: View {
+    @State var feedback: String = ""
+    
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                Text("Feedback").font(.headline)
+                Text("Feedback blah blah blah...")
+                    .font(.body)
+            }
+            .padding()
+        }
+        .task{
+            let session = LanguageModelSession(instructions: 
+            """
+            
+            """
+            )
+            let response = try? await session.respond(to: "AHEHEHEMEMEMM")
+        }
+        .frame(maxWidth: .infinity, minHeight: 200)
+        .background(Color(UIColor.systemBackground))
+        .cornerRadius(15)
+        .shadow(radius: 5)
     }
 }
 

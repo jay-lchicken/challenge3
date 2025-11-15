@@ -15,14 +15,12 @@ struct ExpenseItemView: View {
     var body: some View {
         HStack{
             VStack(alignment: .leading){
-                Text(title)
+                Text(title).fontWeight(.bold)
                 Text(date.formatted())
-                
             }
             Spacer()
             VStack{
-                Text(String(format: "%.2f", amount))
-                
+                Text("$\(String(format: "%.2f", amount))")
             }
             
         }
