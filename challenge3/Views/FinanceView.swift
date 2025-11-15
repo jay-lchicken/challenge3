@@ -193,8 +193,7 @@ struct FinanceView: View {
                 Spacer()
                 Button("Add New") { showAddGoal = true }
                     .padding(6)
-                    .background(Color.white)
-                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray))
+                    .glassEffect(.clear.interactive(), in: .capsule)
             }
 
             VStack(spacing: 12) {

@@ -20,21 +20,14 @@ struct challenge3App: App {
             case .available:
                 ContentView()
                     .tint(.yellow)
-<<<<<<< HEAD
                     .modelContainer(for: [ExpenseItem.self, GoalItem.self], isUndoEnabled: true)
-
-                case .unavailable(.appleIntelligenceNotEnabled):
-                    Text("Apple Intelligence is not enabled. Please enable it in Settings.")
-                case .unavailable(.deviceNotEligible):
-                    Text("This device does not support Apple Intelligence.")
-=======
-                    .modelContainer(for: ExpenseItem.self, isUndoEnabled: true)
                     .sheet(isPresented: $showAddExpense) {
                         AddExpenseView()
                     }
                     .onOpenURL { url in
                         handleDeepLink(url)
                     }
+
                 
             case .unavailable(.appleIntelligenceNotEnabled):
                 Text("Apple Intelligence is not enabled. Please enable it in Settings.")
@@ -42,7 +35,7 @@ struct challenge3App: App {
             case .unavailable(.deviceNotEligible):
                 Text("This device does not support Apple Intelligence.")
                 
->>>>>>> main
+
             case .unavailable(.modelNotReady):
                 Text("Foundation Model is not yet ready. Please try again later.")
                 
