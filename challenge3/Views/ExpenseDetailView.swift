@@ -14,18 +14,19 @@ struct ExpenseDetailView: View {
     @Environment(\.dismiss) var dismiss
 
     @State private var isEditing = false
-
-    // alerts
     @State private var showDelete = false
+
     @Bindable var expense: ExpenseItem
 
     let categories = CategoryOptionsModel().category
+
     private var dateBinding: Binding<Date> {
         Binding<Date>(
             get: { Date(timeIntervalSince1970: expense.date) },
             set: { expense.date = $0.timeIntervalSince1970 }
         )
     }
+
     private var amountStringBinding: Binding<String> {
         Binding<String>(
             get: {
@@ -36,7 +37,11 @@ struct ExpenseDetailView: View {
                 }
             },
             set: { newValue in
-                let cleaned = newValue.replacingOccurrences(of: "[^0-9.]", with: "", options: .regularExpression)
+                let cleaned = newValue.replacingOccurrences(
+                    of: "[^0-9.]",
+                    with: "",
+                    options: .regularExpression
+                )
                 if let val = Double(cleaned) {
                     expense.amount = val
                 }
@@ -45,31 +50,33 @@ struct ExpenseDetailView: View {
     }
 
     var body: some View {
-        Form {
-            Picker("Category", selection: $expense.category) {
-                ForEach(categories, id: \.self) {
-                    Text($0.prefix(1).uppercased() + $0.dropFirst())
+        VStack {
+            Form {
+                Picker("Category", selection: $expense.category) {
+                    ForEach(categories, id: \.self) {
+                        Text($0.prefix(1).uppercased() + $0.dropFirst())
+                    }
+                }
+                .disabled(!isEditing)
+
+                TextField("Expense name", text: $expense.name)
+                    .disabled(!isEditing)
+
+                DatePicker("Date", selection: dateBinding, displayedComponents: .date)
+                    .disabled(!isEditing)
+
+                HStack {
+                    Text("$")
+                    TextField("Amount", text: amountStringBinding)
+                        .keyboardType(.decimalPad)
+                        .disabled(!isEditing)
                 }
             }
-            .disabled(!isEditing)
 
-            TextField("Expense name", text: $expense.name)
-                .disabled(!isEditing)
-
-            DatePicker("Date", selection: dateBinding, displayedComponents: .date)
-                .disabled(!isEditing)
-
-            HStack {
-                Text("$")
-                TextField("Amount", text: amountStringBinding)
-                    .keyboardType(.decimalPad)
-                    .disabled(!isEditing)
-            }
-
-            if isEditing{
-                Button(action: {
+            if isEditing {
+                Button {
                     showDelete = true
-                }, label: {
+                } label: {
                     HStack {
                         Image(systemName: "trash")
                         Text("Delete")
@@ -77,8 +84,11 @@ struct ExpenseDetailView: View {
                     .frame(maxWidth: .infinity)
                     .padding()
                     .glassEffect(.regular.tint(.red).interactive(), in: Capsule())
-                })
-                .disabled(!isEditing)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.white)
+                .padding(.horizontal)
+                .padding(.bottom)
             }
         }
         .navigationTitle("Expense Detail")
@@ -94,6 +104,7 @@ struct ExpenseDetailView: View {
                 modelContext.delete(expense)
                 dismiss()
             }
+            .buttonStyle(.plain)
             Button("Cancel", role: .cancel) {}
         }
     }

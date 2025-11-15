@@ -15,7 +15,6 @@ struct HomeView: View {
     @AppStorage("question") var query: String = ""
 
     @State private var selectedExpense: ExpenseItem? = nil
-    @State private var showExpenseDetail = false
 
     var body: some View {
         NavigationStack {
@@ -31,7 +30,6 @@ struct HomeView: View {
                         ForEach(expenses, id: \.self) { item in
                             Button {
                                 selectedExpense = item
-                                showExpenseDetail = true
                             } label: {
                                 ExpenseItemView(
                                     title: item.name,
@@ -55,23 +53,14 @@ struct HomeView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showExpenseDetail) {
-                if let expense = selectedExpense {
+            .sheet(item: $selectedExpense) { expense in
                     NavigationStack {
                         ExpenseDetailView(expense: expense)
                     }
-                }
             }
         }
     }
 }
-
-#Preview {
-    HomeView()
-        .modelContainer(for: ExpenseItem.self)
-}
-
-
 
 #Preview {
     HomeView()

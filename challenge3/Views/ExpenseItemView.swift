@@ -16,6 +16,7 @@ struct ExpenseItemView: View {
         HStack{
             VStack(alignment: .leading){
                 Text(title)
+                    .bold()
                 Text(date.formatted())
                 
             }
