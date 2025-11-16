@@ -87,8 +87,9 @@ struct FinanceView: View {
 
                         else {
                             overviewSection
+                            goalsSection
                         }
-                        goalsSection
+                        
                     }
                     .padding()
                 }
