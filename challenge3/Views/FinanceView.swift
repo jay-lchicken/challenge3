@@ -55,7 +55,7 @@ struct FinanceView: View {
     var body: some View {
         NavigationStack {
             VStack {
-              
+                
                 Picker("", selection: $selectedTab) {
                     Text("Overview").tag("Overview")
                     Text("Budget").tag("Budget")
