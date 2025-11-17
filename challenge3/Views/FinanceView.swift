@@ -205,39 +205,43 @@ struct FinanceView: View {
     }
 
     private func goalCard(_ goal: GoalItem) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text("\(goal.title) - \(Int(goal.current))/\(Int(goal.target))")
-                    .font(.headline)
+        NavigationLink(destination: GoalDetailView(goal: goal)) {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text("\(goal.title) - \(Int(goal.current))/\(Int(goal.target))")
+                        .font(.headline)
 
-                Spacer()
+                    Spacer()
 
-                let pct = min(goal.current / goal.target, 1)
-                Text("\(Int(pct * 100))%")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-            }
+                    let pct = min(goal.current / goal.target, 1)
+                    Text("\(Int(pct * 100))%")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
 
-            GeometryReader { geo in
-                let width = geo.size.width
-                let ratio = CGFloat(min(goal.current / goal.target, 1))
-                let filled = width * ratio
-                let remain = width - filled
+                GeometryReader { geo in
+                    let width = geo.size.width
+                    let ratio = CGFloat(min(goal.current / goal.target, 1))
+                    let filled = width * ratio
+                    let remain = width - filled
 
-                ZStack(alignment: .leading) {
-                    Capsule().fill(Color.gray.opacity(0.2)).frame(height: 20)
-                    HStack(spacing: 0) {
-                        Capsule().fill(Color.green).frame(width: filled, height: 20)
-                        Capsule().fill(Color.red.opacity(0.6)).frame(width: remain, height: 20)
+                    ZStack(alignment: .leading) {
+                        Capsule().fill(Color.gray.opacity(0.2)).frame(height: 20)
+                        HStack(spacing: 0) {
+                            Capsule().fill(Color.green).frame(width: filled, height: 20)
+                            Capsule().fill(Color.red.opacity(0.6)).frame(width: remain, height: 20)
+                        }
                     }
                 }
+                .frame(height: 20)
             }
-            .frame(height: 20)
+            .padding()
+            .background(Color.orange.opacity(0.2))
+            .clipShape(RoundedRectangle(cornerRadius: 15))
         }
-        .padding()
-        .background(Color.orange.opacity(0.2))
-        .clipShape(RoundedRectangle(cornerRadius: 15))
+        .buttonStyle(.plain)
     }
+
 }
 
 #Preview {
