@@ -19,11 +19,17 @@ struct AddGoalView: View {
     var body: some View {
         NavigationStack {
             Form {
-                TextField("Goal Name", text: $title)
-                TextField("Current Amount", text: $current)
-                    .keyboardType(.decimalPad)
-                TextField("Target Amount", text: $target)
-                    .keyboardType(.decimalPad)
+                Section("Add a Goal Name") {
+                    TextField("E.g. Get an iPhone 17", text: $title)
+                }
+                Section("Current Amount"){
+                    TextField("E.g. $200", text: $current)
+                        .keyboardType(.decimalPad)
+                }
+                Section("Target Amount") {
+                    TextField("E.g. $1749", text: $target)
+                        .keyboardType(.decimalPad)
+                }
             }
             .navigationTitle("Add Goal")
             .toolbar {
