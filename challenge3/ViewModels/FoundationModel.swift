@@ -172,6 +172,136 @@ struct AddExpenseTool: Tool {
         }
     }
 }
+struct GetIncomeTool: Tool {
+  
+    
+
+    let name = "GetIncome"
+    let description = "Get the total income of the user"
+    
+    @Generable
+    struct Arguments {
+        
+        
+    }
+    
+    
+    func call(arguments: Arguments) async throws -> Int {
+        return await MainActor.run {
+            if let income = UserDefaults.standard.value(forKey: "income") as? Int{
+                
+                return income
+            }
+            return -1
+            
+
+        }
+    }
+}
+struct GetBudgetsTool: Tool {
+    var modelContext: ModelContext? = nil
+    var modelContainer: ModelContainer? = nil
+    
+    @MainActor
+    init(inMemory: Bool) {
+        do {
+            let configuration = ModelConfiguration(isStoredInMemoryOnly: inMemory)
+            let container = try ModelContainer(for: BudgetItem.self, configurations: configuration)
+            modelContainer = container
+            modelContext = container.mainContext
+            modelContext?.autosaveEnabled = true
+            
+        } catch(let error) {
+            print(error)
+            print(error.localizedDescription)
+        }
+    }
+    
+    let name = "getBudgets"
+    let description = "Get a list of all budgets the user has set"
+    
+    @Generable
+    struct Arguments {
+        
+        
+    }
+    
+    func call(arguments: Arguments) async throws -> [String] {
+        return await MainActor.run {
+            guard let modelContext = modelContext else {
+                return []
+            }
+            
+                        
+            let budgetsDescriptor = FetchDescriptor<BudgetItem>()
+            
+            do {
+                let budgets = try modelContext.fetch(budgetsDescriptor)
+                let formattedBudgets = budgets.map { budget in
+                    "Budget Category: \(budget.category), Budget Cap: \(budget.cap)"
+                }
+                print(formattedBudgets)
+                return formattedBudgets
+                
+            } catch(let error) {
+                print(error)
+            }
+            return []
+        }
+    }
+}
+struct GetGoalsTool: Tool {
+    var modelContext: ModelContext? = nil
+    var modelContainer: ModelContainer? = nil
+    
+    @MainActor
+    init(inMemory: Bool) {
+        do {
+            let configuration = ModelConfiguration(isStoredInMemoryOnly: inMemory)
+            let container = try ModelContainer(for: GoalItem.self, configurations: configuration)
+            modelContainer = container
+            modelContext = container.mainContext
+            modelContext?.autosaveEnabled = true
+            
+        } catch(let error) {
+            print(error)
+            print(error.localizedDescription)
+        }
+    }
+    
+    let name = "getGoals"
+    let description = "Get all goals the user has set"
+    
+    @Generable
+    struct Arguments {
+        
+        
+    }
+    
+    func call(arguments: Arguments) async throws -> [String] {
+        return await MainActor.run {
+            guard let modelContext = modelContext else {
+                return []
+            }
+            
+                        
+            let goalDescriptor = FetchDescriptor<GoalItem>()
+            
+            do {
+                let goals = try modelContext.fetch(goalDescriptor)
+                let formattedGoals = goals.map { goals in
+                    "Title: \(goals.title), Current: \(goals.current), Target: \(goals.target)"
+                }
+                print(formattedGoals)
+                return formattedGoals
+                
+            } catch(let error) {
+                print(error)
+            }
+            return []
+        }
+    }
+}
 
 @Observable
 class FoundationModelViewModel{
@@ -184,10 +314,7 @@ class FoundationModelViewModel{
     var showAlert = false
     var alertMessage: String = ""
     var chatHistory: [ChatMessage] = []
-    var instructions = ""
-    init() {
-        if let income = UserDefaults.standard.string(forKey: "income"), let name = UserDefaults.standard.string(forKey: "name"){
-                instructions = """
+    let instructions = """
                 Role
 
                 You are “Bro”, a friendly and professional personal finance assistant.
@@ -253,7 +380,7 @@ class FoundationModelViewModel{
                 The user may set:
                     • Goal name  
                     • Target amount  
-                    • Income per year  \(income)
+                    • Income per year 
                     • Preferred completion date (optional)  
                     • Frequency of contribution (optional)
 
@@ -304,12 +431,13 @@ class FoundationModelViewModel{
                     • Avoid legal, tax, or investment advice, except for broad educational guidance.
 
                 """
-        }
+    init() {
         
     }
     
+    
    
-    @ObservationIgnored lazy var session = LanguageModelSession(tools: [AddExpenseTool(inMemory: false), GetExpenseTool(inMemory: false)], instructions: instructions)
+    @ObservationIgnored lazy var session = LanguageModelSession(tools: [AddExpenseTool(inMemory: false), GetExpenseTool(inMemory: false), GetIncomeTool(), GetGoalsTool(inMemory: false), GetBudgetsTool(inMemory: false)], instructions: instructions)
     
     func generateResponse() async{
         isGenerating = true
