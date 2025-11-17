@@ -28,29 +28,29 @@ struct Provider: TimelineProvider {
 }
 
 
-struct LockscreenWidgetEntryView: View {
-    var entry: SimpleEntry
-
-    var body: some View {
-        Image(systemName: "plus.circle.fill")
-            .resizable()
-            .scaledToFit()
-            .padding(10)
-            .foregroundColor(.accentColor)
-            .widgetURL(URL(string: "myapp://expenses/add"))
-    }
-}
-
-
-@available (iOS 26.0, *)
-struct LockscreenWidget: Widget {
-    let kind: String = "LockscreenWidget"
-
-    var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: Provider()) { entry in
-            LockscreenWidgetEntryView(entry: entry)
-        }
-        .configurationDisplayName("Add Expense Widget")
-        .description("Tap to add a new expense.")
-        .supportedFamilies([.accessoryCircular])      }
-}
+//struct LockscreenWidgetEntryView: View {
+//    var entry: SimpleEntry
+//
+//    var body: some View {
+//        Image(systemName: "plus.circle.fill")
+//            .resizable()
+//            .scaledToFit()
+//            .padding(10)
+//            .foregroundColor(.accentColor)
+//            .widgetURL(URL(string: "moneymapr://expenses/add"))
+//    }
+//}
+//
+//
+//@available(iOS 26.0, *)
+//struct LockscreenWidget: Widget {
+//    let kind: String = "LockscreenWidget"
+//
+//    var body: some WidgetConfiguration {
+//        StaticConfiguration(kind: kind, provider: Provider()) { entry in
+//            LockscreenWidgetEntryView(entry: entry)
+//        }
+//        .configurationDisplayName("Add Expense Widget")
+//        .description("Tap to add a new expense.")
+//        .supportedFamilies([.accessoryCircular])      }
+//}

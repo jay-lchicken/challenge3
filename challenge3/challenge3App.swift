@@ -8,12 +8,13 @@
 import SwiftUI
 import SwiftData
 import FoundationModels
+import AppIntents
 
 @main
 struct challenge3App: App {
     private let model = SystemLanguageModel.default
     @State private var showAddExpense = false
-    
+
     var body: some Scene {
         WindowGroup {
             switch model.availability {
@@ -24,8 +25,14 @@ struct challenge3App: App {
                     .sheet(isPresented: $showAddExpense) {
                         AddExpenseView()
                     }
+                    
                     .onOpenURL { url in
                         handleDeepLink(url)
+                    }
+                   
+                    .onContinueUserActivity("LaunchAddExpenseIntent") { _ in
+                        print("Received AppIntent: LaunchAddExpenseIntent")
+                        showAddExpense = true
                     }
             case .unavailable(.appleIntelligenceNotEnabled):
                 Text("Apple Intelligence is not enabled. Please enable it in Settings.")
@@ -38,12 +45,13 @@ struct challenge3App: App {
             }
         }
     }
-    
+
     private func handleDeepLink(_ url: URL) {
         print("Received URL: \(url.absoluteString)")
-        if url.scheme == "myapp", url.host == "expenses", url.pathComponents.contains("add") {
+        if url.scheme == "moneymapr", url.host == "expenses", url.pathComponents.contains("add") {
             print("Presenting AddExpenseView!")
             showAddExpense = true
         }
     }
+    
 }

@@ -8,22 +8,11 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string> </string>
+			<string>moneymapr</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>myapp</string>
+				<string>moneymapr</string>
 			</array>
-			<key>CFBundleURLTypes</key>
-			<array>
-				<dict>
-					<key>CFBundleURLName</key>
-					<string></string>
-				</dict>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
 		</dict>
 	</array>
 </dict>
