@@ -8,16 +8,18 @@ import WidgetKit
 import SwiftUI
 import AppIntents
 import UIKit
-//@available(iOS 18.0, *)
-//
-//struct LaunchAddExpenseIntent: AppIntent {
-//    static var title: LocalizedStringResource = "Open Add"
-//    static var openAppWhenRun: Bool = true
-//    static var isDiscoverable: Bool = true
-//    func perform() async throws -> some IntentResult  {
-//        return .result()
-//    }
-//}
+//DO NOT DELETE
+@available(iOS 18.0, *)
+struct LaunchAddExpenseIntent: AppIntent {
+    static var title: LocalizedStringResource = "Open Add Expense"
+    static var openAppWhenRun: Bool = true
+    static var isDiscoverable: Bool = true
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        return .result()
+    }
+}
 
 
 @available(iOS 26.0, *)
@@ -29,7 +31,7 @@ struct LockscreenWidgetControl: ControlWidget {
             }
         }
         .displayName("Add Expense Control")
-        .description("Quickly add a new expense.")
+         .description("Quickly add a new expense.")
     }
 }
 

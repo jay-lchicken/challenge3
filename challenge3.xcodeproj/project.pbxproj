@@ -61,13 +61,6 @@
 			);
 			target = 06E7EDDE2EBB3DD400BD5A49 /* challenge3 */;
 		};
-		ACBF8F992ECAC9B700881338 /* Exceptions for "challenge3" folder in "LockscreenWidgetExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				ActionIntent.swift,
-			);
-			target = ACA64FB42EC71F0C00AB53F3 /* LockscreenWidgetExtension */;
-		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -75,7 +68,6 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				ACA650C32ECA0DA600AB53F3 /* Exceptions for "challenge3" folder in "challenge3" target */,
-				ACBF8F992ECAC9B700881338 /* Exceptions for "challenge3" folder in "LockscreenWidgetExtension" target */,
 			);
 			path = challenge3;
 			sourceTree = "<group>";

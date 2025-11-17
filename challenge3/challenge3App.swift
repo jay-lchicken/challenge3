@@ -9,11 +9,14 @@ import SwiftUI
 import SwiftData
 import FoundationModels
 import AppIntents
+import AppIntents
 
 @main
 struct challenge3App: App {
     private let model = SystemLanguageModel.default
-    @State private var showAddExpense = false
+    @State var showAddExpense = false
+    
+
 
     var body: some Scene {
         WindowGroup {
@@ -46,7 +49,7 @@ struct challenge3App: App {
         }
     }
 
-    private func handleDeepLink(_ url: URL) {
+    func handleDeepLink(_ url: URL) {
         print("Received URL: \(url.absoluteString)")
         if url.scheme == "moneymapr", url.host == "expenses", url.pathComponents.contains("add") {
             print("Presenting AddExpenseView!")
@@ -54,4 +57,25 @@ struct challenge3App: App {
         }
     }
     
+    
 }
+//DO NOT DELETE
+
+@available(iOS 18.0, *)
+struct LaunchAddExpenseIntent: AppIntent {
+    static var title: LocalizedStringResource = "Open Add Expense"
+    static var openAppWhenRun: Bool = true
+    static var isDiscoverable: Bool = true
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        print("Called")
+        guard let url = URL(string: "moneymapr://expenses/add") else {
+            return .result()
+        }
+        await UIApplication.shared.open(url)
+        
+        return .result()
+    }
+}
+
