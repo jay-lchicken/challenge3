@@ -398,7 +398,7 @@
 				CODE_SIGN_ENTITLEMENTS = challenge3/challenge3.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = DW56FJMFQ5;
+				DEVELOPMENT_TEAM = U4G2VPB6FH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = challenge3/Info.plist;
@@ -438,7 +438,7 @@
 				CODE_SIGN_ENTITLEMENTS = challenge3/challenge3.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = DW56FJMFQ5;
+				DEVELOPMENT_TEAM = U4G2VPB6FH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = challenge3/Info.plist;
@@ -478,7 +478,7 @@
 				CODE_SIGN_ENTITLEMENTS = LockscreenWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = DW56FJMFQ5;
+				DEVELOPMENT_TEAM = U4G2VPB6FH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LockscreenWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = LockscreenWidget;
@@ -510,7 +510,7 @@
 				CODE_SIGN_ENTITLEMENTS = LockscreenWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = DW56FJMFQ5;
+				DEVELOPMENT_TEAM = U4G2VPB6FH;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LockscreenWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = LockscreenWidget;

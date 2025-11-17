@@ -600,6 +600,8 @@ struct GetBudgetsTool: Tool {
     
     func call(arguments: Arguments) async throws -> [String] {
         return await MainActor.run {
+            print("get budget")
+
             guard let context = modelContext else { return [] }
             if let budgets = try? context.fetch(FetchDescriptor<BudgetItem>()) {
                 if budgets.isEmpty { return ["No budgets set."] }
@@ -614,6 +616,7 @@ struct GetBudgetsTool: Tool {
 struct GetGoalsTool: Tool {
     var modelContext: ModelContext? = nil
     var modelContainer: ModelContainer? = nil
+
     
     @MainActor
     init(inMemory: Bool = false) {
@@ -635,6 +638,8 @@ struct GetGoalsTool: Tool {
     
     func call(arguments: Arguments) async throws -> [String] {
         return await MainActor.run {
+            print("get goals")
+
             guard let context = modelContext else { return [] }
             if let goals = try? context.fetch(FetchDescriptor<GoalItem>()) {
                 if goals.isEmpty { return ["No goals set."] }
@@ -649,16 +654,19 @@ struct GetGoalsTool: Tool {
 struct GetIncomeTool: Tool {
     let name = "getIncome"
     let description = "Get user's total income"
-    
     @Generable
     struct Arguments {}
     
-    func call(arguments: Arguments) async throws -> Int {
+    func call(arguments: Arguments) async throws -> String {
         return await MainActor.run {
-            if let income = UserDefaults.standard.value(forKey: "income") as? Int {
+            print("get income")
+
+            if let income = UserDefaults.standard.value(forKey: "income") as? String {
+                print(income)
                 return income
             }
-            return -1
+            
+            return "-1"
         }
     }
 }
