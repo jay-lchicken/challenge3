@@ -16,7 +16,7 @@ struct FinanceView: View {
     @Query(sort: \GoalItem.dateCreated, order: .reverse) var goals: [GoalItem]
 
     @State private var selectedTab = "Overview"
-    @State private var budget: Double = 1500
+    @AppStorage("budget") private var budget: Double = 1500
     @State private var selectedTimeRange = "Daily"
     @State private var showAddGoal = false
 
