@@ -4,37 +4,39 @@
 //
 //  Created by Lai Hong Yu on 11/7/25.
 //
+ 
+//
+//  HomeView.swift
+//  challenge3
+//
 
 import SwiftUI
 import SwiftData
 
 struct HomeView: View {
-    // SWIFT DATA
+    
     @Environment(\.modelContext) var modelContext
     @Query var expenses: [ExpenseItem]
     @AppStorage("question") var query: String = ""
 
+    @AppStorage("budget") private var budget: Double = 1500
+
     @State private var selectedExpense: ExpenseItem? = nil
+    private var todaySpent: Double {
+        let start = Calendar.current.startOfDay(for: Date())
+        return expenses
+            .filter { Date(timeIntervalSince1970: $0.date) >= start }
+            .reduce(0) { $0 + $1.amount }
+    }
+    
+    private var todaySaved: Double {
+        max(budget - todaySpent, 0)
+    }
 
     var body: some View {
         NavigationStack {
             List {
-//                Section(header:
-//                    HStack(spacing: 10) {
-//                        Image(systemName: "questionmark.circle")
-//                            .font(.title3)
-//                        Text("Feedback")
-//                            .font(.title3)
-//                            .fontWeight(.bold)
-//                        Spacer()
-//                    }
-//                    .foregroundColor(.primary)
-//                ) {
-//                    FeedbackView()
-//                        .listRowInsets(EdgeInsets())
-//                        .frame(maxWidth: .infinity)
-//                }
-                
+
                 Section(header:
                     HStack(spacing: 10) {
                         Image(systemName: "dollarsign.circle")
@@ -46,13 +48,12 @@ struct HomeView: View {
                     }
                     .foregroundColor(.primary)
                 ) {
+
                     HStack {
-                        Text("Spent: $10")
+                        Text("Spent: $\(todaySpent, specifier: "%.2f")")
                         Spacer()
-                        Text("Saved: $500")
+                        Text("Saved: $\(todaySaved, specifier: "%.2f")")
                     }
-                    
-//                    ExpenseView()
 
                     ForEach(expenses, id: \.self) { item in
                         NavigationLink(
@@ -68,6 +69,7 @@ struct HomeView: View {
                                 category: item.category
                             )
                         }
+                        .listRowBackground(Color.clear)
                     }
                 }
             }
@@ -78,44 +80,9 @@ struct HomeView: View {
                     NavigationLink(destination: ProfileView()) {
                         Image(systemName: "person.circle")
                             .imageScale(.large)
-                            .accessibilityLabel("Profile")
                     }
                 }
             }
-            
         }
     }
 }
-
-import FoundationModels
-struct FeedbackView: View {
-    @State var feedback: String = ""
-    
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                Text("Feedback").font(.headline)
-                Text("Feedback blah blah blah...")
-                    .font(.body)
-            }
-            .padding()
-        }
-        .task{
-            let session = LanguageModelSession(instructions: 
-            """
-            
-            """
-            )
-            let response = try? await session.respond(to: "AHEHEHEMEMEMM")
-        }
-        .frame(maxWidth: .infinity, minHeight: 200)
-        .background(Color(UIColor.systemBackground))
-        .cornerRadius(15)
-        .shadow(radius: 5)
-    }
-}
-
-#Preview {
-    HomeView()
-}
-

@@ -19,7 +19,7 @@ struct AddGoalView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Add a Goal Name") {
+                Section("Goal Name") {
                     TextField("E.g. Get an iPhone 17", text: $title)
                 }
                 Section("Current Amount"){

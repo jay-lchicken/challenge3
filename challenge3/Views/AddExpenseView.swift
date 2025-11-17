@@ -34,7 +34,7 @@ struct AddExpenseView: View {
                     ForEach(categories, id: \.self) { cat in
                         Text(cat.capitalized)
                             .tag(cat)
-                    }
+                        }
                 }
                 .pickerStyle(.menu)
 
