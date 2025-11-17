@@ -9,76 +9,77 @@ import SwiftUI
 import SwiftData
 
 struct EditBudgetsView: View {
-    let categories: [String]
-    var existingBudgets: [BudgetItem]
-    var onDone: () -> Void
-
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) private var dismiss
-    @State private var local: [String: String] = [:]
-
-    init(categories: [String], existingBudgets: [BudgetItem], onDone: @escaping () -> Void) {
+    
+    let categories: [String]
+    
+    @Query(sort: \BudgetItem.category)
+    private var budgets: [BudgetItem]
+    
+    @State private var localCaps: [String: String] = [:]
+    
+    init(categories: [String]) {
         self.categories = categories
-        self.existingBudgets = existingBudgets
-        self.onDone = onDone
-
-        var d: [String: String] = [:]
-        for cat in categories {
-            if let b = existingBudgets.first(where: { $0.category.lowercased() == cat.lowercased() }) {
-                d[cat] = String(Int(b.cap))
-            } else {
-                d[cat] = "200"
-            }
-        }
-        _local = State(initialValue: d)
     }
-
+    
     var body: some View {
         NavigationStack {
             Form {
-                ForEach(categories, id: \.self) { cat in
+                ForEach(categories, id: \.self) { category in
                     HStack {
-                        Text(cat)
+                        Text(category)
                         Spacer()
-                        TextField("0",
-                                  text: Binding(
-                                    get: { local[cat] ?? "0" },
-                                    set: { local[cat] = $0 }
-                                  ))
-                        .frame(width: 80)
-                        .multilineTextAlignment(.trailing)
+                        TextField("0", text: Binding(
+                            get: { localCaps[category] ?? startingCap(for: category) },
+                            set: { localCaps[category] = $0 }
+                        ))
+                        .frame(width: 70)
                         .keyboardType(.decimalPad)
+                        .multilineTextAlignment(.trailing)
                     }
                 }
             }
             .navigationTitle("Edit Budgets")
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        for cat in categories {
-                            let newCap = Double(local[cat] ?? "0") ?? 0
-
-                            if let existing = existingBudgets.first(where: {
-                                $0.category.lowercased() == cat.lowercased()
-                            }) {
-                                existing.cap = newCap
-                            } else {
-                                let b = BudgetItem(category: cat, cap: newCap)
-                                modelContext.insert(b)
-                            }
-                        }
-                        try? modelContext.save()
-                        onDone()
-                        dismiss()
-                    }
+                    Button("Save") { saveAll() }
                 }
-
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") {
-                        dismiss()
-                    }
+                    Button("Close") { dismiss() }
                 }
             }
+            .onAppear { loadInitialValues() }
         }
+    }
+    
+    private func loadInitialValues() {
+        for cat in categories {
+            localCaps[cat] = startingCap(for: cat)
+        }
+    }
+    
+    private func startingCap(for cat: String) -> String {
+        if let b = budgets.first(where: { $0.category.lowercased() == cat.lowercased() }) {
+            return String(Int(b.cap))
+        }
+        return "200"
+    }
+    
+    private func saveAll() {
+        for cat in categories {
+            let newCap = Double(localCaps[cat] ?? "0") ?? 0
+            if let existing = budgets.first(where: { $0.category.lowercased() == cat.lowercased() }) {
+                existing.cap = newCap
+            } else {
+                modelContext.insert(BudgetItem(category: cat, cap: newCap))
+            }
+        }
+        do {
+            try modelContext.save()
+        } catch {
+            print("Failed to save budgets:", error)
+        }
+        dismiss()
     }
 }

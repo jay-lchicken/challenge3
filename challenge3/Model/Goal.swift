@@ -5,11 +5,12 @@
 //  Created by Aletheus Ang on 14/11/25.
 //
 
-import SwiftData
 import Foundation
+import SwiftData
 
 @Model
-class GoalItem: Identifiable {
+final class GoalItem: Identifiable {
+    var id = UUID()
     var title: String
     var current: Double
     var target: Double
@@ -22,3 +23,4 @@ class GoalItem: Identifiable {
         self.dateCreated = Date()
     }
 }
+
