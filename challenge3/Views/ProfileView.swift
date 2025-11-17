@@ -16,7 +16,7 @@ struct ProfileView: View {
     @State private var selectedSegment = 0
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
                 Picker("Sections", selection: $selectedSegment) {
                     Text("Details").tag(0)
@@ -75,6 +75,8 @@ struct ProfileView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationTitle("Profile")
+            .navigationBarTitleDisplayMode(.inline)
+
         }
     }
 }
@@ -82,3 +84,4 @@ struct ProfileView: View {
 #Preview {
     ProfileView()
 }
+

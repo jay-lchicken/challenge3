@@ -19,21 +19,21 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section(header:
-                    HStack(spacing: 10) {
-                        Image(systemName: "questionmark.circle")
-                            .font(.title3)
-                        Text("Feedback")
-                            .font(.title3)
-                            .fontWeight(.bold)
-                        Spacer()
-                    }
-                    .foregroundColor(.primary)
-                ) {
-                    FeedbackView()
-                        .listRowInsets(EdgeInsets())
-                        .frame(maxWidth: .infinity)
-                }
+//                Section(header:
+//                    HStack(spacing: 10) {
+//                        Image(systemName: "questionmark.circle")
+//                            .font(.title3)
+//                        Text("Feedback")
+//                            .font(.title3)
+//                            .fontWeight(.bold)
+//                        Spacer()
+//                    }
+//                    .foregroundColor(.primary)
+//                ) {
+//                    FeedbackView()
+//                        .listRowInsets(EdgeInsets())
+//                        .frame(maxWidth: .infinity)
+//                }
                 
                 Section(header:
                     HStack(spacing: 10) {
@@ -52,7 +52,7 @@ struct HomeView: View {
                         Text("Saved: $500")
                     }
                     
-                    ExpenseView()
+//                    ExpenseView()
 
                     ForEach(expenses, id: \.self) { item in
                         NavigationLink(
@@ -72,8 +72,7 @@ struct HomeView: View {
                 }
             }
             .listStyle(.insetGrouped)
-            .navigationTitle("Home").font(.title2).bold()
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Home")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     NavigationLink(destination: ProfileView()) {

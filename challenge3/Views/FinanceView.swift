@@ -55,10 +55,7 @@ struct FinanceView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                Text("Finance")
-                    .font(.title2).bold()
-                    .padding(.top)
-
+              
                 Picker("", selection: $selectedTab) {
                     Text("Overview").tag("Overview")
                     Text("Budget").tag("Budget")
@@ -97,6 +94,7 @@ struct FinanceView: View {
             .sheet(isPresented: $showAddGoal) {
                 AddGoalView()
             }
+            .navigationTitle("Finance")
 
         }
     }
