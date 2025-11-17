@@ -9,13 +9,11 @@ import Foundation
 import SwiftUI
 
 struct CategoryOptionsModel{
-    let category = ["beverage", "food", "transport", "lifestyle", "subscriptions", "shopping", "others"]
+    let category = ["food", "transport", "lifestyle", "subscriptions", "shopping", "others"]
 }
 extension String {
     var categoryColor: Color {
         switch self.lowercased() {
-        case "beverage":
-            return .yellow.opacity(0.3)
         case "food":
             return .green.opacity(0.3)
         case "transport":
@@ -33,3 +31,18 @@ extension String {
         }
     }
 }
+extension String{
+    var sFSymbol:  String {
+        switch self.lowercased() {
+        case "food": return "fork.knife"
+        case "transport": return "car.fill"
+        case "shopping": return "bag.fill"
+        case "social life": return "person.2.fill"
+        case "subscriptions": return "creditcard.fill"
+        case "others": return "square.grid.2x2"
+        default: return "questionmark.circle"
+        }
+        
+    }
+}
+

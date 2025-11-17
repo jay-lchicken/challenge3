@@ -9,19 +9,37 @@ import SwiftUI
 import SwiftData
 import Charts
 
+@Model
+final class BudgetItem: Identifiable {
+    var id: UUID
+    var category: String
+    var cap: Double
+    init(id: UUID = UUID(), category: String, cap: Double) {
+        self.id = id
+        self.category = category
+        self.cap = cap
+    }
+}
+
 struct FinanceView: View {
     @Environment(\.modelContext) var modelContext
-
     @Query(sort: \ExpenseItem.date, order: .reverse) var expenses: [ExpenseItem]
     @Query(sort: \GoalItem.dateCreated, order: .reverse) var goals: [GoalItem]
+    @Query(sort: \BudgetItem.category, order: .forward) var budgets: [BudgetItem]
 
     @State private var selectedTab = "Overview"
     @State private var budget: Double = 1500
-    @State private var selectedTimeRange = "Daily"
+    @State private var selectedTimeRange = "Monthly"
     @State private var showAddGoal = false
+    @State private var showEditBudgets = false
+    @State private var showDateRangePicker = false
+    @State private var dateRangeStart = Calendar.current.date(byAdding: .day, value: -7, to: Date())!
+    @State private var dateRangeEnd = Date()
 
     let timeRanges = ["Daily", "Monthly", "Yearly"]
+    let categories = ["Food", "Transport", "Social Life", "Payments", "Shopping", "Others"]
 
+    
     private var filteredExpenses: [ExpenseItem] {
         let calendar = Calendar.current
         return expenses.filter { exp in
@@ -35,27 +53,37 @@ struct FinanceView: View {
         }
     }
 
+    private func expensesBetween(_ start: Date, _ end: Date) -> [ExpenseItem] {
+        expenses.filter { exp in
+            let d = Date(timeIntervalSince1970: exp.date)
+            return d >= Calendar.current.startOfDay(for: start) &&
+                   d <= Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: end)!
+        }
+    }
+
     private var categoryTotals: [(category: String, total: Double)] {
         let grouped = Dictionary(grouping: filteredExpenses, by: { $0.category })
         return grouped
-            .map { (key, value) in
-                (category: key, total: value.reduce(0) { $0 + $1.amount })
-            }
+            .map { (key, value) in (category: key, total: value.reduce(0) { $0 + $1.amount }) }
             .sorted { $0.total > $1.total }
     }
 
-    private var totalSpent: Double {
-        filteredExpenses.reduce(0) { $0 + $1.amount }
+    private var totalSpent: Double { filteredExpenses.reduce(0) { $0 + $1.amount } }
+    private var remainingBudget: Double { max(budget - totalSpent, 0) }
+
+    private func capForCategory(_ cat: String) -> Double {
+        budgets.first(where: { $0.category.lowercased() == cat.lowercased() })?.cap ?? 200
     }
 
-    private var remainingBudget: Double {
-        max(budget - totalSpent, 0)
+    private func spentFor(_ cat: String) -> Double {
+        filteredExpenses.filter { $0.category.lowercased() == cat.lowercased() }.reduce(0) { $0 + $1.amount }
     }
 
     var body: some View {
         NavigationStack {
-            VStack {
-              
+            VStack(spacing: 16) {
+
+               
                 Picker("", selection: $selectedTab) {
                     Text("Overview").tag("Overview")
                     Text("Budget").tag("Budget")
@@ -66,181 +94,251 @@ struct FinanceView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
-                        Picker("", selection: $selectedTimeRange) {
-                            ForEach(timeRanges, id: \.self) { range in
-                                Text(range)
-                            }
-                        }
-                        .pickerStyle(.menu)
-                        .padding(.horizontal)
 
-                        if selectedTab == "Expenses" {
-                            ExpenseView()
-                        }
-
-                        else if selectedTab == "Budget" {
-                            categoryBudgetSection
-                        }
-
-                        else {
-                            overviewSection
-                            goalsSection
-                        }
                         
+                        if selectedTab == "Expenses" {
+                            expensesTab
+                        }
+
+                       
+                        else if selectedTab == "Budget" {
+                            budgetTab
+                        }
+
+                        
+                        else {
+                            overviewTab
+                        }
                     }
-                    .padding()
+                    .padding(.vertical)
                 }
             }
-            .sheet(isPresented: $showAddGoal) {
-                AddGoalView()
+            .toolbar {
+            
+                if selectedTab != "Expenses" {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Menu {
+                            ForEach(timeRanges, id: \.self) { range in
+                                Button(range) { selectedTimeRange = range }
+                            }
+                        } label: {
+                            Text(selectedTimeRange)
+                                .foregroundColor(.yellow)
+                                .bold()
+                        }
+                    }
+                }
             }
             .navigationTitle("Finance")
-
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .sheet(isPresented: $showAddGoal) { AddGoalView() }
+        .sheet(isPresented: $showEditBudgets) {
+            EditBudgetsView(categories: categories,
+                            existingBudgets: budgets,
+                            onDone: { showEditBudgets = false })
         }
     }
 
-    private var categoryBudgetSection: some View {
+
+    private var overviewTab: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("Category Budgets")
-                .font(.caption).bold()
 
-            ForEach(["Food","Transport","Social Life","Payments","Shopping","Others"], id: \.self) { cat in
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(cat).font(.subheadline)
+            if !categoryTotals.isEmpty {
+                Text("Expense Categories")
+                    .font(.headline)
+                    .padding(.horizontal)
 
-                    GeometryReader { geo in
-                        let width = geo.size.width
-                        let spent = filteredExpenses
-                            .filter { $0.category.lowercased() == cat.lowercased() }
-                            .reduce(0) { $0 + $1.amount }
+                HStack(alignment: .top, spacing: 12) {
+                    Chart(categoryTotals, id: \.category) { item in
+                        SectorMark(
+                            angle: .value("Amount", item.total),
+                            innerRadius: .ratio(0.55),
+                            angularInset: 1
+                        )
+                        .foregroundStyle(item.category.categoryColor)
+                    }
+                    .frame(width: 220, height: 220)
+                    .padding(.leading, 12)
 
-                        let budgetCap: CGFloat = 200
-                        let ratio = min(CGFloat(spent) / budgetCap, 1)
-                        let filled = width * ratio
-                        let remain = width - filled
+                    VStack(alignment: .leading, spacing: 8) {
+                        ForEach(categoryTotals, id: \.category) { item in
+                            HStack(spacing: 8) {
+                                Image(systemName: item.category.sFSymbol)
+                                    .foregroundColor(item.category.categoryColor)
+                                Text(item.category)
+                                    .font(.subheadline)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
 
-                        ZStack(alignment: .leading) {
-                            Capsule().fill(Color.gray.opacity(0.2)).frame(height: 18)
-                            HStack(spacing: 0) {
-                                Capsule().fill(Color.red).frame(width: filled, height: 18)
-                                Capsule().fill(Color.green).frame(width: remain, height: 18)
+                                Spacer()
+                                Text("$\(Int(item.total))")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
                             }
                         }
                     }
-                    .frame(height: 18)
-
-                    Text("Spent: $\(Int(spentFor(cat)))")
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                    .padding(.trailing)
                 }
             }
-        }
-        .padding(.horizontal)
-    }
 
-    private func spentFor(_ cat: String) -> Double {
-        filteredExpenses.filter { $0.category.lowercased() == cat.lowercased() }
-            .reduce(0) { $0 + $1.amount }
-    }
-
-    private var overviewSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            if !categoryTotals.isEmpty {
-                Text("Expense Categories").font(.caption)
-                Chart(categoryTotals, id: \.category) { item in
-                    SectorMark(
-                        angle: .value("Total", item.total),
-                        innerRadius: .ratio(0.5),
-                        angularInset: 1
-                    )
-                    .foregroundStyle(by: .value("Category", item.category))
-                }
-                .frame(height: 250)
+            Text("Expense Breakdown")
+                .font(.headline)
                 .padding(.horizontal)
-            }
-
-            Text("Expense Breakdown").font(.caption)
 
             GeometryReader { geo in
                 let width = geo.size.width
                 let ratio = CGFloat(min(totalSpent / budget, 1))
                 let filled = width * ratio
-                let remain = width - filled
-
                 ZStack(alignment: .leading) {
-                    Capsule().fill(Color.gray.opacity(0.2)).frame(height: 20)
-                    HStack(spacing: 0) {
-                        Capsule().fill(Color.red).frame(width: filled, height: 20)
-                        Capsule().fill(Color.green).frame(width: remain, height: 20)
-                    }
+                    Capsule().fill(Color.gray.opacity(0.12)).frame(height: 20)
+                    Capsule().fill(Color.red).frame(width: filled, height: 20)
                 }
             }
             .frame(height: 20)
+            .padding(.horizontal)
 
             Text("Budget: $\(Int(budget)) | Spent: $\(Int(totalSpent)) | Saved: $\(Int(remainingBudget))")
                 .font(.caption)
+                .padding(.horizontal)
                 .foregroundColor(.gray)
-        }
-        .padding(.horizontal)
-    }
 
-    private var goalsSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Text("Goals:")
-                    .font(.title3).bold()
-                Spacer()
-                Button("Add New") { showAddGoal = true }
-                    .padding(6)
-                    .glassEffect(.clear.interactive(), in: .capsule)
-            }
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Text("Goals:")
+                        .font(.title3).bold()
+                    Spacer()
+                    Button("Add New") { showAddGoal = true }
+                        .foregroundColor(.yellow)
+                }
 
-            VStack(spacing: 12) {
                 ForEach(goals) { goal in
                     goalCard(goal)
                 }
             }
+            .padding(.horizontal)
         }
-        .padding(.top)
     }
 
-    private func goalCard(_ goal: GoalItem) -> some View {
+  
+    private var budgetTab: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Category Budgets")
+                    .font(.headline)
+                Spacer()
+                Button {
+                    showEditBudgets = true
+                } label: {
+                    HStack {
+                        Image(systemName: "pencil")
+                        Text("Edit")
+                    }
+                    .padding(8)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+            }
+            .padding(.horizontal)
+
+            ForEach(categories, id: \.self) { cat in
+                categoryBudgetCard(cat)
+            }
+        }
+    }
+
+   
+    private var expensesTab: some View {
+        VStack(alignment: .leading, spacing: 12) {
+
+            HStack {
+                Text("Expenses")
+                    .font(.headline)
+                Spacer()
+            }
+            .padding(.horizontal)
+
+            let results = expensesBetween(dateRangeStart, dateRangeEnd)
+
+            if results.isEmpty {
+                Text("No expenses")
+                    .foregroundColor(.gray)
+                    .padding(.horizontal)
+            } else {
+                VStack(spacing: 10) {
+                    ForEach(results, id: \.self) { item in
+                        ExpenseItemView(title: item.name,
+                                        date: Date(timeIntervalSince1970: item.date),
+                                        amount: item.amount,
+                                        category: item.category)
+                    }
+                }
+                .padding(.horizontal)
+            }
+        }
+    }
+
+    private func categoryBudgetCard(_ cat: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text("\(goal.title) - \(Int(goal.current))/\(Int(goal.target))")
-                    .font(.headline)
-
-                Spacer()
-
-                let pct = min(goal.current / goal.target, 1)
-                Text("\(Int(pct * 100))%")
+                Image(systemName: cat.sFSymbol)
+                    .foregroundColor(cat.categoryColor)
+                Text(cat)
                     .font(.subheadline)
+                Spacer()
+                Text("Budget $\(Int(capForCategory(cat)))")
+                    .font(.caption)
                     .foregroundColor(.gray)
             }
 
             GeometryReader { geo in
                 let width = geo.size.width
-                let ratio = CGFloat(min(goal.current / goal.target, 1))
+                let spent = spentFor(cat)
+                let cap = capForCategory(cat)
+                let ratio = min(spent / cap, 1)
                 let filled = width * ratio
-                let remain = width - filled
 
                 ZStack(alignment: .leading) {
-                    Capsule().fill(Color.gray.opacity(0.2)).frame(height: 20)
-                    HStack(spacing: 0) {
-                        Capsule().fill(Color.green).frame(width: filled, height: 20)
-                        Capsule().fill(Color.red.opacity(0.6)).frame(width: remain, height: 20)
-                    }
+                    Capsule().fill(Color.gray.opacity(0.12)).frame(height: 18)
+                    Capsule().fill(Color.red).frame(width: filled, height: 18)
                 }
             }
-            .frame(height: 20)
+            .frame(height: 18)
+
+            Text("Spent: $\(Int(spentFor(cat)))")
+                .font(.caption)
+                .foregroundColor(.gray)
+
+        }
+        .padding()
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .padding(.horizontal)
+    }
+
+    private func goalCard(_ goal: GoalItem) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("\(goal.title) — \(Int(goal.current))/\(Int(goal.target))")
+                Spacer()
+                Text("\(Int(min(goal.current / goal.target, 1) * 100))%")
+                    .foregroundColor(.gray)
+            }
+            GeometryReader { geo in
+                let w = geo.size.width
+                let ratio = CGFloat(min(goal.current / goal.target, 1))
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Color.gray.opacity(0.3)).frame(height: 18)
+                    Capsule().fill(Color.green).frame(width: w * ratio, height: 18)
+                }
+            }
+            .frame(height: 18)
         }
         .padding()
         .background(Color.orange.opacity(0.2))
-        .clipShape(RoundedRectangle(cornerRadius: 15))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
-}
 
-#Preview {
-    FinanceView()
-        .modelContainer(for: [GoalItem.self, ExpenseItem.self], inMemory: true)
 }
