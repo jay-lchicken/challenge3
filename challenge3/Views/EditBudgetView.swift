@@ -13,11 +13,11 @@ struct EditBudgetsView: View {
     @Environment(\.dismiss) private var dismiss
     
     let categories: [String]
+    @Query(sort: \BudgetItem.category) private var budgets: [BudgetItem]
+    @State private var localCaps: [String: Double] = [:]
     
-    @Query(sort: \BudgetItem.category)
-    private var budgets: [BudgetItem]
-    
-    @State private var localCaps: [String: String] = [:]
+    @State private var showErrorAlert = false
+    @State private var errorMessage = ""
     
     init(categories: [String]) {
         self.categories = categories
@@ -30,10 +30,10 @@ struct EditBudgetsView: View {
                     HStack {
                         Text(category)
                         Spacer()
-                        TextField("0", text: Binding(
+                        TextField("0", value: Binding(
                             get: { localCaps[category] ?? startingCap(for: category) },
                             set: { localCaps[category] = $0 }
-                        ))
+                        ), formatter: NumberFormatter())
                         .frame(width: 70)
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.trailing)
@@ -50,6 +50,11 @@ struct EditBudgetsView: View {
                 }
             }
             .onAppear { loadInitialValues() }
+            .alert("Save Error", isPresented: $showErrorAlert, actions: {
+                Button("OK", role: .cancel) { }
+            }, message: {
+                Text(errorMessage)
+            })
         }
     }
     
@@ -59,16 +64,13 @@ struct EditBudgetsView: View {
         }
     }
     
-    private func startingCap(for cat: String) -> String {
-        if let b = budgets.first(where: { $0.category.lowercased() == cat.lowercased() }) {
-            return String(Int(b.cap))
-        }
-        return "200"
+    private func startingCap(for cat: String) -> Double {
+        budgets.first(where: { $0.category.lowercased() == cat.lowercased() })?.cap ?? 200
     }
     
     private func saveAll() {
         for cat in categories {
-            let newCap = Double(localCaps[cat] ?? "0") ?? 0
+            let newCap = localCaps[cat] ?? 0
             if let existing = budgets.first(where: { $0.category.lowercased() == cat.lowercased() }) {
                 existing.cap = newCap
             } else {
@@ -77,9 +79,10 @@ struct EditBudgetsView: View {
         }
         do {
             try modelContext.save()
+            dismiss()
         } catch {
-            print("Failed to save budgets:", error)
+            errorMessage = "Failed to save budgets: \(error.localizedDescription)"
+            showErrorAlert = true
         }
-        dismiss()
     }
 }

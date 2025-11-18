@@ -16,10 +16,11 @@ struct ExpenseItemView: View {
     private var categoryColor: Color {
         switch category.lowercased() {
         case "food": return .green
-        case "travel": return .blue
+        case "transport": return .blue
         case "shopping": return .pink
-        case "entertainment": return .purple
-        case "utilities": return .orange
+        case "subscriptons": return .purple
+        case "lifestyle": return .orange
+        case "others": return .yellow
         default: return .gray
         }
     }

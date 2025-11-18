@@ -14,7 +14,7 @@ struct FinanceView: View {
     @Query(sort: \ExpenseItem.date, order: .reverse) var expenses: [ExpenseItem]
     @Query(sort: \GoalItem.dateCreated, order: .reverse) var goals: [GoalItem]
     @Query(sort: \BudgetItem.category, order: .forward) var budgets: [BudgetItem]
-    
+
     @State private var selectedTab = "Overview"
     @State private var selectedTimeRange = "Monthly"
     @State private var showAddGoal = false
@@ -24,7 +24,7 @@ struct FinanceView: View {
     @State private var dateRangeEnd = Date()
     
     let timeRanges = ["Daily", "Monthly", "Yearly"]
-    let categories = ["Food", "Transport", "Social Life", "Sub", "Shopping", "Others"]
+    let categories = ["Food", "Transport", "Lifestyle", "Subscriptions", "Shopping", "Others"]
     
     private var filteredExpenses: [ExpenseItem] {
         let calendar = Calendar.current
@@ -99,6 +99,16 @@ struct FinanceView: View {
                 }
             }
             .toolbar {
+                if selectedTab == "Expenses" {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            showDateRangePicker = true
+                        } label: {
+                            Image(systemName: "calendar")
+                                .foregroundColor(.yellow)
+                        }
+                    }
+                }
                 if selectedTab != "Expenses" {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Menu {
@@ -113,6 +123,15 @@ struct FinanceView: View {
                     }
                 }
             }
+            .sheet(isPresented: $showDateRangePicker) {
+                VStack {
+                    DatePicker("Start", selection: $dateRangeStart, displayedComponents: .date)
+                    DatePicker("End", selection: $dateRangeEnd, displayedComponents: .date)
+                    Button("Done") { showDateRangePicker = false }
+                        .padding()
+                }
+                .padding()
+            }
             .navigationTitle("Finance")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showAddGoal) { AddGoalView() }
@@ -121,7 +140,7 @@ struct FinanceView: View {
             }
         }
     }
-    
+
     private var overviewTab: some View {
         VStack(alignment: .leading, spacing: 20) {
             if !categoryTotals.isEmpty {
@@ -149,7 +168,6 @@ struct FinanceView: View {
                                 Text(item.category)
                                     .font(.subheadline)
                                     .lineLimit(1)
-                                    .minimumScaleFactor(0.7)
                                 Spacer()
                                 Text("$\(Int(item.total))")
                                     .font(.caption)

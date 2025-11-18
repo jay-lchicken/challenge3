@@ -37,7 +37,7 @@ extension String{
         case "food": return "fork.knife"
         case "transport": return "car.fill"
         case "shopping": return "bag.fill"
-        case "social life": return "person.2.fill"
+        case "lifestyle": return "person.2.fill"
         case "subscriptions": return "creditcard.fill"
         case "others": return "square.grid.2x2"
         default: return "questionmark.circle"

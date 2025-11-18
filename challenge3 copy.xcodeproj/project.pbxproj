@@ -44,6 +44,7 @@
 		ACA64FB72EC71F0C00AB53F3 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		ACA64FB92EC71F0C00AB53F3 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		ACA650C52ECA124100AB53F3 /* LockscreenWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LockscreenWidgetExtension.entitlements; sourceTree = "<group>"; };
+		ACBF910D2ECC86B100881338 /* Moneymapr mac test.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Moneymapr mac test.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -80,7 +81,7 @@
 			path = LockscreenWidget;
 			sourceTree = "<group>";
 		};
-		ACBF919B2ECC8B5D00881338 /* Moneymapr mac test */ = {
+		ACBF910E2ECC86B100881338 /* Moneymapr mac test */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Moneymapr mac test";
 			sourceTree = "<group>";
@@ -106,6 +107,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		ACBF910A2ECC86B100881338 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -115,7 +123,7 @@
 				ACA650C52ECA124100AB53F3 /* LockscreenWidgetExtension.entitlements */,
 				06E7EDE12EBB3DD400BD5A49 /* challenge3 */,
 				ACA64FBB2EC71F0C00AB53F3 /* LockscreenWidget */,
-				ACBF919B2ECC8B5D00881338 /* Moneymapr mac test */,
+				ACBF910E2ECC86B100881338 /* Moneymapr mac test */,
 				ACA64FB62EC71F0C00AB53F3 /* Frameworks */,
 				06E7EDE02EBB3DD400BD5A49 /* Products */,
 			);
@@ -126,6 +134,7 @@
 			children = (
 				06E7EDDF2EBB3DD400BD5A49 /* challenge3.app */,
 				ACA64FB52EC71F0C00AB53F3 /* LockscreenWidgetExtension.appex */,
+				ACBF910D2ECC86B100881338 /* Moneymapr mac test.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -190,6 +199,28 @@
 			productReference = ACA64FB52EC71F0C00AB53F3 /* LockscreenWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		ACBF910C2ECC86B100881338 /* Moneymapr mac test */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = ACBF91172ECC86B300881338 /* Build configuration list for PBXNativeTarget "Moneymapr mac test" */;
+			buildPhases = (
+				ACBF91092ECC86B100881338 /* Sources */,
+				ACBF910A2ECC86B100881338 /* Frameworks */,
+				ACBF910B2ECC86B100881338 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				ACBF910E2ECC86B100881338 /* Moneymapr mac test */,
+			);
+			name = "Moneymapr mac test";
+			packageProductDependencies = (
+			);
+			productName = "Moneymapr mac test";
+			productReference = ACBF910D2ECC86B100881338 /* Moneymapr mac test.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -206,9 +237,12 @@
 					ACA64FB42EC71F0C00AB53F3 = {
 						CreatedOnToolsVersion = 26.1.1;
 					};
+					ACBF910C2ECC86B100881338 = {
+						CreatedOnToolsVersion = 26.1.1;
+					};
 				};
 			};
-			buildConfigurationList = 06E7EDDA2EBB3DD400BD5A49 /* Build configuration list for PBXProject "challenge3" */;
+			buildConfigurationList = 06E7EDDA2EBB3DD400BD5A49 /* Build configuration list for PBXProject "challenge3 copy" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -228,6 +262,7 @@
 			targets = (
 				06E7EDDE2EBB3DD400BD5A49 /* challenge3 */,
 				ACA64FB42EC71F0C00AB53F3 /* LockscreenWidgetExtension */,
+				ACBF910C2ECC86B100881338 /* Moneymapr mac test */,
 			);
 		};
 /* End PBXProject section */
@@ -247,6 +282,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		ACBF910B2ECC86B100881338 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -258,6 +300,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		ACA64FB12EC71F0C00AB53F3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ACBF91092ECC86B100881338 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -404,7 +453,7 @@
 				CODE_SIGN_ENTITLEMENTS = challenge3/challenge3.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = U4G2VPB6FH;
+				DEVELOPMENT_TEAM = DW56FJMFQ5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = challenge3/Info.plist;
@@ -420,7 +469,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = swiftaccel2025.challenge3.sneakygolem;
+				PRODUCT_BUNDLE_IDENTIFIER = bytegenius.challenge;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -444,7 +493,7 @@
 				CODE_SIGN_ENTITLEMENTS = challenge3/challenge3.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = U4G2VPB6FH;
+				DEVELOPMENT_TEAM = DW56FJMFQ5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = challenge3/Info.plist;
@@ -460,7 +509,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = swiftaccel2025.challenge3.sneakygolem;
+				PRODUCT_BUNDLE_IDENTIFIER = bytegenius.challenge;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -484,7 +533,7 @@
 				CODE_SIGN_ENTITLEMENTS = LockscreenWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = U4G2VPB6FH;
+				DEVELOPMENT_TEAM = DW56FJMFQ5;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LockscreenWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = LockscreenWidget;
@@ -496,7 +545,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = swiftaccel2025.challenge3.sneakygolem.widget;
+				PRODUCT_BUNDLE_IDENTIFIER = bytegenius.challenge.widgetkit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -516,7 +565,7 @@
 				CODE_SIGN_ENTITLEMENTS = LockscreenWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = U4G2VPB6FH;
+				DEVELOPMENT_TEAM = DW56FJMFQ5;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LockscreenWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = LockscreenWidget;
@@ -528,7 +577,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = swiftaccel2025.challenge3.sneakygolem.widget;
+				PRODUCT_BUNDLE_IDENTIFIER = bytegenius.challenge.widgetkit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -540,10 +589,76 @@
 			};
 			name = Release;
 		};
+		ACBF91152ECC86B300881338 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = DW56FJMFQ5;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "gzoid.Moneymapr-mac-test";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		ACBF91162ECC86B300881338 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = DW56FJMFQ5;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "gzoid.Moneymapr-mac-test";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		06E7EDDA2EBB3DD400BD5A49 /* Build configuration list for PBXProject "challenge3" */ = {
+		06E7EDDA2EBB3DD400BD5A49 /* Build configuration list for PBXProject "challenge3 copy" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				06E7EDE82EBB3DD500BD5A49 /* Debug */,
@@ -566,6 +681,15 @@
 			buildConfigurations = (
 				ACA64FCD2EC71F0D00AB53F3 /* Debug */,
 				ACA64FCE2EC71F0D00AB53F3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		ACBF91172ECC86B300881338 /* Build configuration list for PBXNativeTarget "Moneymapr mac test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ACBF91152ECC86B300881338 /* Debug */,
+				ACBF91162ECC86B300881338 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

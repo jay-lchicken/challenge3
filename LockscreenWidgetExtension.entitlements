@@ -4,7 +4,7 @@
 <dict>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.swiftaccel2025.challenge3.sneakygolem</string>
+		<string>group.bytegenius.challenge</string>
 	</array>
 </dict>
 </plist>

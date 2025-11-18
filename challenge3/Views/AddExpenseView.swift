@@ -12,7 +12,7 @@ struct AddExpenseView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) var modelContext
 
-    @State private var category = "beverage"
+    @State private var category = "Others"
     @State private var name = ""
     @State private var date = Date()
     @State private var amount = ""
@@ -73,7 +73,7 @@ struct AddExpenseView: View {
                     )
                     modelContext.insert(expense)
                     
-                    category = "beverage"
+                    category = "Food"
                     name = ""
                     date = Date()
                     amount = ""
