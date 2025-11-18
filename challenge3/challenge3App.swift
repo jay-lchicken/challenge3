@@ -24,7 +24,7 @@ struct challenge3App: App {
             case .available:
                 ContentView()
                     .tint(.yellow)
-                    .modelContainer(for: [ExpenseItem.self, GoalItem.self], isUndoEnabled: true)
+                    .modelContainer(for: [ExpenseItem.self, GoalItem.self, BudgetItem.self], isUndoEnabled: true)
                     .sheet(isPresented: $showAddExpense) {
                         AddExpenseView()
                     }

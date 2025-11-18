@@ -59,6 +59,13 @@ struct FinanceView: View {
         filteredExpenses.reduce(0) { $0 + $1.amount }
     }
     
+    private var filteredBudgetTotal: Double {
+        let categoriesShown = Set(filteredExpenses.map { $0.category.lowercased() })
+        return budgets.filter { categoriesShown.contains($0.category.lowercased()) }
+                      .reduce(0) { $0 + $1.cap }
+    }
+
+    
     private var totalBudget: Double {
         budgets.reduce(0) { $0 + $1.cap }
     }
@@ -185,7 +192,7 @@ struct FinanceView: View {
             
             GeometryReader { geo in
                 let width = geo.size.width
-                let ratio = totalBudget > 0 ? CGFloat(min(totalSpent / totalBudget, 1)) : 0
+                let ratio = filteredBudgetTotal > 0 ? CGFloat(min(totalSpent / filteredBudgetTotal, 1)) : 0
                 let filled = width * ratio
                 ZStack(alignment: .leading) {
                     Capsule().fill(Color.gray.opacity(0.12)).frame(height: 20)
@@ -195,7 +202,7 @@ struct FinanceView: View {
             .frame(height: 20)
             .padding(.horizontal)
             
-            Text("Budget: $\(Int(totalBudget)) | Spent: $\(Int(totalSpent)) | Saved: $\(Int(remainingBudget))")
+            Text("Budget: $\(Int(filteredBudgetTotal)) | Spent: $\(Int(totalSpent)) | Saved: $\(Int(max(filteredBudgetTotal - totalSpent, 0)))")
                 .font(.caption)
                 .padding(.horizontal)
                 .foregroundColor(.gray)
@@ -210,8 +217,14 @@ struct FinanceView: View {
                 }
                 
                 ForEach(goals) { goal in
-                    goalCard(goal)
+                    NavigationLink {
+                        GoalDetailView(goal: goal)
+                    } label: {
+                        goalCard(goal)
+                    }
+                    .buttonStyle(.plain)
                 }
+
             }
             .padding(.horizontal)
         }

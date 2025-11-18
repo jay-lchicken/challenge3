@@ -11,18 +11,17 @@ import SwiftData
 struct EditBudgetsView: View {
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) private var dismiss
-    
+
     let categories: [String]
     @Query(sort: \BudgetItem.category) private var budgets: [BudgetItem]
     @State private var localCaps: [String: Double] = [:]
-    
     @State private var showErrorAlert = false
     @State private var errorMessage = ""
-    
+
     init(categories: [String]) {
         self.categories = categories
     }
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -57,17 +56,17 @@ struct EditBudgetsView: View {
             })
         }
     }
-    
+
     private func loadInitialValues() {
         for cat in categories {
             localCaps[cat] = startingCap(for: cat)
         }
     }
-    
+
     private func startingCap(for cat: String) -> Double {
         budgets.first(where: { $0.category.lowercased() == cat.lowercased() })?.cap ?? 200
     }
-    
+
     private func saveAll() {
         for cat in categories {
             let newCap = localCaps[cat] ?? 0
