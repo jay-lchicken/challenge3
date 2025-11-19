@@ -133,7 +133,10 @@ struct FinanceView: View {
                     DatePicker("End", selection: $dateRangeEnd, displayedComponents: .date)
                     Button("Done") { showDateRangePicker = false }
                         .padding()
+                        .font(.title)
                 }
+                .presentationDetents([.height(200)])
+                .presentationDragIndicator(.visible)
                 .padding()
             }
             .navigationTitle("Finance")
@@ -157,7 +160,7 @@ struct FinanceView: View {
                         )
                         .foregroundStyle(item.category.categoryColor)
                     }
-                    .frame(width: 220, height: 220)
+                    .frame(width: 200, height: 200)
                     .padding(.leading, 12)
 
                     VStack(alignment: .leading, spacing: 8) {
@@ -292,9 +295,12 @@ struct FinanceView: View {
 
             let results = expensesBetween(dateRangeStart, dateRangeEnd)
                 .filter { item in
-                    (expense_selectedCategory == "All" || item.category == expense_selectedCategory)
-                    && (expense_searchText.isEmpty || item.name.lowercased().contains(expense_searchText.lowercased()))
+                    (expense_selectedCategory == "All" ||
+                     item.category.lowercased() == expense_selectedCategory.lowercased())
+                    && (expense_searchText.isEmpty ||
+                        item.name.lowercased().contains(expense_searchText.lowercased()))
                 }
+
 
             if results.isEmpty {
                 Text("No expenses")
