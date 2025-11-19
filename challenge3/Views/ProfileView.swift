@@ -1,44 +1,6 @@
-//
-//  ProfileView.swift
-//  challenge3
-//
-//  Created by Gautham Dinakaran on 7/11/25.
-//
-
-import SwiftUI
+import Foundation
 import SwiftData
-
-@Model
-class SubscriptionItem {
-    @Attribute(.unique) var id: UUID
-    var name: String
-    var amount: Double
-    var originalExpenseId: UUID
-    var isRecurring: Bool
-    var frequency: Frequency
-
-    enum Frequency: String, CaseIterable, Codable, Identifiable {
-        case weekly, monthly, yearly
-        var id: String { rawValue }
-    }
-
-    init(expense: ExpenseItem, isRecurring: Bool = true, frequency: Frequency = .monthly) {
-        self.id = UUID()
-        self.name = expense.name
-        self.amount = expense.amount
-        self.originalExpenseId = expense.id
-        self.isRecurring = isRecurring
-        self.frequency = frequency
-    }
-
-    var monthlyAmount: Double {
-        switch frequency {
-        case .weekly: return amount * 4
-        case .monthly: return amount
-        case .yearly: return amount / 12
-        }
-    }
-}
+import SwiftUI
 
 struct ProfileView: View {
     @AppStorage("name") private var name: String = ""
@@ -47,10 +9,12 @@ struct ProfileView: View {
     @State private var isEditing = false
     @State private var selectedSegment = 0
     
+    // We only need the primary expense query
     @Query var expenses: [ExpenseItem]
-    @Query var subscriptionItems: [SubscriptionItem]
     
-    @Environment(\.modelContext) private var modelContext
+    var subscriptionExpenses: [ExpenseItem] {
+        expenses.filter { $0.category.lowercased() == "subscriptions" }
+    }
 
     var body: some View {
         NavigationStack {
@@ -64,10 +28,19 @@ struct ProfileView: View {
 
                 ScrollView {
                     if selectedSegment == 0 {
-                        profileCard
-                            .padding(.top)
+                        profileCard.padding(.top)
                     } else {
                         subscriptionSection
+                    }
+                }
+                .onAppear {
+                    for expense in subscriptionExpenses {
+                        if expense.isRecurring == nil {
+                            expense.isRecurring = true
+                        }
+                        if expense.frequency == nil {
+                            expense.frequency = .monthly
+                        }
                     }
                 }
             }
@@ -75,16 +48,125 @@ struct ProfileView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button() {
-                        withAnimation { isEditing.toggle() }
-                    } label: {
-                        if isEditing {
-                            Text("Done")
-                        } else {
-                            Image(systemName: "pencil")
+                    Button() { withAnimation { isEditing.toggle() } } label: {
+                        if isEditing { Text("Done") } else { Image(systemName: "pencil") }
+                    }
+                }
+            }
+        }
+    }
+
+    struct SubscriptionRowView: View {
+        @Bindable var expense: ExpenseItem
+        var isEditing: Bool
+
+        var body: some View {
+            let isRecurringBinding = Binding(
+                get: { expense.isRecurring ?? true },
+                set: { expense.isRecurring = $0 }
+            )
+
+            let frequencyBinding = Binding(
+                get: { expense.frequency ?? .monthly },
+                set: { expense.frequency = $0 }
+            )
+
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(expense.name).bold().foregroundColor(.primary)
+                        Text(Date(timeIntervalSince1970: expense.date), style: .date)
+                            .font(.caption).foregroundColor(.gray)
+                    }
+                    Spacer()
+                    VStack(alignment: .trailing) {
+                        Text("$\(expense.amount, specifier: "%.2f")").bold()
+                            .foregroundColor(isRecurringBinding.wrappedValue ? .green : .gray)
+                        Text(frequencyBinding.wrappedValue.rawValue.capitalized)
+                            .font(.caption).foregroundColor(.gray)
+                    }
+                }
+
+                if isEditing {
+                    Toggle(isOn: isRecurringBinding) {
+                        Text("Automatically renew?").font(.caption).foregroundColor(.gray)
+                    }
+                    Picker("Frequency", selection: frequencyBinding) {
+                        ForEach(ExpenseItem.Frequency.allCases) { freq in
+                            Text(freq.rawValue.capitalized).tag(freq)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                }
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
+            .shadow(color: .black.opacity(0.05), radius: 3, x: 0, y: 2)
+        }
+    }
+
+
+    private var subscriptionSection: some View {
+        VStack(spacing: 16) {
+            let totalMonthlyCost = subscriptionExpenses.reduce(0) { total, expense in
+                expense.frequency?.monthlyAmount(from: expense.amount)
+            }
+
+            // Total card
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Image(systemName: "creditcard.fill")
+                        .foregroundColor(.green)
+                        .font(.title2)
+                    Text("Subscriptions")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    Spacer()
+                }
+
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Total Estimated Monthly Cost")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        Text("$\(totalMonthlyCost ?? 0, specifier: "%.2f")")
+                            .font(.largeTitle)
+                            .fontWeight(.heavy)
+                            .foregroundColor(.green)
+                    }
+                    Spacer()
+                    Image(systemName: "dollarsign.circle.fill")
+                        .font(.system(size: 60))
+                        .foregroundColor(.green.opacity(0.7))
+                }
+                .padding(.vertical, 8)
+            }
+            .padding(20)
+            .background(.ultraThinMaterial)
+            .cornerRadius(16)
+            .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+            .padding(.horizontal)
+
+            ScrollView {
+                VStack(spacing: 12) {
+                    if subscriptionExpenses.isEmpty {
+                        Text("No subscriptions found")
+                            .foregroundColor(.gray)
+                            .padding()
+                    } else {
+                        ForEach(subscriptionExpenses, id: \.id) { expense in
+                            SubscriptionRowView(expense: expense, isEditing: isEditing)
+                                .padding(.horizontal)
                         }
                     }
                 }
+                .padding(.vertical)
+
+                Text("Your subscriptions will be automatically added to your expenses if you choose that option.")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                    .padding(.horizontal)
             }
         }
     }
@@ -102,10 +184,7 @@ struct ProfileView: View {
             
             VStack(spacing: 12) {
                 VStack(spacing: 4) {
-                    Text("Name")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                    
+                    Text("Name").font(.subheadline).foregroundColor(.gray)
                     if isEditing {
                         TextField("Enter name", text: $name)
                             .multilineTextAlignment(.center)
@@ -113,17 +192,13 @@ struct ProfileView: View {
                             .font(.title)
                     } else {
                         Text(name.isEmpty ? "Unnamed User" : name)
-                            .font(.title)
-                            .fontWeight(.bold)
+                            .font(.title).fontWeight(.bold)
                             .multilineTextAlignment(.center)
                     }
                 }
                 
                 VStack(spacing: 4) {
-                    Text("Income per Month")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                    
+                    Text("Income per Month").font(.subheadline).foregroundColor(.gray)
                     if isEditing {
                         TextField("Enter income", text: $income)
                             .multilineTextAlignment(.center)
@@ -132,8 +207,7 @@ struct ProfileView: View {
                             .font(.title2)
                     } else {
                         Text(formattedIncome(income))
-                            .font(.title2)
-                            .fontWeight(.semibold)
+                            .font(.title2).fontWeight(.semibold)
                             .multilineTextAlignment(.center)
                     }
                 }
@@ -147,142 +221,6 @@ struct ProfileView: View {
         .padding(.horizontal)
     }
 
-    struct SubscriptionRowView: View {
-        @Bindable var subscription: SubscriptionItem
-        var isEditing: Bool
-        @Query var expenses: [ExpenseItem]
-
-        var body: some View {
-            VStack(alignment: .leading, spacing: 6) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(subscription.name)
-                            .bold()
-                            .foregroundColor(.primary)
-
-                        if let expense = expenses.first(where: { $0.id == subscription.originalExpenseId }) {
-                            Text(Date(timeIntervalSince1970: expense.date), style: .date)
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                        }
-                    }
-
-                    Spacer()
-
-                    VStack(alignment: .trailing) {
-                        Text("$\(subscription.amount, specifier: "%.2f")")
-                            .bold()
-                            .foregroundColor(.green)
-                        Text(subscription.frequency.rawValue.capitalized)
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                    }
-                }
-
-                if isEditing {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Toggle(isOn: $subscription.isRecurring) {
-                            Text("Automatically renew?")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                        }
-
-                        Picker("Frequency", selection: $subscription.frequency) {
-                            ForEach(SubscriptionItem.Frequency.allCases) { freq in
-                                Text(freq.rawValue.capitalized).tag(freq)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-                    }
-                }
-            }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
-            .shadow(color: .black.opacity(0.05), radius: 3, x: 0, y: 2)
-        }
-    }
-
-    private var subscriptionSection: some View {
-        let subs: [SubscriptionItem] = expenses
-            .filter { $0.category.lowercased() == "subscriptions" }
-            .map { expense in
-                if let existing = subscriptionItems.first(where: { $0.originalExpenseId == expense.id }) {
-                    return existing
-                } else {
-                    let newSub = SubscriptionItem(expense: expense)
-                    modelContext.insert(newSub)
-                    return newSub
-                }
-            }
-
-        let totalMonthlyCost = subs.reduce(0) { $0 + $1.monthlyAmount }
-
-        return VStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 12) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.blue.opacity(0.7))
-                            .frame(width: 40, height: 40)
-                        Image(systemName: "creditcard")
-                            .foregroundColor(.white)
-                    }
-
-                    Text("Subscriptions")
-                        .font(.title2)
-                        .fontWeight(.bold)
-
-                    Spacer()
-                }
-                .padding()
-
-                Text("Monthly Spending")
-                    .font(.footnote)
-                    .foregroundColor(.gray)
-                    .padding(.horizontal)
-
-                HStack(spacing: 6) {
-                    Image(systemName: "dollarsign.circle")
-                        .foregroundColor(.white)
-                    Text("\(totalMonthlyCost, specifier: "%.2f")")
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                    Spacer()
-                }
-                .padding(.horizontal)
-                .padding(.vertical, 8)
-                .background(Color.blue.opacity(0.7))
-                .cornerRadius(12)
-                .padding()
-            }
-            .background(.ultraThinMaterial)
-            .cornerRadius(16)
-            .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
-            .padding(.horizontal)
-
-            ScrollView {
-                VStack(spacing: 12) {
-                    if subs.isEmpty {
-                        Text("No subscriptions found")
-                            .foregroundColor(.gray)
-                            .padding()
-                    } else {
-                        ForEach(subs, id: \.id) { sub in
-                            SubscriptionRowView(subscription: sub, isEditing: isEditing)
-                        }
-                    }
-                }
-                .padding(.vertical)
-
-                Text("Subscriptions will automatically add each month, unless stated otherwise.")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                    .padding(.horizontal)
-            }
-        }
-    }
-
     private func formattedIncome(_ value: String) -> String {
         guard let number = Double(value.replacingOccurrences(of: ",", with: "")) else {
             return value.isEmpty ? "Not set" : value
@@ -293,8 +231,4 @@ struct ProfileView: View {
         formatter.maximumFractionDigits = 2
         return formatter.string(from: NSNumber(value: number)) ?? "$0.00"
     }
-}
-
-#Preview {
-    ProfileView()
 }

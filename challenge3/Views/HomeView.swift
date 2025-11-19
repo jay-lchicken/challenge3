@@ -1,15 +1,3 @@
-//
-//  HomeView.swift
-//  challenge3
-//
-//  Created by Lai Hong Yu on 11/7/25.
-//
- 
-//
-//  HomeView.swift
-//  challenge3
-//
-
 import SwiftUI
 import SwiftData
 import FoundationModels
@@ -19,8 +7,8 @@ struct HomeView: View {
     
     @Environment(\.modelContext) var modelContext
     @Query var expenses: [ExpenseItem]
+    
     @AppStorage("budget") private var budget: Double = 1500
-
     @State private var selectedExpense: ExpenseItem? = nil
 
     private var todaySpent: Double {
@@ -102,8 +90,6 @@ struct HomeView: View {
                         .padding(.horizontal, 6)
                         .padding(.vertical, 8)
                     }
-
-
                 }
                 
                 Section(header: HStack(spacing: 10) {
@@ -132,11 +118,43 @@ struct HomeView: View {
                 foundationVM.setModelContext(modelContext)
                 foundationVM.query = "give me an analysis and feedback of my today's spendings"
                 
-                Task {
-                    await foundationVM.generateResponse()
+                Task { await foundationVM.generateResponse() }
+
+                let now = Date()
+                for expense in expenses where expense.category.lowercased() == "subscriptions" && (expense.isRecurring ?? false) {
+                    
+                    let lastDate = expense.date > 0 ? Date(timeIntervalSince1970: expense.date) : Date.distantPast
+                    
+                    var shouldAdd = false
+                    switch expense.frequency ?? .monthly {
+                    case .daily:
+                        shouldAdd = !Calendar.current.isDateInToday(lastDate)
+                    case .weekly:
+                        shouldAdd = now.timeIntervalSince(lastDate) >= 7 * 24 * 3600
+                    case .monthly:
+                        shouldAdd = now.timeIntervalSince(lastDate) >= 30 * 24 * 3600
+                    case .yearly:
+                        shouldAdd = now.timeIntervalSince(lastDate) >= 365 * 24 * 3600
+                    }
+
+                    if shouldAdd {
+                        let newExpense = ExpenseItem(
+                            name: expense.name,
+                            amount: expense.amount,
+                            date: now.timeIntervalSince1970,
+                            category: "Subscriptions",
+                            isRecurring: expense.isRecurring,
+                            frequency: expense.frequency
+                        )
+                        modelContext.insert(newExpense)
+                        
+                        expense.date = now.timeIntervalSince1970
+                    }
                 }
             }
+
         }
     }
 }
+
 

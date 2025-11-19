@@ -24,28 +24,29 @@ struct EditBudgetsView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                ForEach(categories, id: \.self) { category in
-                    HStack {
-                        Text(category)
-                        Spacer()
-                        TextField("0", value: Binding(
-                            get: { localCaps[category] ?? startingCap(for: category) },
-                            set: { localCaps[category] = $0 }
-                        ), formatter: NumberFormatter())
-                        .frame(width: 70)
-                        .keyboardType(.decimalPad)
-                        .multilineTextAlignment(.trailing)
+            VStack {
+                Form {
+                    ForEach(categories, id: \.self) { category in
+                        HStack {
+                            Text(category)
+                            Spacer()
+                            TextField("0", value: Binding(
+                                get: { localCaps[category] ?? startingCap(for: category) },
+                                set: { localCaps[category] = $0 }
+                            ), formatter: NumberFormatter())
+                            .frame(width: 70)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                        }
                     }
                 }
+                Text("Please select your goals wisely!")
+                    .font(.caption).foregroundColor(.gray).padding(.horizontal)
             }
             .navigationTitle("Edit Budgets")
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { saveAll() }
-                }
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") { dismiss() }
                 }
             }
             .onAppear { loadInitialValues() }
