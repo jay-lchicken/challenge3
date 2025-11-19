@@ -473,195 +473,250 @@ struct ModelResponse {
 
 struct AddExpenseTool: Tool {
     var modelContext: ModelContext? = nil
-    var modelContainer: ModelContainer? = nil
-    
+
+   
     @MainActor
-    init(inMemory: Bool = false) {
-        do {
-            let container = try ModelContainer(for: ExpenseItem.self)
-            modelContainer = container
-            modelContext = container.mainContext
-            modelContext?.autosaveEnabled = true
-        } catch {
-            print("Error initializing AddExpenseTool:", error.localizedDescription)
-        }
+    init(modelContainer: ModelContainer) {
+        self.modelContext = modelContainer.mainContext
+        self.modelContext?.autosaveEnabled = true
+        print("[AddExpenseTool] initialized with shared container")
     }
-    
+
     func save() {
         guard let context = modelContext else { return }
-        try? context.save()
+        do { try context.save() } catch { print("[AddExpenseTool] save error:", error.localizedDescription) }
     }
-    
+
     let name = "addExpense"
     let description = "Add an expense to your tracker and return confirmation"
-    
+
     @Generable
     struct Arguments {
         @Guide(description: "Name of the expense") var name: String
         @Guide(description: "Amount spent") var amount: Double
         @Guide(description: "Category of the expense") var category: String
     }
-    
+
     func call(arguments: Arguments) async throws -> String {
+        print("[AddExpenseTool] call args:", arguments)
         return await MainActor.run {
-            guard let context = modelContext else { return "Error: Model context unavailable." }
+            guard let context = modelContext else {
+                print("[AddExpenseTool] ERROR - modelContext nil")
+                return "Error: Model context unavailable."
+            }
+
             
-            // Validate
-            if arguments.amount <= 0 { return "Please provide a valid amount." }
+            if arguments.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                print("[AddExpenseTool] invalid name")
+                return "Please provide a name for the expense (what did you buy?)."
+            }
+            if arguments.amount <= 0 {
+                print("[AddExpenseTool] invalid amount:", arguments.amount)
+                return "Please provide a valid positive amount for the expense."
+            }
+
             let validCategories = CategoryOptionsModel().category
             if !validCategories.contains(arguments.category) {
-                return "Invalid category. Use one of: \(validCategories.joined(separator: ", "))"
+                print("[AddExpenseTool] invalid category:", arguments.category, "allowed:", validCategories)
+                return "Invalid category. Please choose one of: \(validCategories.joined(separator: ", "))."
             }
+
             
-            let expense = ExpenseItem(name: arguments.name, amount: arguments.amount, category: arguments.category)
+            let expense = ExpenseItem(
+                name: arguments.name.trimmingCharacters(in: .whitespacesAndNewlines),
+                amount: arguments.amount,
+                date: Date().timeIntervalSince1970,
+                category: arguments.category
+            )
+
             context.insert(expense)
             save()
+            print("[AddExpenseTool] inserted expense:", expense.name, expense.amount, expense.category)
+
             
-            // Budget check
             if let budgets = try? context.fetch(FetchDescriptor<BudgetItem>()),
                let budget = budgets.first(where: { $0.category == arguments.category }),
                arguments.amount > budget.cap {
-                return "Expense added, but you exceeded your budget for \(arguments.category)."
+                print("[AddExpenseTool] budget exceeded for category:", budget.category, "cap:", budget.cap)
+                return "Expense added: \(arguments.name) — $\(arguments.amount). Warning: this single expense exceeds your budget cap (\(budget.cap)) for \(arguments.category)."
             }
-            
-            return "Expense added: \(arguments.name) - $\(arguments.amount)"
+
+            return "Expense added: \(arguments.name) — $\(String(format: "%.2f", arguments.amount))."
         }
     }
 }
+
 
 
 struct GetExpenseTool: Tool {
     var modelContext: ModelContext? = nil
-    var modelContainer: ModelContainer? = nil
-    
+
     @MainActor
-    init(inMemory: Bool = false) {
-        do {
-            let container = try ModelContainer(for: ExpenseItem.self)
-            modelContainer = container
-            modelContext = container.mainContext
-            modelContext?.autosaveEnabled = true
-        } catch {
-            print("Error initializing GetExpenseTool:", error.localizedDescription)
-        }
+    init(modelContainer: ModelContainer) {
+        self.modelContext = modelContainer.mainContext
+        self.modelContext?.autosaveEnabled = true
+        print("[GetExpenseTool] initialized with shared container")
     }
-    
+
     let name = "getExpense"
-    let description = "Retrieve expenses over a given number of days"
-    
+    let description = "Retrieve and summarize expenses over a given number of days."
+
     @Generable
     struct Arguments {
-        @Guide(description: "Number of days to look back") var daysToLookBack: Int
+        @Guide(description: "Number of days to look back (1 = today)") var daysToLookBack: Int
     }
-    
+
     func call(arguments: Arguments) async throws -> [String] {
+        print("[GetExpenseTool] call daysToLookBack:", arguments.daysToLookBack)
         return await MainActor.run {
-            guard let context = modelContext else { return [] }
-            
-            let calendar = Calendar.current
-            let today = calendar.startOfDay(for: Date())
-            let lower = calendar.date(byAdding: .day, value: -(max(arguments.daysToLookBack, 1) - 1), to: today)!
-            let upper = calendar.date(byAdding: .day, value: 1, to: today)!
-            
-            let predicate = #Predicate<ExpenseItem> { $0.date >= lower.timeIntervalSince1970 && $0.date < upper.timeIntervalSince1970 }
-            let descriptor = FetchDescriptor<ExpenseItem>(predicate: predicate, sortBy: [SortDescriptor(\.date, order: .reverse)])
-            
-            if let expenses = try? context.fetch(descriptor) {
-                if expenses.isEmpty { return ["No expenses found."] }
-                return expenses.map { "Name: \($0.name), Amount: \($0.amount), Category: \($0.category), Date: \(Date(timeIntervalSince1970: $0.date).formatted())" }
+            guard let context = modelContext else {
+                print("[GetExpenseTool] ERROR - modelContext nil")
+                return ["Error: Model context unavailable."]
             }
-            return ["Error fetching expenses."]
+
+            let days = max(arguments.daysToLookBack, 1)
+            let calendar = Calendar.current
+            let startOfToday = calendar.startOfDay(for: Date())
+            let lower = calendar.date(byAdding: .day, value: -(days - 1), to: startOfToday)!
+            let upper = calendar.date(byAdding: .day, value: 1, to: startOfToday)!
+
+            let predicate = #Predicate<ExpenseItem> {
+                $0.date >= lower.timeIntervalSince1970 && $0.date < upper.timeIntervalSince1970
+            }
+
+            let descriptor = FetchDescriptor<ExpenseItem>(predicate: predicate, sortBy: [SortDescriptor(\.date, order: .reverse)])
+
+            do {
+                let expenses = try context.fetch(descriptor)
+                print("[GetExpenseTool] fetched \(expenses.count) expenses")
+                if expenses.isEmpty { return ["No expenses found in that period."] }
+
+                var lines: [String] = []
+                var total: Double = 0
+                var byCategory: [String: Double] = [:]
+                for e in expenses {
+                    lines.append("Name: \(e.name), Amount: \(String(format: "%.2f", e.amount)), Category: \(e.category), Date: \(Date(timeIntervalSince1970: e.date).formatted())")
+                    total += e.amount
+                    byCategory[e.category, default: 0.0] += e.amount
+                }
+
+               
+                let topCats = byCategory.sorted { $0.value > $1.value }.prefix(3)
+                    .map { "\($0.key): $\((String(format: "%.2f", $0.value)))" }
+                    .joined(separator: ", ")
+
+                let summary = "Found \(expenses.count) expense(s) — total $\(String(format: "%.2f", total)). Top categories: \(topCats)"
+                lines.insert(summary, at: 0)
+                return lines
+            } catch {
+                print("[GetExpenseTool] fetch error:", error.localizedDescription)
+                return ["Error fetching expenses: \(error.localizedDescription)"]
+            }
         }
     }
 }
+
 
 
 struct GetBudgetsTool: Tool {
     var modelContext: ModelContext? = nil
-    var modelContainer: ModelContainer? = nil
-    
+
     @MainActor
-    init(inMemory: Bool = false) {
-        do {
-            let container = try ModelContainer(for: BudgetItem.self)
-            modelContainer = container
-            modelContext = container.mainContext
-            modelContext?.autosaveEnabled = true
-        } catch {
-            print("Error initializing GetBudgetsTool:", error.localizedDescription)
-        }
+    init(modelContainer: ModelContainer) {
+        self.modelContext = modelContainer.mainContext
+        self.modelContext?.autosaveEnabled = true
+        print("[GetBudgetsTool] initialized with shared container")
     }
-    
+
     let name = "getBudgets"
-    let description = "Retrieve all budgets"
-    
+    let description = "Retrieve all budgets and their caps."
+
     @Generable
     struct Arguments {}
-    
+
     func call(arguments: Arguments) async throws -> [String] {
+        print("[GetBudgetsTool] call")
         return await MainActor.run {
-            guard let context = modelContext else { return [] }
-            if let budgets = try? context.fetch(FetchDescriptor<BudgetItem>()) {
+            guard let context = modelContext else {
+                print("[GetBudgetsTool] ERROR - modelContext nil")
+                return ["Error: Model context unavailable."]
+            }
+
+            do {
+                let budgets = try context.fetch(FetchDescriptor<BudgetItem>())
+                print("[GetBudgetsTool] fetched \(budgets.count) budgets")
                 if budgets.isEmpty { return ["No budgets set."] }
                 return budgets.map { "Category: \($0.category), Cap: \($0.cap)" }
+            } catch {
+                print("[GetBudgetsTool] fetch error:", error.localizedDescription)
+                return ["Error fetching budgets: \(error.localizedDescription)"]
             }
-            return ["Error fetching budgets."]
         }
     }
 }
+
 
 
 struct GetGoalsTool: Tool {
     var modelContext: ModelContext? = nil
-    var modelContainer: ModelContainer? = nil
-    
+
     @MainActor
-    init(inMemory: Bool = false) {
-        do {
-            let container = try ModelContainer(for: GoalItem.self)
-            modelContainer = container
-            modelContext = container.mainContext
-            modelContext?.autosaveEnabled = true
-        } catch {
-            print("Error initializing GetGoalsTool:", error.localizedDescription)
-        }
+    init(modelContainer: ModelContainer) {
+        self.modelContext = modelContainer.mainContext
+        self.modelContext?.autosaveEnabled = true
+        print("[GetGoalsTool] initialized with shared container")
     }
-    
+
     let name = "getGoals"
-    let description = "Retrieve all user goals"
-    
+    let description = "Retrieve all goals and show progress."
+
     @Generable
     struct Arguments {}
-    
+
     func call(arguments: Arguments) async throws -> [String] {
+        print("[GetGoalsTool] call")
         return await MainActor.run {
-            guard let context = modelContext else { return [] }
-            if let goals = try? context.fetch(FetchDescriptor<GoalItem>()) {
-                if goals.isEmpty { return ["No goals set."] }
-                return goals.map { "Title: \($0.title), Current: \($0.current), Target: \($0.target)" }
+            guard let context = modelContext else {
+                print("[GetGoalsTool] ERROR - modelContext nil")
+                return ["Error: Model context unavailable."]
             }
-            return ["Error fetching goals."]
+
+            do {
+                let goals = try context.fetch(FetchDescriptor<GoalItem>())
+                print("[GetGoalsTool] fetched \(goals.count) goals")
+                if goals.isEmpty { return ["No goals set."] }
+                return goals.map { goal in
+                    let pct = goal.target > 0 ? (goal.current / goal.target * 100.0) : 0.0
+                    return "Title: \(goal.title), Current: \(goal.current), Target: \(goal.target) — \(String(format: "%.1f", pct))% done"
+                }
+            } catch {
+                print("[GetGoalsTool] fetch error:", error.localizedDescription)
+                return ["Error fetching goals: \(error.localizedDescription)"]
+            }
         }
     }
 }
+
 
 
 struct GetIncomeTool: Tool {
     let name = "getIncome"
     let description = "Get user's total income"
-    
+
     @Generable
     struct Arguments {}
-    
+
     func call(arguments: Arguments) async throws -> Int {
+        print("[GetIncomeTool] call")
         return await MainActor.run {
-            if let income = UserDefaults.standard.value(forKey: "income") as? Int {
-                return income
-            }
-            return -1
+            let income = UserDefaults.standard.integer(forKey: "income")
+            print("[GetIncomeTool] income:", income)
+            // if not set, integer(forKey:) returns 0; we return -1 if you want explicit "not set"
+            return income == 0 ? -1 : income
         }
     }
 }
+
 
 
 @Observable
@@ -671,155 +726,109 @@ class FoundationModelViewModel {
     var isGenerating: Bool = false
     var showAlert = false
     var alertMessage: String = ""
-    
+
+    // ----- Instructions (kept as you provided, minor formatting) -----
     let instructions = """
-               Role
-               You are “Bro,” a friendly, professional, and intelligent personal finance assistant.
-               You communicate clearly in English and act as a knowledgeable buddy helping users manage money effectively.
+                       
+                       Role
+                       
+                       You are “Bro”, a friendly, professional personal finance assistant. Communicate clearly in English and act as a knowledgeable, supportive buddy.
+                       
+                       Core responsibilities
+                       - Track expenses, budgets, goals, and income.
+                       - Use the provided tools whenever you need to read or write persistent data.
+                         Tools available: addExpense, getExpense, getBudgets, getGoals, getIncome.
+                       - NEVER assume missing values. If a user message lacks required details (e.g., amount, category, goal target), ask a single, concise clarifying question before performing any write operation.
+                       - Validate all inputs you will write: amounts must be > 0, categories must be from the approved list (CategoryOptionsModel().category), names should be non-empty.
+                       - When adding an expense, confirm the entered values back to the user and mention immediate budget/goal impact if applicable.
+                       
+                       Tool usage rules
+                       - AddExpenseTool:
+                         • Use only when you have: name, amount (numeric > 0), category (one of CategoryOptionsModel().category).
+                         • If any detail is missing or ambiguous, ask the user to clarify first. Examples of clarifying prompts:
+                             - "How much was the gelato (amount)?"
+                             - "Which category should I use for this purchase? (e.g., food, transport)"
+                         • After adding, mention if the expense caused an over-budget condition or materially affected any goal progress.
+                       
+                       - GetExpenseTool:
+                         • Use to fetch expenses for a date range (days to look back).
+                         • Summarize count, total spent, and top categories; then list individual items if needed.
+                         • Example: "You had 4 expenses totaling $82. Top category: Dining — $45."
+                       
+                       - GetBudgetsTool:
+                         • Use to fetch all budgets. When giving feedback, compare spending-to-budget for the current period and warn when near/over cap.
+                       
+                       - GetGoalsTool:
+                         • Use to fetch goals and progress. When advising, compute projected completion based on typical monthly savings (income minus monthly average expenses).
+                       
+                       - GetIncomeTool:
+                         • Use to fetch stored income (UserDefaults integer). If income is not set, ask the user for their annual income before making goal projections.
+                       
+                       Insights & advice
+                       - Always reference user data when making claims (e.g., "Based on your last 30 days of spending, you spend ~$X/month on groceries.").
+                       - Offer 1-2 actionable suggestions (e.g., "Try cutting dining out by 10% to save $Y/month") and a realistic contribution recommendation for goals.
+                       - Use plain language; avoid technical finance jargon. If using a term, briefly define it.
+                       
+                       Safety & scope
+                       - Do NOT provide legal, tax, or specific investment advice.
+                       - If user asks for such, respond with a brief refusal and suggest seeking a qualified professional.
+                       
+                       Behavior summary
+                       - Always try to read relevant data with the tools before answering.
+                       - Never write data unless validated and explicitly requested.
+                       - Ask concise follow-ups when required.
+                       - Keep responses short, supportive, and actionable.
+                       """
 
-               Objectives
-               Your primary goal is to help the user:
+   
+    @ObservationIgnored
+    var sharedContainer: ModelContainer
 
-               Track and manage expenses.
+    @ObservationIgnored
+    var session: LanguageModelSession
 
-               Set and monitor budgets.
+    @MainActor
+    init() {
+        print("[ViewModel] creating shared ModelContainer")
+        self.sharedContainer = try! ModelContainer(for: ExpenseItem.self, GoalItem.self, BudgetItem.self)
+        
+        print("[ViewModel] initializing LanguageModelSession with tools")
+        self.session = LanguageModelSession(
+            tools: [
+                AddExpenseTool(modelContainer: sharedContainer),
+                GetExpenseTool(modelContainer: sharedContainer),
+                GetBudgetsTool(modelContainer: sharedContainer),
+                GetGoalsTool(modelContainer: sharedContainer),
+                GetIncomeTool()
+            ],
+            instructions: instructions
+        )
+    }
 
-               Plan and achieve financial goals.
 
-               Maintain healthy cash flow.
-
-               You must:
-
-               Give concise, practical, and actionable guidance.
-
-               Always reference user data: expenses, budgets, goals, and income.
-
-               Never assume missing information. If details are incomplete, ask a clarifying question before taking action.
-
-               Provide feedback based on patterns or trends in the user’s financial data.
-
-               Keep explanations friendly, supportive, and easy to understand.
-
-               Tool Usage
-
-               AddExpenseTool
-
-               Use whenever the user mentions or implies a new expense.
-
-               Required details:
-
-               Name: what the expense is for
-
-               Amount: numeric value
-
-               Category: choose from \(CategoryOptionsModel().category)
-
-               If any detail is missing, ask the user before logging.
-
-               After adding an expense, summarize the impact on their budgets or goals if relevant.
-
-               GetExpenseTool
-
-               Use when the user wants to review or analyze past expenses.
-
-               Summarize trends and highlight overspending or areas to save.
-
-               Example queries:
-
-               “What did I spend today?”
-
-               “How much did I spend on groceries last week?”
-
-               “Am I overspending on entertainment?”
-
-               GetBudgetsTool
-
-               Use to retrieve budget data and provide insights.
-
-               Compare spending against budget caps and warn when overspending.
-
-               GetGoalsTool
-
-               Use to track progress toward goals.
-
-               Predict completion dates, suggest contribution rates, and provide actionable advice.
-
-               GetIncomeTool
-
-               Use to determine the user’s income for calculations related to budgets, expenses, and goals.
-
-               Goal Planning & Prediction
-
-               Calculate time to reach goals based on income, current spending, historical savings, and contributions.
-
-               Suggest a reasonable weekly or monthly contribution.
-
-               Warn if target completion dates are unrealistic and provide adjustments.
-
-               Offer tips to accelerate goal achievement (e.g., reduce discretionary spending).
-
-               Personalized Financial Insights
-
-               Provide actionable feedback based on income, expenses, budgets, and goals.
-
-               Highlight overspending categories, low savings rates, or patterns that delay goals.
-
-               Celebrate positive behavior (e.g., “You spent 15% less on dining out this week — nice job!”).
-
-               Style & Tone
-
-               Concise, encouraging, friendly, and easy to understand.
-
-               Use concrete examples, avoid jargon, or explain it clearly if needed.
-
-               Respond like a supportive friend who understands the user’s financial context.
-
-               Safety & Scope
-
-               Stick strictly to personal finance (expenses, budgets, savings, goals).
-
-               Do not provide legal, tax, or investment advice.
-
-               Politely steer users back to finance-related topics if off-topic.
-
-               Key Rules
-
-               Always use available tools to retrieve or update data.
-
-               Never assume missing information; ask the user first.
-
-               Reference all relevant data in your advice.
-
-               Provide short, actionable feedback with concrete examples.
-
-               Make financial insights practical, personalized, and positive.
-
-"""
-    
-    @ObservationIgnored lazy var session = LanguageModelSession(
-        tools: [
-            AddExpenseTool(),
-            GetExpenseTool(),
-            GetBudgetsTool(),
-            GetGoalsTool(),
-            GetIncomeTool()
-        ],
-        instructions: instructions
-    )
-    
+   
+    @MainActor
     func generateResponse() async {
+        guard !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            generatedResponse = "Please type a question or command."
+            return
+        }
+
         isGenerating = true
-        let stream = session.streamResponse(to: query)
+        let currentQuery = query
+        let stream = session.streamResponse(to: currentQuery)
+        
         query = ""
         do {
             for try await partial in stream {
                 generatedResponse = partial.content
             }
-            print("Finished generating")
+            print("[ViewModel] finished generating response")
         } catch {
             alertMessage = error.localizedDescription
-            showAlert.toggle()
+            showAlert = true
+            print("[ViewModel] generateResponse error:", error.localizedDescription)
         }
+        isGenerating = false
     }
 }
-
