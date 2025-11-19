@@ -15,19 +15,19 @@ extension String {
     var categoryColor: Color {
         switch self.lowercased() {
         case "food":
-            return .green.opacity(0.3)
+            return .green
         case "transport":
-            return .blue.opacity(0.3)
+            return .blue
         case "lifestyle":
-            return .purple.opacity(0.3)
+            return .purple
         case "subscriptions":
-            return .orange.opacity(0.3)
+            return .orange
         case "shopping":
-            return .pink.opacity(0.3)
+            return .pink
         case "others":
-            return .gray.opacity(0.3)
+            return .gray
         default:
-            return .gray.opacity(0.2)
+            return .gray
         }
     }
 }

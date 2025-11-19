@@ -69,7 +69,6 @@ struct HomeView: View {
                                 category: item.category
                             )
                         }
-                        .listRowBackground(Color.clear)
                     }
                 }
             }
