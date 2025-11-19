@@ -65,21 +65,43 @@ struct HomeView: View {
                         Spacer()
                     }
 
-                    ForEach(expenses, id: \.self) { item in
-                        NavigationLink(
-                            tag: item,
-                            selection: $selectedExpense
-                        ) {
-                            ExpenseDetailView(expense: item)
-                        } label: {
-                            ExpenseItemView(
-                                title: item.name,
-                                date: Date(timeIntervalSince1970: item.date),
-                                amount: item.amount,
-                                category: item.category
-                            )
+                    ScrollView {
+                        VStack(spacing: 12) {
+                            ForEach(expenses, id: \.self) { item in
+                                NavigationLink(destination: ExpenseDetailView(expense: item)) {
+                                    HStack {
+                                        Image(systemName: item.category.sFSymbol)
+                                            .foregroundColor(.white)
+                                            .frame(width: 32, height: 32)
+                                        
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(item.name)
+                                                .bold()
+                                                .foregroundColor(.white)
+                                            Text(Date(timeIntervalSince1970: item.date), style: .date)
+                                                .font(.caption)
+                                                .foregroundColor(.white.opacity(0.8))
+                                        }
+                                        
+                                        Spacer()
+                                        
+                                        Text("$\(item.amount, specifier: "%.2f")")
+                                            .bold()
+                                            .foregroundColor(.white)
+                                        
+                                        Image(systemName: "chevron.right")
+                                            .foregroundColor(.white)
+                                    }
+                                    .padding()
+                                    .background(item.category.categoryColor.opacity(0.967))
+                                    .cornerRadius(12)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                            }
                         }
+                        .padding()
                     }
+
                 }
                 
                 Section(header: HStack(spacing: 10) {
