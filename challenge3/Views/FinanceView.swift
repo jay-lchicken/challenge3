@@ -1,10 +1,3 @@
-//
-//  FinanceView.swift
-//  challenge3
-//
-//  Created by Aletheus Ang on 7/11/25.
-//
-
 import SwiftUI
 import SwiftData
 import Charts
@@ -14,7 +7,7 @@ struct FinanceView: View {
     @Query(sort: \ExpenseItem.date, order: .reverse) var expenses: [ExpenseItem]
     @Query(sort: \GoalItem.dateCreated, order: .reverse) var goals: [GoalItem]
     @Query(sort: \BudgetItem.category, order: .forward) var budgets: [BudgetItem]
-    
+
     @State private var selectedTab = "Overview"
     @State private var selectedTimeRange = "Monthly"
     @State private var showAddGoal = false
@@ -22,13 +15,11 @@ struct FinanceView: View {
     @State private var showDateRangePicker = false
     @State private var dateRangeStart = Calendar.current.date(byAdding: .day, value: -7, to: Date())!
     @State private var dateRangeEnd = Date()
-    
-    @State private var selectedExpense: ExpenseItem? = nil
-    @State private var showExpenseSheet = false
-    
+
     let timeRanges = ["Daily", "Monthly", "Yearly"]
+    let tabs = ["Overview", "Budget", "Expenses"]
     let categories = ["Food", "Transport", "Lifestyle", "Subscriptions", "Shopping", "Others"]
-    
+
     private var filteredExpenses: [ExpenseItem] {
         let calendar = Calendar.current
         return expenses.filter { exp in
@@ -41,7 +32,7 @@ struct FinanceView: View {
             }
         }
     }
-    
+
     private func expensesBetween(_ start: Date, _ end: Date) -> [ExpenseItem] {
         let s = Calendar.current.startOfDay(for: start)
         let e = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: end) ?? end
@@ -50,75 +41,64 @@ struct FinanceView: View {
             return d >= s && d <= e
         }
     }
-    
+
     private var categoryTotals: [(category: String, total: Double)] {
         let grouped = Dictionary(grouping: filteredExpenses, by: { $0.category })
         return grouped
             .map { (key, value) in (category: key, total: value.reduce(0) { $0 + $1.amount }) }
             .sorted { $0.total > $1.total }
     }
-    
+
     private var totalSpent: Double {
         filteredExpenses.reduce(0) { $0 + $1.amount }
     }
-    
+
     private var filteredBudgetTotal: Double {
         let categoriesShown = Set(filteredExpenses.map { $0.category.lowercased() })
         return budgets.filter { categoriesShown.contains($0.category.lowercased()) }
-            .reduce(0) { $0 + $1.cap }
+                      .reduce(0) { $0 + $1.cap }
     }
-    
-    
+
     private var totalBudget: Double {
         budgets.reduce(0) { $0 + $1.cap }
     }
-    
+
     private var remainingBudget: Double { max(totalBudget - totalSpent, 0) }
-    
+
     private func capForCategory(_ cat: String) -> Double {
         budgets.first(where: { $0.category.lowercased() == cat.lowercased() })?.cap ?? 200
     }
-    
+
     private func spent(for category: String) -> Double {
         filteredExpenses.filter { $0.category.lowercased() == category.lowercased() }
-            .reduce(0) { $0 + $1.amount }
+                .reduce(0) { $0 + $1.amount }
     }
-    
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 16) {
                 Picker("", selection: $selectedTab) {
-                    Text("Overview").tag("Overview")
-                    Text("Budget").tag("Budget")
-                    Text("Expenses").tag("Expenses")
+                    ForEach(tabs, id: \.self) { tab in
+                        Text(tab).tag(tab)
+                    }
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
-                
+
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
-                        if selectedTab == "Expenses" {
-                            expensesTab
+                        if selectedTab == "Overview" {
+                            overviewTab
                         } else if selectedTab == "Budget" {
                             budgetTab
-                        } else {
-                            overviewTab
+                        } else if selectedTab == "Expenses" {
+                            expensesTab
                         }
                     }
                     .padding(.vertical)
                 }
             }
             .toolbar {
-                if selectedTab == "Expenses" {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button {
-                            showDateRangePicker = true
-                        } label: {
-                            Image(systemName: "calendar")
-                                .foregroundColor(.yellow)
-                        }
-                    }
-                }
                 if selectedTab != "Expenses" {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Menu {
@@ -133,6 +113,8 @@ struct FinanceView: View {
                     }
                 }
             }
+            .sheet(isPresented: $showAddGoal) { AddGoalView() }
+            .sheet(isPresented: $showEditBudgets) { EditBudgetsView(categories: categories) }
             .sheet(isPresented: $showDateRangePicker) {
                 VStack {
                     DatePicker("Start", selection: $dateRangeStart, displayedComponents: .date)
@@ -144,20 +126,16 @@ struct FinanceView: View {
             }
             .navigationTitle("Finance")
             .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $showAddGoal) { AddGoalView() }
-            .sheet(isPresented: $showEditBudgets) {
-                EditBudgetsView(categories: categories)
-            }
         }
     }
-    
+
     private var overviewTab: some View {
         VStack(alignment: .leading, spacing: 20) {
             if !categoryTotals.isEmpty {
                 Text("Expense Categories")
                     .font(.headline)
                     .padding(.horizontal)
-                
+
                 HStack(alignment: .top, spacing: 12) {
                     Chart(categoryTotals, id: \.category) { item in
                         SectorMark(
@@ -169,7 +147,7 @@ struct FinanceView: View {
                     }
                     .frame(width: 220, height: 220)
                     .padding(.leading, 12)
-                    
+
                     VStack(alignment: .leading, spacing: 8) {
                         ForEach(categoryTotals, id: \.category) { item in
                             HStack(spacing: 8) {
@@ -188,14 +166,14 @@ struct FinanceView: View {
                     .padding(.trailing)
                 }
             }
-            
+
             Text("Expense Breakdown")
                 .font(.headline)
                 .padding(.horizontal)
-            
+
             GeometryReader { geo in
                 let width = geo.size.width
-                let ratio = totalBudget > 0 ? CGFloat(min(totalSpent / totalBudget, 1)) : 0
+                let ratio = filteredBudgetTotal > 0 ? CGFloat(min(totalSpent / filteredBudgetTotal, 1)) : 0
                 let filled = width * ratio
                 ZStack(alignment: .leading) {
                     Capsule().fill(Color.gray.opacity(0.12)).frame(height: 20)
@@ -204,12 +182,12 @@ struct FinanceView: View {
             }
             .frame(height: 20)
             .padding(.horizontal)
-            
-            Text("Budget: $\(Int(totalBudget)) | Spent: $\(Int(totalSpent)) | Saved: $\(Int(max(totalBudget - totalSpent, 0)))")
+
+            Text("Budget: $\(Int(filteredBudgetTotal)) | Spent: $\(Int(totalSpent)) | Saved: $\(Int(max(filteredBudgetTotal - totalSpent, 0)))")
                 .font(.caption)
                 .padding(.horizontal)
                 .foregroundColor(.gray)
-            
+
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
                     Text("Goals:")
@@ -218,7 +196,7 @@ struct FinanceView: View {
                     Button("Add New") { showAddGoal = true }
                         .foregroundColor(.yellow)
                 }
-                
+
                 ForEach(goals) { goal in
                     NavigationLink {
                         GoalDetailView(goal: goal)
@@ -227,12 +205,11 @@ struct FinanceView: View {
                     }
                     .buttonStyle(.plain)
                 }
-                
             }
             .padding(.horizontal)
         }
     }
-    
+
     private var budgetTab: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -253,7 +230,7 @@ struct FinanceView: View {
                 }
             }
             .padding(.horizontal)
-            
+
             VStack(spacing: 12) {
                 ForEach(categories, id: \.self) { cat in
                     categoryBudgetCard(cat)
@@ -262,18 +239,24 @@ struct FinanceView: View {
             .padding(.horizontal)
         }
     }
-    
+
     private var expensesTab: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("Expenses")
                     .font(.headline)
                 Spacer()
+                Button {
+                    showDateRangePicker = true
+                } label: {
+                    Image(systemName: "calendar")
+                        .foregroundColor(.yellow)
+                }
             }
             .padding(.horizontal)
-            
+
             let results = expensesBetween(dateRangeStart, dateRangeEnd)
-            
+
             if results.isEmpty {
                 Text("No expenses")
                     .foregroundColor(.gray)
@@ -281,9 +264,8 @@ struct FinanceView: View {
             } else {
                 VStack(spacing: 10) {
                     ForEach(results, id: \.self) { item in
-                        Button {
-                            selectedExpense = item
-                            showExpenseSheet = true
+                        NavigationLink {
+                            ExpenseDetailView(expense: item)
                         } label: {
                             ExpenseItemView(
                                 title: item.name,
@@ -298,11 +280,8 @@ struct FinanceView: View {
                 .padding(.horizontal)
             }
         }
-        .sheet(item: $selectedExpense) { expense in
-            ExpenseDetailSheet(expense: expense)
-        }
     }
-    
+
     private func categoryBudgetCard(_ cat: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
@@ -315,21 +294,21 @@ struct FinanceView: View {
                     .font(.caption)
                     .foregroundColor(.gray)
             }
-            
+
             GeometryReader { geo in
                 let width = geo.size.width
                 let spentAmount = spent(for: cat)
                 let cap = capForCategory(cat)
                 let ratio = cap > 0 ? CGFloat(min(spentAmount / cap, 1)) : 0
                 let filled = width * ratio
-                
+
                 ZStack(alignment: .leading) {
                     Capsule().fill(Color.gray.opacity(0.12)).frame(height: 18)
                     Capsule().fill(Color.red).frame(width: filled, height: 18)
                 }
             }
             .frame(height: 18)
-            
+
             Text("Spent: $\(Int(spent(for: cat)))")
                 .font(.caption)
                 .foregroundColor(.gray)
@@ -340,11 +319,11 @@ struct FinanceView: View {
         .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
         .padding(.horizontal)
     }
-    
+
     private func goalCard(_ goal: GoalItem) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text("\(goal.title) — $\(Int(goal.current))/$\(Int(goal.target))")
+                Text("\(goal.title) — \(Int(goal.current))/\(Int(goal.target))")
                 Spacer()
                 Text("\(Int(min(goal.current / goal.target, 1) * 100))%")
                     .foregroundColor(.gray)
@@ -364,155 +343,3 @@ struct FinanceView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
-
-struct ExpenseDetailSheet: View {
-    @Environment(\.dismiss) var dismiss
-    
-    @Bindable var expense: ExpenseItem
-    
-    @State private var showEdit = false
-    
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 20) {
-                
-                HStack {
-                    Text(expense.name)
-                        .font(.largeTitle)
-                        .bold()
-                    
-                    Spacer()
-                    
-                    Button {
-                        showEdit = true
-                    } label: {
-                        Image(systemName: "arrow.right.circle.fill")
-                            .font(.system(size: 28))
-                            .foregroundColor(.yellow)
-                    }
-                }
-                .padding(.horizontal)
-                .padding(.top)
-                
-                VStack(alignment: .leading, spacing: 14) {
-                    infoRow("Category", expense.category)
-                    infoRow("Amount", "$\(String(format: "%.2f", expense.amount))")
-                    infoRow("Date", formattedDate(expense.date))
-                }
-                .font(.title3)
-                .padding(.horizontal)
-                
-                Spacer()
-            }
-            .navigationDestination(isPresented: $showEdit) {
-                ExpenseEditView(expense: expense)
-            }
-        }
-        .presentationDetents([.medium, .large])
-    }
-    
-    func infoRow(_ title: String, _ value: String) -> some View {
-        HStack {
-            Text(title + ":")
-            Spacer()
-            Text(value)
-        }
-    }
-    
-    func formattedDate(_ time: TimeInterval) -> String {
-        let date = Date(timeIntervalSince1970: time)
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        return formatter.string(from: date)
-    }
-}
-
-struct ExpenseEditView: View {
-    @Environment(\.modelContext) var modelContext
-    @Environment(\.dismiss) var dismiss
-    
-    @Bindable var expense: ExpenseItem
-    @State private var showDelete = false
-    
-    let categories = CategoryOptionsModel().category
-    
-    private var dateBinding: Binding<Date> {
-        Binding(
-            get: { Date(timeIntervalSince1970: expense.date) },
-            set: { expense.date = $0.timeIntervalSince1970 }
-        )
-    }
-    
-    private var amountStringBinding: Binding<String> {
-        Binding(
-            get: {
-                if expense.amount.truncatingRemainder(dividingBy: 1) == 0 {
-                    return String(Int(expense.amount))
-                } else {
-                    return String(expense.amount)
-                }
-            },
-            set: { newValue in
-                let cleaned = newValue.replacingOccurrences(
-                    of: "[^0-9.]",
-                    with: "",
-                    options: .regularExpression
-                )
-                if let val = Double(cleaned) {
-                    expense.amount = val
-                }
-            }
-        )
-    }
-    
-    var body: some View {
-        Form {
-            Picker("Category", selection: $expense.category) {
-                ForEach(categories, id: \.self) {
-                    Text($0.capitalized)
-                }
-            }
-            
-            TextField("Expense name", text: $expense.name)
-            
-            DatePicker("Date", selection: dateBinding, displayedComponents: .date)
-            
-            HStack {
-                Text("$")
-                TextField("Amount", text: amountStringBinding)
-                    .keyboardType(.decimalPad)
-            }
-            
-            // DELETE BUTTON
-            Section {
-                Button(role: .destructive) {
-                    showDelete = true
-                } label: {
-                    HStack(spacing: 20){
-                        Image(systemName: "trash")
-                            .foregroundColor(.red)
-                        Text("Delete Expense")
-                            .font(.subheadline)
-                    }
-                }
-            }
-        }
-        .navigationTitle("Edit Expense")
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button("Save") {
-                    try? modelContext.save()
-                    dismiss()
-                }
-            }
-        }
-        .alert("Delete Expense?", isPresented: $showDelete) {
-            Button("Delete", role: .destructive) {
-                modelContext.delete(expense)
-                dismiss()
-            }
-            Button("Cancel", role: .cancel) {}
-        }
-    }
-}
-
