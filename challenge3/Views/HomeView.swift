@@ -52,7 +52,6 @@ struct HomeView: View {
                     HStack {
                         Text("Spent: $\(todaySpent, specifier: "%.2f")")
                         Spacer()
-                        Text("Saved: $\(todaySaved, specifier: "%.2f")")
                     }
 
                     ForEach(expenses, id: \.self) { item in

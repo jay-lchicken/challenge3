@@ -192,7 +192,7 @@ struct FinanceView: View {
             
             GeometryReader { geo in
                 let width = geo.size.width
-                let ratio = filteredBudgetTotal > 0 ? CGFloat(min(totalSpent / filteredBudgetTotal, 1)) : 0
+                let ratio = totalBudget > 0 ? CGFloat(min(totalSpent / totalBudget, 1)) : 0
                 let filled = width * ratio
                 ZStack(alignment: .leading) {
                     Capsule().fill(Color.gray.opacity(0.12)).frame(height: 20)
@@ -202,7 +202,7 @@ struct FinanceView: View {
             .frame(height: 20)
             .padding(.horizontal)
             
-            Text("Budget: $\(Int(filteredBudgetTotal)) | Spent: $\(Int(totalSpent)) | Saved: $\(Int(max(filteredBudgetTotal - totalSpent, 0)))")
+            Text("Budget: $\(Int(totalBudget)) | Spent: $\(Int(totalSpent)) | Saved: $\(Int(max(totalBudget - totalSpent, 0)))")
                 .font(.caption)
                 .padding(.horizontal)
                 .foregroundColor(.gray)
@@ -330,7 +330,7 @@ struct FinanceView: View {
     private func goalCard(_ goal: GoalItem) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text("\(goal.title) — \(Int(goal.current))/\(Int(goal.target))")
+                Text("\(goal.title) — $\(Int(goal.current))/$\(Int(goal.target))")
                 Spacer()
                 Text("\(Int(min(goal.current / goal.target, 1) * 100))%")
                     .foregroundColor(.gray)
