@@ -19,7 +19,7 @@ struct ContentView: View {
                 HomeView()
             }
 
-            Tab("Finance", systemImage: "bitcoinsign.circle"){
+            Tab("Finance", systemImage: "dollarsign.circle"){
                 FinanceView()
             }
 

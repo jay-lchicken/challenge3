@@ -26,6 +26,11 @@ struct FinanceView: View {
     let timeRanges = ["Daily", "Monthly", "Yearly"]
     let tabs = ["Overview", "Budget", "Expenses"]
     let categories = ["Food", "Transport", "Lifestyle", "Subscriptions", "Shopping", "Others"]
+    
+    @State private var expense_searchText: String = ""
+    @State private var expense_selectedCategory: String = "All"
+    private let expense_categories = ["All", "Food", "Transport", "Lifestyle", "Subscriptions", "Shopping", "Others"]
+
 
     private var filteredExpenses: [ExpenseItem] {
         let calendar = Calendar.current
@@ -261,8 +266,35 @@ struct FinanceView: View {
                 }
             }
             .padding(.horizontal)
+            
+            TextField("Search expenses...", text: $expense_searchText)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.horizontal)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    ForEach(expense_categories, id: \.self) { cat in
+                        Button {
+                            expense_selectedCategory = cat
+                        } label: {
+                            Text(cat)
+                                .font(.caption)
+                                .padding(.vertical, 6)
+                                .padding(.horizontal, 12)
+                                .background(expense_selectedCategory == cat ? Color.yellow : Color.gray.opacity(0.2))
+                                .foregroundColor(expense_selectedCategory == cat ? .black : .primary)
+                                .cornerRadius(10)
+                        }
+                    }
+                }
+                .padding(.horizontal)
+            }
 
             let results = expensesBetween(dateRangeStart, dateRangeEnd)
+                .filter { item in
+                    (expense_selectedCategory == "All" || item.category == expense_selectedCategory)
+                    && (expense_searchText.isEmpty || item.name.lowercased().contains(expense_searchText.lowercased()))
+                }
 
             if results.isEmpty {
                 Text("No expenses")
@@ -274,20 +306,41 @@ struct FinanceView: View {
                         NavigationLink {
                             ExpenseDetailView(expense: item)
                         } label: {
-                            ExpenseItemView(
-                                title: item.name,
-                                date: Date(timeIntervalSince1970: item.date),
-                                amount: item.amount,
-                                category: item.category
-                            )
+                            HStack {
+                                Image(systemName: item.category.sFSymbol)
+                                    .foregroundColor(.white)
+                                    .frame(width: 32, height: 32)
+                                
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(item.name)
+                                        .bold()
+                                        .foregroundColor(.white)
+                                    Text(Date(timeIntervalSince1970: item.date), style: .date)
+                                        .font(.caption)
+                                        .foregroundColor(.white.opacity(0.8))
+                                }
+                                
+                                Spacer()
+                                
+                                Text("$\(item.amount, specifier: "%.2f")")
+                                    .bold()
+                                    .foregroundColor(.white)
+                                
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.white)
+                            }
+                            .padding()
+                            .background(item.category.categoryColor.opacity(0.7))
+                            .cornerRadius(12)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(PlainButtonStyle())
                     }
                 }
                 .padding(.horizontal)
             }
         }
     }
+
 
     private func categoryBudgetCard(_ cat: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
