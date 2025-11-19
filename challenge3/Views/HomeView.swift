@@ -53,7 +53,7 @@ struct HomeView: View {
                 Section(header: HStack(spacing: 10) {
                     Image(systemName: "dollarsign.circle")
                         .font(.title3)
-                        .foregroundColor(.white)
+                        .foregroundColor(.yellow)
                     Text("Today's Spending")
                         .font(.headline)
                         .fontWeight(.bold)
