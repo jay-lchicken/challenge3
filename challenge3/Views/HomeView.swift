@@ -55,9 +55,8 @@ struct HomeView: View {
                         .font(.title3)
                         .foregroundColor(.white)
                     Text("Today's Spending")
-                        .font(.title3)
+                        .font(.headline)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
                     Spacer()
                     HStack {
                         Text("Total: $\(todaySpent, specifier: "%.2f")")
