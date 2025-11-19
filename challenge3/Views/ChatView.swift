@@ -120,6 +120,16 @@ struct ChatView: View {
                                                 .padding(.horizontal)
                                             Spacer()
                                         }
+                                    }else if response[0].toolName == "getIncome"{
+                                        HStack{
+                                            Text("Read Income")
+                                                .padding()
+                                                .background(.green.opacity(0.3))
+                                                .cornerRadius(12)
+                                                .padding(.horizontal)
+                                            Spacer()
+                                        }
+
                                     }
 
                                 default:

@@ -711,7 +711,7 @@ struct GetIncomeTool: Tool {
         return await MainActor.run {
             let income = UserDefaults.standard.integer(forKey: "income")
             print("[GetIncomeTool] income:", income)
-            // if not set, integer(forKey:) returns 0; we return -1 if you want explicit "not set"
+          
             return income == 0 ? -1 : income
         }
     }
