@@ -14,7 +14,7 @@ struct FinanceView: View {
     @Query(sort: \ExpenseItem.date, order: .reverse) var expenses: [ExpenseItem]
     @Query(sort: \GoalItem.dateCreated, order: .reverse) var goals: [GoalItem]
     @Query(sort: \BudgetItem.category, order: .forward) var budgets: [BudgetItem]
-
+    
     @State private var selectedTab = "Overview"
     @State private var selectedTimeRange = "Monthly"
     @State private var showAddGoal = false
@@ -22,6 +22,9 @@ struct FinanceView: View {
     @State private var showDateRangePicker = false
     @State private var dateRangeStart = Calendar.current.date(byAdding: .day, value: -7, to: Date())!
     @State private var dateRangeEnd = Date()
+    
+    @State private var selectedExpense: ExpenseItem? = nil
+    @State private var showExpenseSheet = false
     
     let timeRanges = ["Daily", "Monthly", "Yearly"]
     let categories = ["Food", "Transport", "Lifestyle", "Subscriptions", "Shopping", "Others"]
@@ -62,9 +65,9 @@ struct FinanceView: View {
     private var filteredBudgetTotal: Double {
         let categoriesShown = Set(filteredExpenses.map { $0.category.lowercased() })
         return budgets.filter { categoriesShown.contains($0.category.lowercased()) }
-                      .reduce(0) { $0 + $1.cap }
+            .reduce(0) { $0 + $1.cap }
     }
-
+    
     
     private var totalBudget: Double {
         budgets.reduce(0) { $0 + $1.cap }
@@ -78,9 +81,9 @@ struct FinanceView: View {
     
     private func spent(for category: String) -> Double {
         filteredExpenses.filter { $0.category.lowercased() == category.lowercased() }
-                .reduce(0) { $0 + $1.amount }
+            .reduce(0) { $0 + $1.amount }
     }
-
+    
     var body: some View {
         NavigationStack {
             VStack(spacing: 16) {
@@ -147,7 +150,7 @@ struct FinanceView: View {
             }
         }
     }
-
+    
     private var overviewTab: some View {
         VStack(alignment: .leading, spacing: 20) {
             if !categoryTotals.isEmpty {
@@ -224,7 +227,7 @@ struct FinanceView: View {
                     }
                     .buttonStyle(.plain)
                 }
-
+                
             }
             .padding(.horizontal)
         }
@@ -278,14 +281,25 @@ struct FinanceView: View {
             } else {
                 VStack(spacing: 10) {
                     ForEach(results, id: \.self) { item in
-                        ExpenseItemView(title: item.name,
-                                        date: Date(timeIntervalSince1970: item.date),
-                                        amount: item.amount,
-                                        category: item.category)
+                        Button {
+                            selectedExpense = item
+                            showExpenseSheet = true
+                        } label: {
+                            ExpenseItemView(
+                                title: item.name,
+                                date: Date(timeIntervalSince1970: item.date),
+                                amount: item.amount,
+                                category: item.category
+                            )
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
                 .padding(.horizontal)
             }
+        }
+        .sheet(item: $selectedExpense) { expense in
+            ExpenseDetailSheet(expense: expense)
         }
     }
     
@@ -350,3 +364,155 @@ struct FinanceView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
+
+struct ExpenseDetailSheet: View {
+    @Environment(\.dismiss) var dismiss
+    
+    @Bindable var expense: ExpenseItem
+    
+    @State private var showEdit = false
+    
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 20) {
+                
+                HStack {
+                    Text(expense.name)
+                        .font(.largeTitle)
+                        .bold()
+                    
+                    Spacer()
+                    
+                    Button {
+                        showEdit = true
+                    } label: {
+                        Image(systemName: "arrow.right.circle.fill")
+                            .font(.system(size: 28))
+                            .foregroundColor(.yellow)
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.top)
+                
+                VStack(alignment: .leading, spacing: 14) {
+                    infoRow("Category", expense.category)
+                    infoRow("Amount", "$\(String(format: "%.2f", expense.amount))")
+                    infoRow("Date", formattedDate(expense.date))
+                }
+                .font(.title3)
+                .padding(.horizontal)
+                
+                Spacer()
+            }
+            .navigationDestination(isPresented: $showEdit) {
+                ExpenseEditView(expense: expense)
+            }
+        }
+        .presentationDetents([.medium, .large])
+    }
+    
+    func infoRow(_ title: String, _ value: String) -> some View {
+        HStack {
+            Text(title + ":")
+            Spacer()
+            Text(value)
+        }
+    }
+    
+    func formattedDate(_ time: TimeInterval) -> String {
+        let date = Date(timeIntervalSince1970: time)
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter.string(from: date)
+    }
+}
+
+struct ExpenseEditView: View {
+    @Environment(\.modelContext) var modelContext
+    @Environment(\.dismiss) var dismiss
+    
+    @Bindable var expense: ExpenseItem
+    @State private var showDelete = false
+    
+    let categories = CategoryOptionsModel().category
+    
+    private var dateBinding: Binding<Date> {
+        Binding(
+            get: { Date(timeIntervalSince1970: expense.date) },
+            set: { expense.date = $0.timeIntervalSince1970 }
+        )
+    }
+    
+    private var amountStringBinding: Binding<String> {
+        Binding(
+            get: {
+                if expense.amount.truncatingRemainder(dividingBy: 1) == 0 {
+                    return String(Int(expense.amount))
+                } else {
+                    return String(expense.amount)
+                }
+            },
+            set: { newValue in
+                let cleaned = newValue.replacingOccurrences(
+                    of: "[^0-9.]",
+                    with: "",
+                    options: .regularExpression
+                )
+                if let val = Double(cleaned) {
+                    expense.amount = val
+                }
+            }
+        )
+    }
+    
+    var body: some View {
+        Form {
+            Picker("Category", selection: $expense.category) {
+                ForEach(categories, id: \.self) {
+                    Text($0.capitalized)
+                }
+            }
+            
+            TextField("Expense name", text: $expense.name)
+            
+            DatePicker("Date", selection: dateBinding, displayedComponents: .date)
+            
+            HStack {
+                Text("$")
+                TextField("Amount", text: amountStringBinding)
+                    .keyboardType(.decimalPad)
+            }
+            
+            // DELETE BUTTON
+            Section {
+                Button(role: .destructive) {
+                    showDelete = true
+                } label: {
+                    HStack(spacing: 20){
+                        Image(systemName: "trash")
+                            .foregroundColor(.red)
+                        Text("Delete Expense")
+                            .font(.subheadline)
+                    }
+                }
+            }
+        }
+        .navigationTitle("Edit Expense")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Save") {
+                    try? modelContext.save()
+                    dismiss()
+                }
+            }
+        }
+        .alert("Delete Expense?", isPresented: $showDelete) {
+            Button("Delete", role: .destructive) {
+                modelContext.delete(expense)
+                dismiss()
+            }
+            Button("Cancel", role: .cancel) {}
+        }
+    }
+}
+
