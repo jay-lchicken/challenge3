@@ -236,7 +236,7 @@ struct FinanceView: View {
                         Text("Edit")
                     }
                     .padding(8)
-                    .background(Color.blue)
+                    .background(Color.yellow)
                     .foregroundColor(.white)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }

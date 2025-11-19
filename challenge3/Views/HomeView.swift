@@ -92,14 +92,17 @@ struct HomeView: View {
                                             .foregroundColor(.white)
                                     }
                                     .padding()
-                                    .background(item.category.categoryColor.opacity(0.967))
+                                    .frame(maxWidth: .infinity)
+                                    .background(item.category.categoryColor.opacity(0.97))
                                     .cornerRadius(12)
                                 }
                                 .buttonStyle(PlainButtonStyle())
                             }
                         }
-                        .padding()
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 8)
                     }
+
 
                 }
                 

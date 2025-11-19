@@ -93,7 +93,7 @@ struct ExpenseDetailView: View {
             }
 
                     }
-        .navigationTitle("Expense Detail")
+        .navigationTitle($expense.name)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(){
