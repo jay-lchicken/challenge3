@@ -167,7 +167,6 @@ struct ChatView: View {
                     }label:{
                         Image(systemName: "arrow.up.circle")
                             .font(.title2)
-                        
                             .padding()
                     }
                 }

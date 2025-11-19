@@ -45,8 +45,7 @@ struct ExpenseItemView: View {
                     .foregroundColor(.white)
             }
         }
-        .padding(.vertical, 14)
-        .padding(.horizontal, 16)
+        .padding()
         .background(category.categoryColor)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .shadow(color: category.categoryColor.opacity(0.25), radius: 6, x: 0, y: 3)

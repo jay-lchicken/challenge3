@@ -59,12 +59,11 @@ struct HomeView: View {
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                     Spacer()
-                }) {
                     HStack {
                         Text("Spent Today: $\(todaySpent, specifier: "%.2f")")
-                        Spacer()
+                            .fontWeight(.bold)
                     }
-
+                }) {
                     ScrollView {
                         VStack(spacing: 12) {
                             ForEach(expenses, id: \.self) { item in
