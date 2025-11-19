@@ -12,8 +12,10 @@
 
 import SwiftUI
 import SwiftData
+import FoundationModels
 
 struct HomeView: View {
+    @Bindable private var foundationVM = FoundationModelViewModel()
     
     @Environment(\.modelContext) var modelContext
     @Query var expenses: [ExpenseItem]
@@ -32,11 +34,37 @@ struct HomeView: View {
     private var todaySaved: Double {
         max(budget - todaySpent, 0)
     }
+    
+    @ViewBuilder
+        private var feedbackSection: some View {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 10) {
+                    Image(systemName: "bubble.left.fill")
+                        .font(.title3)
+                        .foregroundColor(.white)
+                    Text("Feedback")
+                        .font(.headline)
+                        .bold()
+                }
+     
+                if let feedback = foundationVM.generatedResponse {
+                    Text(feedback)
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                        .fixedSize(horizontal: false, vertical: true)
+                } else {
+                    ProgressView()
+                }
+            }
+            .padding()
+            .background(Color.purple.opacity(0.1))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .shadow(color: Color.purple.opacity(0.25), radius: 6, x: 0, y: 3)
+        }
 
     var body: some View {
         NavigationStack {
             List {
-
                 Section(header:
                     HStack(spacing: 10) {
                         Image(systemName: "dollarsign.circle")
@@ -72,6 +100,29 @@ struct HomeView: View {
                         .listRowBackground(Color.clear)
                     }
                 }
+                
+                Section(header: HStack(spacing: 10) {
+                                    Image(systemName: "bubble.left.fill")
+                                        .font(.title3)
+                                        .foregroundColor(.white)
+                                    Text("Feedback")
+                                        .font(.title3)
+                                        .fontWeight(.bold)
+                                    Spacer()
+                                }
+                                .foregroundColor(.primary)
+                                ) {
+                                    if let feedback = foundationVM.generatedResponse {
+                                        Text(feedback)
+                                            .font(.subheadline)
+                                            .foregroundColor(.primary)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                            .padding(.vertical, 4)
+                                    } else {
+                                        ProgressView()
+                                            .padding(.vertical, 4)
+                                    }
+                                }
             }
             .listStyle(.insetGrouped)
             .navigationTitle("Home")
@@ -81,6 +132,14 @@ struct HomeView: View {
                         Image(systemName: "person.circle")
                             .imageScale(.large)
                     }
+                }
+            }
+            .onAppear {
+                foundationVM.setModelContext(modelContext)
+                foundationVM.query = "give me feedback on today's spendings"
+
+                Task {
+                    await foundationVM.generateResponse()
                 }
             }
         }

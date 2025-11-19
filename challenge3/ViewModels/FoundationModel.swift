@@ -473,7 +473,6 @@ struct ModelResponse {
 
 struct AddExpenseTool: Tool {
     var modelContext: ModelContext? = nil
-
    
     @MainActor
     init(modelContainer: ModelContainer) {
@@ -729,7 +728,6 @@ class FoundationModelViewModel {
 
     // ----- Instructions (kept as you provided, minor formatting) -----
     let instructions = """
-                       
                        Role
                        
                        You are “Bro”, a friendly, professional personal finance assistant. Communicate clearly in English and act as a knowledgeable, supportive buddy.
@@ -786,6 +784,12 @@ class FoundationModelViewModel {
 
     @ObservationIgnored
     var session: LanguageModelSession
+    
+    var modelContext: ModelContext?
+
+    func setModelContext(_ context: ModelContext) {
+        self.modelContext = context
+    }
 
     @MainActor
     init() {

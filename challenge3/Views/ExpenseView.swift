@@ -62,18 +62,27 @@ struct ExpenseView: View {
         VStack(alignment: .leading, spacing: 8) {
             
             HStack {
+                Image(systemName: exp.category.sFSymbol)
+                            .font(.system(size: 14))
+                            .foregroundColor(.white)
+                            .padding(.vertical, 2)
+
                 Text(exp.name)
                     .font(.headline)
+
                 Spacer()
+
                 Text("$\(String(format: "%.2f", exp.amount))")
                     .font(.headline)
             }
-            
+
             HStack {
-                Text(exp.category)
+                Text(exp.category.capitalized)
                     .font(.subheadline)
                     .foregroundColor(.gray)
+
                 Spacer()
+
                 Text(formattedDate(exp.date))
                     .font(.caption)
                     .foregroundColor(.gray)
@@ -84,6 +93,7 @@ struct ExpenseView: View {
         .clipShape(RoundedRectangle(cornerRadius: 15))
         .shadow(color: .black.opacity(0.08), radius: 6, x: 0, y: 3)
     }
+
     
     func infoRow(_ title: String, _ value: String) -> some View {
         HStack {

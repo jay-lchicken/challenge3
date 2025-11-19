@@ -13,26 +13,23 @@ struct ExpenseItemView: View {
     let amount: Double
     let category: String
     
-    private var categoryColor: Color {
-        switch category.lowercased() {
-        case "food": return .green
-        case "transport": return .blue
-        case "shopping": return .pink
-        case "subscriptons": return .purple
-        case "lifestyle": return .orange
-        case "others": return .yellow
-        default: return .gray
-        }
-    }
+    @State var categoryColours = CategoryOptionsModel()
     
     var body: some View {
         HStack(alignment: .center, spacing: 14) {
             
             VStack(alignment: .leading, spacing: 6) {
-                Text(title)
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
+                HStack(spacing:10){
+                    Image(systemName: category.sFSymbol)
+                                .font(.system(size: 14))   
+                                .foregroundColor(.white)
+                                .padding(.vertical, 2)
+                    
+                    Text(title)
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                }
                 
                 Text(date.formatted(date: .abbreviated, time: .omitted))
                     .font(.subheadline)
@@ -50,9 +47,9 @@ struct ExpenseItemView: View {
         }
         .padding(.vertical, 14)
         .padding(.horizontal, 16)
-        .background(categoryColor)
+        .background(category.categoryColor)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .shadow(color: categoryColor.opacity(0.25), radius: 6, x: 0, y: 3)
+        .shadow(color: category.categoryColor.opacity(0.25), radius: 6, x: 0, y: 3)
     }
 }
  

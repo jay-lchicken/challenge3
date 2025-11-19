@@ -89,6 +89,7 @@ struct AddExpenseView: View {
                 Button("OK") {
                     dismiss()
                 }
+                .tint(.yellow)
             }
             .navigationTitle("Add Expense")
         }

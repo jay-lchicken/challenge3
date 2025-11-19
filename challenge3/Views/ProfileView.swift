@@ -52,7 +52,7 @@ struct ProfileView: View {
     }
 
     private var profileCard: some View {
-        VStack(spacing: 16) {
+        HStack(spacing: 16) {
             Circle()
                 .fill(Color.blue.opacity(0.2))
                 .frame(width: 120, height: 120)
@@ -61,53 +61,54 @@ struct ProfileView: View {
                         .font(.system(size: 55))
                         .foregroundColor(.blue)
                 )
-
-            if isEditing {
-                Text("Name")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
+            
+            VStack(spacing: 12) {
+                VStack(spacing: 4) {
+                    Text("Name")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                    
+                    if isEditing {
+                        TextField("Enter name", text: $name)
+                            .multilineTextAlignment(.center)
+                            .textFieldStyle(.roundedBorder)
+                            .font(.title)
+                    } else {
+                        Text(name.isEmpty ? "Unnamed User" : name)
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .multilineTextAlignment(.center)
+                    }
+                }
                 
-                TextField("Enter name", text: $name)
-                    .multilineTextAlignment(.center)
-                    .textFieldStyle(.roundedBorder)
-                    .font(.title)
-            } else {
-                Text("Name")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                
-                Text(name.isEmpty ? "Unnamed User" : name)
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .multilineTextAlignment(.center)
-            }
-
-            VStack(spacing: 4) {
-                Text("Income per Month")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-
-                if isEditing {
-                    TextField("Enter income", text: $income)
-                        .multilineTextAlignment(.center)
-                        .keyboardType(.decimalPad)
-                        .textFieldStyle(.roundedBorder)
-                        .font(.title2)
-                } else {
-                    Text(formattedIncome(income))
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .multilineTextAlignment(.center)
+                VStack(spacing: 4) {
+                    Text("Income per Month")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                    
+                    if isEditing {
+                        TextField("Enter income", text: $income)
+                            .multilineTextAlignment(.center)
+                            .keyboardType(.decimalPad)
+                            .textFieldStyle(.roundedBorder)
+                            .font(.title2)
+                    } else {
+                        Text(formattedIncome(income))
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .multilineTextAlignment(.center)
+                    }
                 }
             }
+            .frame(maxWidth: .infinity)
         }
         .padding(24)
-        .frame(maxWidth: .infinity)
         .background(.ultraThinMaterial)
         .cornerRadius(24)
         .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
         .padding(.horizontal)
     }
+
 
     // chat section wow
     private var chatHistorySection: some View {
