@@ -115,7 +115,9 @@ struct HomeView: View {
             }
             .onAppear {
                 foundationVM.setModelContext(modelContext)
-                foundationVM.query = "give me an analysis and feedback of my today's spendings"
+                foundationVM.query = """
+                “I want you to tell me how I am doing so far and remind me to stick to my budget for the different categories and give me a reminder to add expenses. All in one paragraph. Also give necessary feedback such as too much spending on food for the week using tools to get data
+                """
                 
                 Task { await foundationVM.generateResponse() }
 
@@ -155,5 +157,3 @@ struct HomeView: View {
         }
     }
 }
-
-
