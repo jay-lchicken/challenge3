@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import FoundationModels
+import MarkdownUI
 
 struct HomeView: View {
     @State private var foundationVM = FoundationModelViewModel()
@@ -24,13 +25,14 @@ struct HomeView: View {
     private var feedbackSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             if let feedback = foundationVM.generatedResponse {
-                Text(feedback)
+                Markdown(feedback)
                     .font(.subheadline)
                     .foregroundColor(.primary)
                     .fixedSize(horizontal: false, vertical: true)
             } else {
                 ProgressView()
             }
+
         }
         .padding()
     }
@@ -98,7 +100,6 @@ struct HomeView: View {
                     Text("Feedback")
                         .font(.title3)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
                     Spacer()
                 }) {
                     feedbackSection
