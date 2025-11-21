@@ -151,18 +151,28 @@ struct FinanceView: View {
             
 
             HStack {
-                Text("Duration")
-                    .font(.headline)
+                
                 Spacer()
                 DatePicker("Start", selection: $dateRangeStart, displayedComponents: .date)
                     .padding(-10)
                     .scaleEffect(0.8)
                     .labelsHidden()
+                    .onChange(of: dateRangeStart) { newStart in
+                                    if newStart > dateRangeEnd {
+                                        dateRangeEnd = newStart
+                                    }
+                                }
                 Text("to")
                 DatePicker("End", selection: $dateRangeEnd, displayedComponents: .date)
                     .padding(-10)
+                
                     .scaleEffect(0.8)
                     .labelsHidden()
+                    .onChange(of: dateRangeEnd) { newEnd in
+                                    if newEnd < dateRangeStart {
+                                        dateRangeStart = newEnd
+                                    }
+                                }
 
                 
             }
