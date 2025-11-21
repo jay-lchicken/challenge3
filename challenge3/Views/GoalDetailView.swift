@@ -19,36 +19,56 @@ struct GoalDetailView: View {
     @Bindable var goal: GoalItem
 
     var body: some View {
-        VStack {
+        NavigationStack {
             Form {
-                TextField("Goal Name", text: $goal.title)
-                    .disabled(!isEditing)
-
-                HStack(spacing: 0) {
-                    Text("Current: $")
-                    TextField("Current Amount", value: $goal.current, format: .number)
-                        .keyboardType(.decimalPad)
-                        .disabled(!isEditing)
-                }
-
-                HStack(spacing: 0) {
-                    Text("Target: $")
-                    TextField("Target Amount", value: $goal.target, format: .number)
-                        .keyboardType(.decimalPad)
-                        .disabled(!isEditing)
-                }
-
-                Button {
-                    showContribute = true
-                } label: {
-                    HStack {
-                        Image(systemName: "plus.circle.fill")
-                        Text("Contribute")
+                Section("Goal Name") {
+                    if isEditing {
+                        TextField("Edit goal name", text: $goal.title)
+                            .font(.title2)
+                    } else {
+                        Text(goal.title)
+                            .font(.title)
+                            .bold()
                     }
-                    .frame(maxWidth: .infinity)
                 }
-                .padding(.vertical)
-
+                Section("Current Amount") {
+                    if isEditing {
+                        TextField("Edit current", value: $goal.current, format: .number)
+                            .keyboardType(.decimalPad)
+                            .font(.title2)
+                    } else {
+                        Text("$\(goal.current, specifier: "%.2f")")
+                            .font(.title)
+                            .bold()
+                    }
+                }
+                Section("Target Amount") {
+                    if isEditing {
+                        TextField("Edit target", value: $goal.target, format: .number)
+                            .keyboardType(.decimalPad)
+                            .font(.title2)
+                    } else {
+                        Text("$\(goal.target, specifier: "%.2f")")
+                            .font(.title)
+                            .bold()
+                    }
+                }
+                    Text("Created on \(goal.dateCreated, style: .date)")
+                        .font(.headline
+                    )
+                Section {
+                    Button {
+                        showContribute = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "plus.circle.fill")
+                            Text("Contribute")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .font(.title2)
+                    }
+                    .padding(.vertical)
+                }
                 if isEditing {
                     Section {
                         Button(role: .destructive) {
@@ -57,18 +77,17 @@ struct GoalDetailView: View {
                             HStack {
                                 Image(systemName: "trash")
                                 Text("Delete Goal")
+                                    .font(.title2)
                             }
                             .frame(maxWidth: .infinity, alignment: .center)
                         }
                     }
                 }
             }
-        }
-        .navigationTitle("Goal Details")
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button { isEditing.toggle() } label: {
-                    HStack {
+            .navigationTitle("Goal Details")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { isEditing.toggle() } label: {
                         if isEditing {
                             Text("Done")
                         } else {
@@ -77,23 +96,16 @@ struct GoalDetailView: View {
                     }
                 }
             }
-        }
-        .alert("Are you sure?", isPresented: $showDelete) {
-            Button("Yes", role: .destructive) {
-                modelContext.delete(goal)
-                dismiss()
+            .alert("Are you sure?", isPresented: $showDelete) {
+                Button("Yes", role: .destructive) {
+                    modelContext.delete(goal)
+                    dismiss()
+                }
+                Button("Cancel", role: .cancel) {}
             }
-            Button("Cancel", role: .cancel) {}
-        }
-        .sheet(isPresented: $showContribute) {
-            ContributeSheetView(goal: goal)
-        }
-        .onChange(of: goal.current) { newValue in
-            if newValue >= goal.target {
-                modelContext.delete(goal)
-                dismiss()
+            .sheet(isPresented: $showContribute) {
+                ContributeSheetView(goal: goal)
             }
         }
-
     }
 }
