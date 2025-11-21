@@ -108,7 +108,7 @@ struct HomeView: View {
                                         Image(systemName: item.category.sFSymbol)
                                             .foregroundColor(item.category.categoryColor)
                                         Text(item.category.capitalized)
-                                            .font(.subheadline)
+                                            .font(.title3)
                                             .lineLimit(1)
                                         Spacer()
                                         Text("$\(Int(item.total))")
