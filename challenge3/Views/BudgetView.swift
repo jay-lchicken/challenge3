@@ -70,9 +70,11 @@ struct BudgetView: View {
             .navigationTitle("Budgets")
             .toolbar{
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Edit Budget") {
+                    Button() {
                         showEditBudgets = true
-                        
+                    } label: {
+                        Image(systemName: "pencil")
+                            .foregroundColor(.yellow)
                     }
                 }
             }
@@ -85,13 +87,14 @@ struct BudgetView: View {
             HStack {
                 Image(systemName: cat.sFSymbol)
                     .foregroundColor(cat.categoryColor)
+                    .frame(width: 24, alignment: .leading)
                 Text(cat)
-                    .font(.subheadline)
+                    .font(.headline)
                 Spacer()
                 let percent = (Double(spent(for: cat)) / Double(capForCategory(cat))) * 100
                 let percentText: String = percent.isFinite ? "\(Int(percent.rounded()))%" : "0%"
                 Text(percentText)
-                    .font(.caption)
+                    .font(.headline)
                     .foregroundColor(dangerColor(for: percent))
             }
 
@@ -103,7 +106,7 @@ struct BudgetView: View {
                 let filled = width * ratio
 
                 ZStack(alignment: .leading) {
-                    Capsule().fill(Color.gray.opacity(0.12)).frame(height: 18)
+                    Capsule().fill(Color.gray.opacity(0.5)).frame(height: 18)
                     Capsule().fill(Color.red).frame(width: filled, height: 18)
                 }
             }
@@ -111,23 +114,19 @@ struct BudgetView: View {
 
             HStack {
                 Text("Spent: $\(Int(spent(for: cat)))")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                
                 Spacer()
-                
                 Text("Budget: $\(Int(capForCategory(cat)))")
-                    .font(.caption)
-                    .foregroundColor(.gray)
             }
+            .font(.title2)
+            .foregroundColor(.gray)
             .padding()
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(Color(UIColor.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
-        
     }
+
 
 }
 
