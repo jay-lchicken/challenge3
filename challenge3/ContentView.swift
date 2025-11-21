@@ -22,6 +22,7 @@ struct ContentView: View {
             Tab("Expenses", systemImage: "dollarsign.circle"){
                 FinanceView()
             }
+            
             Tab("Budgets", systemImage: "list.bullet"){
                 BudgetView()
             }
