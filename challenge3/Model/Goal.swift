@@ -15,7 +15,9 @@ final class GoalItem: Identifiable {
     var current: Double
     var target: Double
     var dateCreated: Date
-    
+    var isComplete: Bool {
+        current >= target
+    }
     init(title: String, current: Double, target: Double) {
         self.title = title
         self.current = current

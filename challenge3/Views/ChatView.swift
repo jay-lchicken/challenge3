@@ -136,16 +136,24 @@ struct ChatView: View {
                                     EmptyView()
                                 }
                             }
-                            if viewModel.session.transcript.count % 2 == 0{
-                                HStack{
-                                    ProgressView()
-                                        .progressViewStyle(.circular)
-                                        .padding()
-                                        .background(.green.opacity(0.3))
-                                        .cornerRadius(12)
-                                        .padding(.horizontal)
-                                    Spacer()
+                            if let last = viewModel.session.transcript.last {
+                                switch last{
+                                case .prompt(let response):
+                                    HStack{
+                                        ProgressView()
+                                            .progressViewStyle(.circular)
+                                            .padding()
+                                            .background(.green.opacity(0.3))
+                                            .cornerRadius(12)
+                                            .padding(.horizontal)
+                                        Spacer()
+                                    }
+                                    
+                                
+                                default:
+                                    EmptyView()
                                 }
+                                
                                 
                             }
                             Spacer(minLength: 100)

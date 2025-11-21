@@ -48,6 +48,20 @@ struct GoalDetailView: View {
                     .frame(maxWidth: .infinity)
                 }
                 .padding(.vertical)
+
+                if isEditing {
+                    Section {
+                        Button(role: .destructive) {
+                            showDelete = true
+                        } label: {
+                            HStack {
+                                Image(systemName: "trash")
+                                Text("Delete Goal")
+                            }
+                            .frame(maxWidth: .infinity, alignment: .center)
+                        }
+                    }
+                }
             }
         }
         .navigationTitle("Goal Details")
@@ -74,5 +88,12 @@ struct GoalDetailView: View {
         .sheet(isPresented: $showContribute) {
             ContributeSheetView(goal: goal)
         }
+        .onChange(of: goal.current) { newValue in
+            if newValue >= goal.target {
+                modelContext.delete(goal)
+                dismiss()
+            }
+        }
+
     }
 }

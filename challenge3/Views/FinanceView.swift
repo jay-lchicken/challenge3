@@ -202,9 +202,7 @@ struct FinanceView: View {
 
 
             if results.isEmpty {
-                Text("No expenses")
-                    .foregroundColor(.gray)
-                    .padding(.horizontal)
+                ContentUnavailableView("No Expenses Found", systemImage: "dollarsign.circle")
             } else {
                 VStack(spacing: 10) {
                     ForEach(results, id: \.self) { item in

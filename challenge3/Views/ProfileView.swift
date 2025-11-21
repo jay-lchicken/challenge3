@@ -50,6 +50,17 @@ struct ProfileView: View {
             }
             .navigationTitle("Profile")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    if selectedSegment == 1 {
+                        Button(isEditing ? "Done" : "Edit") {
+                            withAnimation {
+                                isEditing.toggle()
+                            }
+                        }
+                    }
+                }
+            }
             .sheet(item: $contributingGoal) { goal in
                 ContributeSheetView(goal: goal)
                     .presentationDetents([.medium, .large])
@@ -63,20 +74,13 @@ struct ProfileView: View {
     
     private var profileCard: some View {
         HStack(spacing: 16) {
-            Circle()
-                .fill(Color.blue.opacity(0.2))
-                .frame(width: 120, height: 120)
-                .overlay(
-                    Image(systemName: "person.fill")
-                        .font(.system(size: 55))
-                        .foregroundColor(.blue)
-                )
+           
             
             VStack(spacing: 12) {
                 VStack(spacing: 4) {
                     Text("Monthly Income").font(.subheadline).foregroundColor(.gray)
                     HStack {
-                        if isEditing {
+                        if isEditing && selectedSegment == 0 {
                             TextField("Enter income", text: $income)
                                 .multilineTextAlignment(.center)
                                 .keyboardType(.decimalPad)
@@ -88,12 +92,14 @@ struct ProfileView: View {
                                 .multilineTextAlignment(.center)
                         }
                         
-                        Button {
-                            isEditing.toggle()
-                        } label: {
-                            Image(systemName: isEditing ? "checkmark.circle.fill" : "pencil")
-                                .font(.title3)
-                                .foregroundColor(.blue)
+                        if selectedSegment == 0 {
+                            Button {
+                                isEditing.toggle()
+                            } label: {
+                                Image(systemName: isEditing ? "checkmark.circle.fill" : "pencil")
+                                    .font(.title3)
+                                    .foregroundColor(.blue)
+                            }
                         }
                     }
                 }
@@ -115,8 +121,7 @@ struct ProfileView: View {
                 Button(action: {
                     showAddGoal = true
                 }) {
-                    Label("Add New Goal", systemImage: "plus.circle.fill")
-                
+                    Image(systemName: "plus.circle.fill")
                 }
                 .font(.subheadline.bold())
                 .foregroundColor(.green)
@@ -186,7 +191,6 @@ struct ProfileView: View {
                 total + (expense.frequency?.monthlyAmount(from: expense.amount) ?? 0.0)
             }
 
-            
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Image(systemName: "creditcard.fill")
@@ -195,7 +199,7 @@ struct ProfileView: View {
                         .fontWeight(.bold)
                     Spacer()
                 }
-                
+
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Total Estimated Monthly Cost")
@@ -218,7 +222,7 @@ struct ProfileView: View {
             .cornerRadius(16)
             .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
             .padding(.horizontal)
-            
+
             ScrollView {
                 VStack(spacing: 12) {
                     if subscriptionExpenses.isEmpty {
@@ -233,7 +237,7 @@ struct ProfileView: View {
                     }
                 }
                 .padding(.vertical)
-                
+
                 Text("Your subscriptions will be automatically added to your expenses if you choose that option.")
                     .font(.caption)
                     .foregroundColor(.gray)
@@ -304,12 +308,12 @@ struct ProfileView: View {
     }
 }
 
-
 struct ContributeSheetView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext // Add this!
     @Bindable var goal: GoalItem
     @State private var amount: Double = 0
-    
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
@@ -323,15 +327,18 @@ struct ContributeSheetView: View {
                 
                 Button {
                     goal.current += amount
+                    if goal.current >= goal.target {
+                        modelContext.delete(goal)
+                    }
                     dismiss()
                 } label: {
                     Text("Add $\(Int(amount))")
-                        .bold()
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(amount > 0 ? Color.green : Color.gray.opacity(0.3))
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
+                      .bold()
+                      .frame(maxWidth: .infinity)
+                      .padding()
+                      .background(amount > 0 ? Color.green : Color.gray.opacity(0.3))
+                      .foregroundColor(.white)
+                      .cornerRadius(12)
                 }
                 .disabled(amount <= 0)
                 
@@ -348,6 +355,8 @@ struct ContributeSheetView: View {
         }
     }
 }
+
+
 
 
 
