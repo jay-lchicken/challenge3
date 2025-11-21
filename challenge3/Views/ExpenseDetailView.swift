@@ -5,18 +5,17 @@
 //  Created by Lai Hong Yu on 11/14/25.
 //
 
-import Foundation
 import SwiftUI
 import SwiftData
+import Foundation
 
 struct ExpenseDetailView: View {
     @Environment(\.modelContext) var modelContext
     @Environment(\.dismiss) var dismiss
 
+    @Bindable var expense: ExpenseItem
     @State private var isEditing = false
     @State private var showDelete = false
-
-    @Bindable var expense: ExpenseItem
 
     let categories = CategoryOptionsModel().category
 
@@ -37,11 +36,7 @@ struct ExpenseDetailView: View {
                 }
             },
             set: { newValue in
-                let cleaned = newValue.replacingOccurrences(
-                    of: "[^0-9.]",
-                    with: "",
-                    options: .regularExpression
-                )
+                let cleaned = newValue.replacingOccurrences(of: "[^0-9.]", with: "", options: .regularExpression)
                 if let val = Double(cleaned) {
                     expense.amount = val
                 }
@@ -50,82 +45,67 @@ struct ExpenseDetailView: View {
     }
 
     var body: some View {
-        VStack {
+        NavigationStack {
             Form {
-                Picker("Category", selection: $expense.category) {
-                    ForEach(categories, id: \.self) {
-                        Text($0.prefix(1).uppercased() + $0.dropFirst())
+                Section("Category") {
+                    Picker("Category", selection: $expense.category) {
+                        ForEach(categories, id: \.self) { cat in
+                            Text(cat.capitalized).tag(cat)
+                        }
                     }
+                    .pickerStyle(.menu)
+                    .disabled(!isEditing)
                 }
-                .disabled(!isEditing)
-
-                TextField("Expense name", text: $expense.name)
-                    .disabled(!isEditing)
-
-                DatePicker("Date", selection: dateBinding, displayedComponents: .date)
-                    .disabled(!isEditing)
-
-                HStack {
-                    Text("$")
-                    TextField("Amount", text: amountStringBinding)
-                        .keyboardType(.decimalPad)
+                Section("Expense Name") {
+                    TextField("Expense name", text: $expense.name)
                         .disabled(!isEditing)
                 }
+                Section("Date") {
+                    DatePicker("Date", selection: dateBinding, displayedComponents: .date)
+                        .disabled(!isEditing)
+                }
+                Section("Amount") {
+                    HStack {
+                        Text("$")
+                        TextField("Amount", text: amountStringBinding)
+                            .keyboardType(.decimalPad)
+                            .disabled(!isEditing)
+                    }
+                }
                 if isEditing {
-                    Button {
-                        showDelete = true
-                    } label: {
-                        HStack {
-                            Image(systemName: "trash")
-                            Text("Delete")
+                    Section {
+                        Button("Delete", role: .destructive) {
+                            showDelete = true
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .glassEffect(.regular.tint(.red).interactive(), in: Capsule())
+                        .frame(maxWidth: .infinity, alignment: .center)
                     }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal)
-                    .padding(.bottom)
-                }
-
-
-            }
-
-                    }
-        .navigationTitle(expense.name)
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                VStack(spacing: 2) {
-                    Image(systemName: expense.category.sFSymbol)
-                        .font(.title2)
-                    Text(expense.name)
-                        .font(.headline)
                 }
             }
-
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    isEditing.toggle()
-                } label: {
+            .navigationTitle(expense.name)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
                     if isEditing {
-                        Image(systemName: "checkmark.circle.fill").foregroundColor(.yellow)
-                    } else {
-                        Image(systemName: "pencil").foregroundColor(.yellow)
+                        Button("Save") {
+                            isEditing = false
+                            dismiss()
+                        }
                     }
                 }
-                .buttonStyle(.plain)
+                ToolbarItem(placement: .topBarTrailing) {
+                    if !isEditing {
+                        Button("Edit") {
+                            isEditing = true
+                        }
+                    }
+                }
             }
-        }
-        .navigationBarTitleDisplayMode(.inline)
-
-        .alert("Are you sure?", isPresented: $showDelete) {
-            Button("Yes", role: .destructive) {
-                modelContext.delete(expense)
-                dismiss()
+            .alert("Are you sure you want to delete this expense?", isPresented: $showDelete) {
+                Button("Delete", role: .destructive) {
+                    modelContext.delete(expense)
+                    dismiss()
+                }
+                Button("Cancel", role: .cancel) {}
             }
-            .buttonStyle(.plain)
-            Button("Cancel", role: .cancel) {}
         }
     }
 }
