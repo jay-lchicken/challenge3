@@ -16,85 +16,60 @@ struct AddExpenseView: View {
     @State private var name = ""
     @State private var date = Date()
     @State private var amount = ""
-    
-    @FocusState private var isAmountFocused: Bool
 
     let categories = CategoryOptionsModel().category
-    @State private var showAlert = false
-    
-    var clickButton: Bool {
-        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        return !trimmedName.isEmpty && parseAmount(amount) != nil
-    }
 
     var body: some View {
         NavigationStack {
             Form {
-                Picker("Category", selection: $category) {
-                    ForEach(categories, id: \.self) { cat in
-                        Text(cat.capitalized)
-                            .tag(cat)
+                Section("Category") {
+                    Picker("Category", selection: $category) {
+                        ForEach(categories, id: \.self) { cat in
+                            Text(cat.capitalized).tag(cat)
                         }
+                    }
+                    .pickerStyle(.menu)
                 }
-                .pickerStyle(.menu)
-
-                TextField("Expense name", text: $name)
-
-                DatePicker("Date", selection: $date, displayedComponents: .date)
-
-                HStack {
-                    Text("$")
-                    TextField("Amount", text: $amount)
-                        .keyboardType(.decimalPad)
-                        .focused($isAmountFocused)
-                        .toolbar {
-                            ToolbarItemGroup(placement: .keyboard) {
-                                Spacer()
-                                Button("Done") {
-                                    isAmountFocused = false
-                                }
-                            }
-                        }
+                Section("Expense Name") {
+                    TextField("Expense name", text: $name)
                 }
-
-                Button("Add Expense") {
-                    isAmountFocused = false
-                    
-                    guard
-                        let amt = parseAmount(amount),
-                        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                    else { return }
-
-                    let expense = ExpenseItem(
-                        name: name.trimmingCharacters(in: .whitespacesAndNewlines),
-                        amount: amt,
-                        date: date.timeIntervalSince1970,
-                        category: category
-                    )
-                    modelContext.insert(expense)
-                    
-                    category = "Food"
-                    name = ""
-                    date = Date()
-                    amount = ""
-                    
-                    showAlert = true
+                Section("Date") {
+                    DatePicker("Date", selection: $date, displayedComponents: .date)
                 }
-                .buttonStyle(.borderedProminent)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .disabled(!clickButton)
-                .opacity(clickButton ? 1.0 : 0.5)
-            }
-            .alert("Expense Added!", isPresented: $showAlert) {
-                Button("OK") {
-                    dismiss()
+                Section("Amount") {
+                    HStack {
+                        Text("$")
+                        TextField("Amount", text: $amount)
+                            .keyboardType(.decimalPad)
+                    }
                 }
-                .tint(.yellow)
             }
             .navigationTitle("Add Expense")
-        }
-        .onTapGesture {                    
-            isAmountFocused = false
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        guard
+                            let amt = parseAmount(amount),
+                            !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                        else { return }
+                        let expense = ExpenseItem(
+                            name: name.trimmingCharacters(in: .whitespacesAndNewlines),
+                            amount: amt,
+                            date: date.timeIntervalSince1970,
+                            category: category
+                        )
+                        modelContext.insert(expense)
+                        dismiss()
+                    }
+                    .disabled(
+                        name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+                        parseAmount(amount) == nil
+                    )
+                }
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
         }
     }
 
@@ -103,6 +78,7 @@ struct AddExpenseView: View {
         return Double(cleaned)
     }
 }
+
 
 #Preview {
     AddExpenseView()
