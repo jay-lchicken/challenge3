@@ -62,11 +62,26 @@ struct HomeView: View {
     @ViewBuilder
     private var feedbackSection: some View {
         VStack(alignment: .leading, spacing: 8) {
+<<<<<<< HEAD
+            if let feedback = foundationVM.generatedResponse{
+                if feedback != "null" {
+=======
             if let feedback = foundationVM.generatedResponse {
-                Markdown(feedback)
-                    .font(.subheadline)
-                    .foregroundColor(.primary)
-                    .fixedSize(horizontal: false, vertical: true)
+                if feedback == "null"{
+                    ProgressView()
+                    
+                }else{
+>>>>>>> main
+                    Markdown(feedback)
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                        .fixedSize(horizontal: false, vertical: true)
+<<<<<<< HEAD
+                } else {
+                    ProgressView()
+=======
+>>>>>>> main
+                }
             } else {
                 ProgressView()
             }
@@ -107,11 +122,13 @@ struct HomeView: View {
                                 .frame(width: 200, height: 200)
                                 .padding(.leading, 12)
                                 
-                                VStack(alignment: .leading, spacing: 2) {
+                                VStack(alignment: .leading, spacing: 25) {
                                     ForEach(categoryTotals, id: \.category) { item in
                                         HStack(spacing: 8) {
                                             Image(systemName: item.category.sFSymbol)
                                                 .foregroundColor(item.category.categoryColor)
+                                                .frame(width: 27, alignment: .leading)
+                                                .font(.headline)
                                             Text(item.category.capitalized)
                                                 .font(.headline)
                                                 .lineLimit(1)
@@ -120,7 +137,7 @@ struct HomeView: View {
                                                 .font(.headline)
                                                 .foregroundColor(.gray)
                                         }
-                                        .padding(.vertical)
+                                        .padding(.horizontal)
                                     }
                                 }
                                 .padding(.trailing)
