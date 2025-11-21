@@ -79,20 +79,16 @@ struct HomeView: View {
             List {
                 Section(header: HStack(spacing: 10) {
                     Image(systemName: "bubble.left.fill")
-                        .foregroundColor(.yellow)
                     Text("Feedback")
-                        .foregroundColor(.yellow)
                     Spacer()
-                }.font(.title2)) {
+                }) {
                     feedbackSection
                 }
                 Section(header: HStack(spacing: 10) {
                     Image(systemName: "dollarsign.circle.fill")
-                        .foregroundColor(.yellow)
                     Text("Expenses")
-                        .foregroundColor(.yellow)
                     Spacer()
-                }.font(.title2)) {
+                }) {
                     VStack{
                         if !categoryTotals.isEmpty {
                             Text("Categories")
