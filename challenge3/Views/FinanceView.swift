@@ -103,7 +103,7 @@ struct FinanceView: View {
 //            Text("Expense Breakdown")
 //                .font(.headline)
 //                .padding(.horizontal)
-//            
+//
 //            GeometryReader { geo in
 //                let width = geo.size.width
 //                let ratio = totalBudget > 0 ? CGFloat(min(totalSpent / totalBudget, 1)) : 0
@@ -116,7 +116,7 @@ struct FinanceView: View {
 //            .frame(height: 20)
 //            .frame(maxWidth: .infinity)
 //            .padding(.horizontal)
-//            
+//
 //
 //
 //            Text("Budget: $\(Int(totalBudget)) | Spent: $\(Int(totalSpent)) | Saved: $\(Int(max(totalBudget - totalSpent, 0)))")
@@ -151,18 +151,28 @@ struct FinanceView: View {
             
 
             HStack {
-                Text("Duration")
-                    .font(.headline)
+                
                 Spacer()
                 DatePicker("Start", selection: $dateRangeStart, displayedComponents: .date)
                     .padding(-10)
                     .scaleEffect(0.8)
                     .labelsHidden()
+                    .onChange(of: dateRangeStart) { newStart in
+                                    if newStart > dateRangeEnd {
+                                        dateRangeEnd = newStart
+                                    }
+                                }
                 Text("to")
                 DatePicker("End", selection: $dateRangeEnd, displayedComponents: .date)
                     .padding(-10)
+                
                     .scaleEffect(0.8)
                     .labelsHidden()
+                    .onChange(of: dateRangeEnd) { newEnd in
+                                    if newEnd < dateRangeStart {
+                                        dateRangeStart = newEnd
+                                    }
+                                }
 
                 
             }
@@ -244,6 +254,7 @@ struct FinanceView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .padding(.horizontal)
                 
             }
         }
