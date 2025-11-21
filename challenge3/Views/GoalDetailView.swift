@@ -14,6 +14,7 @@ struct GoalDetailView: View {
 
     @State private var isEditing = false
     @State private var showDelete = false
+    @State private var showContribute = false
 
     @Bindable var goal: GoalItem
 
@@ -30,41 +31,37 @@ struct GoalDetailView: View {
                         .disabled(!isEditing)
                 }
 
-                HStack (spacing: 0){
+                HStack(spacing: 0) {
                     Text("Target: $")
                     TextField("Target Amount", value: $goal.target, format: .number)
                         .keyboardType(.decimalPad)
                         .disabled(!isEditing)
                 }
 
-                if isEditing {
-                    Button {
-                        showDelete = true
-                    } label: {
-                        HStack {
-                            Image(systemName: "trash")
-                            Text("Delete Goal")
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .glassEffect(.regular.tint(.red).interactive(), in: Capsule())
+                Button {
+                    showContribute = true
+                } label: {
+                    HStack {
+                        Image(systemName: "plus.circle.fill")
+                        Text("Contribute")
                     }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal)
-                    .padding(.bottom)
+                    .frame(maxWidth: .infinity)
                 }
+                .padding(.vertical)
             }
         }
         .navigationTitle("Goal Details")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    isEditing.toggle()
-                } label: {
-                    if isEditing { Text("Done") } else { Image(systemName: "pencil") }
+                Button { isEditing.toggle() } label: {
+                    HStack {
+                        if isEditing {
+                            Text("Done")
+                        } else {
+                            Image(systemName: "pencil")
+                        }
+                    }
                 }
-                .buttonStyle(.plain)
             }
         }
         .alert("Are you sure?", isPresented: $showDelete) {
@@ -73,6 +70,9 @@ struct GoalDetailView: View {
                 dismiss()
             }
             Button("Cancel", role: .cancel) {}
+        }
+        .sheet(isPresented: $showContribute) {
+            ContributeSheetView(goal: goal)
         }
     }
 }

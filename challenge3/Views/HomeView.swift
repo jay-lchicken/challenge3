@@ -3,6 +3,7 @@ import SwiftData
 import FoundationModels
 import MarkdownUI
 import Charts
+
 struct HomeView: View {
     @State private var foundationVM = FoundationModelViewModel()
     
@@ -71,7 +72,6 @@ struct HomeView: View {
             }
 
         }
-        .padding()
     }
 
     var body: some View {
@@ -79,51 +79,58 @@ struct HomeView: View {
             List {
                 Section(header: HStack(spacing: 10) {
                     Image(systemName: "bubble.left.fill")
+                        .foregroundColor(.yellow)
                     Text("Feedback")
+                        .foregroundColor(.yellow)
                     Spacer()
-                }) {
+                }.font(.title2)) {
                     feedbackSection
                 }
-                VStack{
-                    if !categoryTotals.isEmpty {
-                        Text("Expense Categories")
-                            .font(.headline)
-                            .padding(.horizontal)
-
-                        VStack(spacing: 12) {
-                            Chart(categoryTotals, id: \.category) { item in
-                                SectorMark(
-                                    angle: .value("Amount", item.total),
-                                    innerRadius: .ratio(0.55),
-                                    angularInset: 1
-                                )
-                                .foregroundStyle(item.category.categoryColor)
-                            }
-                            .frame(width: 200, height: 200)
-                            .padding(.leading, 12)
-
-                            VStack(alignment: .leading, spacing: 8) {
-                                ForEach(categoryTotals, id: \.category) { item in
-                                    HStack(spacing: 8) {
-                                        Image(systemName: item.category.sFSymbol)
-                                            .foregroundColor(item.category.categoryColor)
-                                        Text(item.category.capitalized)
-                                            .font(.title3)
-                                            .lineLimit(1)
-                                        Spacer()
-                                        Text("$\(Int(item.total))")
-                                            .font(.caption)
-                                            .foregroundColor(.gray)
-                                    }
-                                    .padding()
+                Section(header: HStack(spacing: 10) {
+                    Image(systemName: "dollarsign.circle.fill")
+                        .foregroundColor(.yellow)
+                    Text("Expenses")
+                        .foregroundColor(.yellow)
+                    Spacer()
+                }.font(.title2)) {
+                    VStack{
+                        if !categoryTotals.isEmpty {
+                            Text("Categories")
+                                .font(.headline)
+                                .padding(.horizontal)
+                            
+                            VStack(spacing: 12) {
+                                Chart(categoryTotals, id: \.category) { item in
+                                    SectorMark(
+                                        angle: .value("Amount", item.total),
+                                        innerRadius: .ratio(0.55),
+                                        angularInset: 1
+                                    )
+                                    .foregroundStyle(item.category.categoryColor)
                                 }
+                                .frame(width: 200, height: 200)
+                                .padding(.leading, 12)
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    ForEach(categoryTotals, id: \.category) { item in
+                                        HStack(spacing: 8) {
+                                            Image(systemName: item.category.sFSymbol)
+                                                .foregroundColor(item.category.categoryColor)
+                                            Text(item.category.capitalized)
+                                                .font(.headline)
+                                                .lineLimit(1)
+                                            Spacer()
+                                            Text("$\(Int(item.total))")
+                                                .font(.headline)
+                                                .foregroundColor(.gray)
+                                        }
+                                        .padding(.vertical)
+                                    }
+                                }
+                                .padding(.trailing)
                             }
-                            .padding(.trailing)
                         }
                     }
-
-                   
-
                 }
 //                Section(header: Text("Expenses today")){
 //                    ForEach(expenses, id: \.self) { item in
