@@ -157,10 +157,11 @@ struct FinanceView: View {
                     showAddExpense = true
                 } label: {
                     Text("Add Expense")
+                        .foregroundStyle(.white)
                         .fontWeight(.semibold)
                         .padding(.vertical, 8)
                         .padding(.horizontal, 20)
-                        .glassEffect(.regular.tint(.yellow), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .glassEffect(.regular.interactive().tint(.yellow), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
             }
             .padding(.horizontal)

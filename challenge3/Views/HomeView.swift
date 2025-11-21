@@ -62,25 +62,14 @@ struct HomeView: View {
     @ViewBuilder
     private var feedbackSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-<<<<<<< HEAD
             if let feedback = foundationVM.generatedResponse{
                 if feedback != "null" {
-=======
-            if let feedback = foundationVM.generatedResponse {
-                if feedback == "null"{
-                    ProgressView()
-                    
-                }else{
->>>>>>> main
                     Markdown(feedback)
                         .font(.subheadline)
                         .foregroundColor(.primary)
                         .fixedSize(horizontal: false, vertical: true)
-<<<<<<< HEAD
                 } else {
                     ProgressView()
-=======
->>>>>>> main
                 }
             } else {
                 ProgressView()
@@ -151,25 +140,25 @@ struct HomeView: View {
 //                            HStack {
 //                                Image(systemName: item.category.sFSymbol)
 //                                    .font(.title2)
-//                                
+//
 //                                VStack(alignment: .leading, spacing: 4) {
 //                                    Text(item.name)
 //                                        .bold()
 //                                }
-//                                
+//
 //                                Spacer()
-//                                
+//
 //                                Text("$\(item.amount, specifier: "%.2f")")
 //                                    .bold()
-//                                
-//                             
+//
+//
 //                            }
 //                            .frame(maxWidth: .infinity)
 //                            .cornerRadius(12)
 //                        }
 //                        .foregroundStyle(item.category.categoryColor)
 //                    }
-//                    
+//
 //                }
                 
 //                Section(header: HStack(spacing: 10) {
@@ -187,7 +176,7 @@ struct HomeView: View {
 //                }) {
 //                    ScrollView {
 //                        VStack(spacing: 12) {
-//                            
+//
 //                        }
 //                        .padding(.horizontal, 6)
 //                        .padding(.vertical, 8)
