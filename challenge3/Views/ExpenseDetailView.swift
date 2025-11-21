@@ -109,7 +109,7 @@ struct ExpenseDetailView: View {
                     isEditing.toggle()
                 } label: {
                     if isEditing {
-                        Image(systemName: "checkmark.fill").foregroundColor(.yellow)
+                        Image(systemName: "checkmark.circle.fill").foregroundColor(.yellow)
                     } else {
                         Image(systemName: "pencil").foregroundColor(.yellow)
                     }
