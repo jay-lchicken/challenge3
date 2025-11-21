@@ -148,28 +148,12 @@ struct FinanceView: View {
 
     private var expensesTab: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Expenses")
-                    .font(.largeTitle)
-                    .bold()
-                Spacer()
-                Button {
-                    showAddExpense = true
-                } label: {
-                    Text("Add Expense")
-                        .foregroundStyle(.white)
-                        .fontWeight(.semibold)
-                        .padding(.vertical, 8)
-                        .padding(.horizontal, 20)
-                        .glassEffect(.regular.interactive().tint(.yellow), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                }
-            }
-            .padding(.horizontal)
-            .sheet(isPresented: $showAddExpense) {
-                AddExpenseView()
-            }
+            
 
             HStack {
+                Text("Duration")
+                    .font(.headline)
+                Spacer()
                 DatePicker("Start", selection: $dateRangeStart, displayedComponents: .date)
                     .padding(-10)
                     .scaleEffect(0.8)
@@ -253,7 +237,22 @@ struct FinanceView: View {
                 .padding(.horizontal)
             }
         }
+        .toolbar{
+            ToolbarItem{
+                Button {
+                    showAddExpense = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .padding(.horizontal)
+                
+            }
+        }
         .searchable(text: $expense_searchText, placement: .navigationBarDrawer)
+        .sheet(isPresented: $showAddExpense) {
+            AddExpenseView()
+        }
+        .navigationTitle("Expenses")
         
         
     }
