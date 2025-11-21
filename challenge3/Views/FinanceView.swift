@@ -22,6 +22,8 @@ struct FinanceView: View {
     @State private var showDateRangePicker = false
     @State private var dateRangeStart = Calendar.current.date(byAdding: .day, value: -7, to: Date())!
     @State private var dateRangeEnd = Date()
+    @State private var showAddExpense = false
+
     let categories = CategoryOptionsModel().category
 
     let timeRanges = ["Daily", "Monthly", "Yearly"]
@@ -93,16 +95,9 @@ struct FinanceView: View {
                     expensesTab
                 }
             }
-            
-                
-            
-            .sheet(isPresented: $showAddGoal) { AddGoalView() }
-            .sheet(isPresented: $showEditBudgets) { EditBudgetsView(categories: categories) }
-            
-            .navigationTitle("Expenses")
         }
     }
-
+                
 //    private var overviewTab: some View {
 //        VStack(alignment: .leading, spacing: 20) {
 //            Text("Expense Breakdown")
@@ -151,10 +146,28 @@ struct FinanceView: View {
 //        }
 //    }
 
-   
-
     private var expensesTab: some View {
         VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Expenses")
+                    .font(.largeTitle)
+                    .bold()
+                Spacer()
+                Button {
+                    showAddExpense = true
+                } label: {
+                    Text("Add Expense")
+                        .fontWeight(.semibold)
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 20)
+                        .glassEffect(.regular.tint(.yellow), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                }
+            }
+            .padding(.horizontal)
+            .sheet(isPresented: $showAddExpense) {
+                AddExpenseView()
+            }
+
             HStack {
                 Text("Duration:")
                     .font(.headline)
@@ -247,8 +260,6 @@ struct FinanceView: View {
         
     }
 
-
-    
     private func goalCard(_ goal: GoalItem) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
@@ -272,4 +283,3 @@ struct FinanceView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
-

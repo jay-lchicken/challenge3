@@ -89,25 +89,36 @@ struct ExpenseDetailView: View {
                     .padding(.bottom)
                 }
 
-                
+
             }
 
                     }
-        .navigationTitle($expense.name)
+        .navigationTitle(expense.name)
         .toolbar {
+            ToolbarItem(placement: .principal) {
+                VStack(spacing: 2) {
+                    Image(systemName: expense.category.sFSymbol)
+                        .font(.title2)
+                    Text(expense.name)
+                        .font(.headline)
+                }
+            }
+
             ToolbarItem(placement: .topBarTrailing) {
-                Button(){
+                Button {
                     isEditing.toggle()
                 } label: {
-                    if isEditing{
-                        Text("Done")
+                    if isEditing {
+                        Text("Done").foregroundColor(.yellow)
                     } else {
-                        Image(systemName: "pencil")
+                        Image(systemName: "pencil").foregroundColor(.yellow)
                     }
                 }
                 .buttonStyle(.plain)
             }
         }
+        .navigationBarTitleDisplayMode(.inline)
+
         .alert("Are you sure?", isPresented: $showDelete) {
             Button("Yes", role: .destructive) {
                 modelContext.delete(expense)

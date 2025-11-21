@@ -27,9 +27,6 @@ struct ContentView: View {
                 BudgetView()
             }
 
-            Tab("Add", systemImage: "plus", role: .search) {
-                AddExpenseView()
-            }
         }
         .tabBarMinimizeBehavior(.onScrollDown)
         .font(.custom("Roboto-Regular", size: 16))

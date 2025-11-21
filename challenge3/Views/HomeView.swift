@@ -62,10 +62,9 @@ struct HomeView: View {
     @ViewBuilder
     private var feedbackSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            if let feedback = foundationVM.generatedResponse {
+            if let feedback = foundationVM.generatedResponse{
                 if feedback == "null"{
                     ProgressView()
-                    
                 }else{
                     Markdown(feedback)
                         .font(.subheadline)
@@ -75,7 +74,6 @@ struct HomeView: View {
             } else {
                 ProgressView()
             }
-
         }
     }
 
@@ -112,11 +110,13 @@ struct HomeView: View {
                                 .frame(width: 200, height: 200)
                                 .padding(.leading, 12)
                                 
-                                VStack(alignment: .leading, spacing: 2) {
+                                VStack(alignment: .leading, spacing: 25) {
                                     ForEach(categoryTotals, id: \.category) { item in
                                         HStack(spacing: 8) {
                                             Image(systemName: item.category.sFSymbol)
                                                 .foregroundColor(item.category.categoryColor)
+                                                .frame(width: 27, alignment: .leading)
+                                                .font(.headline)
                                             Text(item.category.capitalized)
                                                 .font(.headline)
                                                 .lineLimit(1)
@@ -125,7 +125,7 @@ struct HomeView: View {
                                                 .font(.headline)
                                                 .foregroundColor(.gray)
                                         }
-                                        .padding(.vertical)
+                                        .padding(.horizontal)
                                     }
                                 }
                                 .padding(.trailing)
