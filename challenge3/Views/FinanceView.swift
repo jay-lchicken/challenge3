@@ -103,7 +103,7 @@ struct FinanceView: View {
 //            Text("Expense Breakdown")
 //                .font(.headline)
 //                .padding(.horizontal)
-//            
+//
 //            GeometryReader { geo in
 //                let width = geo.size.width
 //                let ratio = totalBudget > 0 ? CGFloat(min(totalSpent / totalBudget, 1)) : 0
@@ -116,7 +116,7 @@ struct FinanceView: View {
 //            .frame(height: 20)
 //            .frame(maxWidth: .infinity)
 //            .padding(.horizontal)
-//            
+//
 //
 //
 //            Text("Budget: $\(Int(totalBudget)) | Spent: $\(Int(totalSpent)) | Saved: $\(Int(max(totalBudget - totalSpent, 0)))")
@@ -254,6 +254,7 @@ struct FinanceView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .padding(.horizontal)
                 
             }
         }
