@@ -63,18 +63,17 @@ struct HomeView: View {
     private var feedbackSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             if let feedback = foundationVM.generatedResponse{
-                if feedback != "null" {
+                if feedback == "null"{
+                    ProgressView()
+                }else{
                     Markdown(feedback)
                         .font(.subheadline)
                         .foregroundColor(.primary)
                         .fixedSize(horizontal: false, vertical: true)
-                } else {
-                    ProgressView()
                 }
             } else {
                 ProgressView()
             }
-
         }
     }
 
