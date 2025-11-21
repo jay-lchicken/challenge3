@@ -30,13 +30,21 @@ struct EditBudgetsView: View {
                         HStack {
                             Text(category.capitalized)
                             Spacer()
-                            TextField("0", value: Binding(
-                                get: { localCaps[category] ?? startingCap(for: category) },
-                                set: { localCaps[category] = $0 }
-                            ), formatter: NumberFormatter())
-                            .frame(width: 70)
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
+                            HStack(spacing: 6) {
+                                Text("$")
+                                    .foregroundColor(.secondary)
+                                TextField(
+                                    "0",
+                                    value: Binding(
+                                        get: { localCaps[category] ?? startingCap(for: category) },
+                                        set: { localCaps[category] = $0 }
+                                    ),
+                                    formatter: numberFormatter
+                                )
+                                .frame(width: 80)
+                                .keyboardType(.decimalPad)
+                                .multilineTextAlignment(.trailing)
+                            }
                         }
                     }
                 }
@@ -45,7 +53,6 @@ struct EditBudgetsView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { saveAll() }
-
                 }
             }
             .onAppear { loadInitialValues() }
@@ -55,6 +62,15 @@ struct EditBudgetsView: View {
                 Text(errorMessage)
             })
         }
+    }
+
+    // A simple number formatter suitable for currency amounts without currency symbol (symbol shown separately)
+    private var numberFormatter: NumberFormatter {
+        let nf = NumberFormatter()
+        nf.numberStyle = .decimal
+        nf.maximumFractionDigits = 2
+        nf.minimumFractionDigits = 0
+        return nf
     }
 
     private func loadInitialValues() {
