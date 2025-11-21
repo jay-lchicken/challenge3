@@ -28,7 +28,7 @@ struct EditBudgetsView: View {
                 Form {
                     ForEach(categories, id: \.self) { category in
                         HStack {
-                            Text(category)
+                            Text(category.capitalized)
                             Spacer()
                             TextField("0", value: Binding(
                                 get: { localCaps[category] ?? startingCap(for: category) },
@@ -40,13 +40,12 @@ struct EditBudgetsView: View {
                         }
                     }
                 }
-                Text("Please select your goals wisely!")
-                    .font(.caption).foregroundColor(.gray).padding(.horizontal)
             }
             .navigationTitle("Edit Budgets")
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { saveAll() }
+
                 }
             }
             .onAppear { loadInitialValues() }

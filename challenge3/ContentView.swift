@@ -19,8 +19,11 @@ struct ContentView: View {
                 HomeView()
             }
 
-            Tab("Finance", systemImage: "dollarsign.circle"){
+            Tab("Expenses", systemImage: "dollarsign.circle"){
                 FinanceView()
+            }
+            Tab("Budgets", systemImage: "wallet"){
+                BudgetView()
             }
 
             Tab("Add", systemImage: "plus", role: .search) {

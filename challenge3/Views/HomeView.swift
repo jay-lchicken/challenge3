@@ -2,13 +2,14 @@ import SwiftUI
 import SwiftData
 import FoundationModels
 import MarkdownUI
-
+import Charts
 struct HomeView: View {
     @State private var foundationVM = FoundationModelViewModel()
     
     @Environment(\.modelContext) var modelContext
     @Query var expenses: [ExpenseItem]
-    
+    let categories = CategoryOptionsModel().category
+
     @AppStorage("budget") private var budget: Double = 1500
     @State private var selectedExpense: ExpenseItem? = nil
 
@@ -20,6 +21,42 @@ struct HomeView: View {
     }
     
     private var todaySaved: Double { max(budget - todaySpent, 0) }
+   
+
+    private func expensesBetween(_ start: Date, _ end: Date) -> [ExpenseItem] {
+        let s = Calendar.current.startOfDay(for: start)
+        let e = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: end) ?? end
+        return expenses.filter { exp in
+            let d = Date(timeIntervalSince1970: exp.date)
+            return d >= s && d <= e
+        }
+    }
+    private var filteredExpenses: [ExpenseItem] {
+        let calendar = Calendar.current
+        return expenses.filter { exp in
+            let date = Date(timeIntervalSince1970: exp.date)
+            return calendar.isDateInToday(date)
+        }
+    }
+
+    private var categoryTotals: [(category: String, total: Double)] {
+        let grouped = Dictionary(grouping: filteredExpenses, by: { $0.category })
+        return grouped
+            .map { (key, value) in (category: key, total: value.reduce(0) { $0 + $1.amount }) }
+            .sorted { $0.total > $1.total }
+    }
+
+    private var totalSpent: Double {
+        filteredExpenses.reduce(0) { $0 + $1.amount }
+    }
+
+    
+
+
+    private func spent(for category: String) -> Double {
+        filteredExpenses.filter { $0.category.lowercased() == category.lowercased() }
+                .reduce(0) { $0 + $1.amount }
+    }
 
     @ViewBuilder
     private var feedbackSection: some View {
@@ -41,69 +78,103 @@ struct HomeView: View {
         NavigationStack {
             List {
                 Section(header: HStack(spacing: 10) {
-                    Image(systemName: "dollarsign.circle")
-                        .font(.title3)
-                        .foregroundColor(.yellow)
-                    Text("Today's Spending")
-                        .font(.headline)
-                        .fontWeight(.bold)
-                    Spacer()
-                    HStack {
-                        Text("Total: $\(todaySpent, specifier: "%.2f")")
-                            .fontWeight(.bold)
-                    }
-                }) {
-                    ScrollView {
-                        VStack(spacing: 12) {
-                            ForEach(expenses, id: \.self) { item in
-                                NavigationLink(destination: ExpenseDetailView(expense: item)) {
-                                    HStack {
-                                        Image(systemName: item.category.sFSymbol)
-                                            .foregroundColor(.white)
-                                            .frame(width: 32, height: 32)
-                                        
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            Text(item.name)
-                                                .bold()
-                                                .foregroundColor(.white)
-                                            Text(Date(timeIntervalSince1970: item.date), style: .date)
-                                                .font(.caption)
-                                                .foregroundColor(.white.opacity(0.8))
-                                        }
-                                        
-                                        Spacer()
-                                        
-                                        Text("$\(item.amount, specifier: "%.2f")")
-                                            .bold()
-                                            .foregroundColor(.white)
-                                        
-                                        Image(systemName: "chevron.right")
-                                            .foregroundColor(.white)
-                                    }
-                                    .padding()
-                                    .frame(maxWidth: .infinity)
-                                    .background(item.category.categoryColor.opacity(0.97))
-                                    .cornerRadius(12)
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                            }
-                        }
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 8)
-                    }
-                }
-                
-                Section(header: HStack(spacing: 10) {
                     Image(systemName: "bubble.left.fill")
-                        .font(.title3)
-                        .foregroundColor(.white)
                     Text("Feedback")
-                        .font(.title3)
-                        .fontWeight(.bold)
                     Spacer()
                 }) {
                     feedbackSection
                 }
+                VStack{
+                    if !categoryTotals.isEmpty {
+                        Text("Expense Categories")
+                            .font(.headline)
+                            .padding(.horizontal)
+
+                        VStack(spacing: 12) {
+                            Chart(categoryTotals, id: \.category) { item in
+                                SectorMark(
+                                    angle: .value("Amount", item.total),
+                                    innerRadius: .ratio(0.55),
+                                    angularInset: 1
+                                )
+                                .foregroundStyle(item.category.categoryColor)
+                            }
+                            .frame(width: 200, height: 200)
+                            .padding(.leading, 12)
+
+                            VStack(alignment: .leading, spacing: 8) {
+                                ForEach(categoryTotals, id: \.category) { item in
+                                    HStack(spacing: 8) {
+                                        Image(systemName: item.category.sFSymbol)
+                                            .foregroundColor(item.category.categoryColor)
+                                        Text(item.category.capitalized)
+                                            .font(.subheadline)
+                                            .lineLimit(1)
+                                        Spacer()
+                                        Text("$\(Int(item.total))")
+                                            .font(.caption)
+                                            .foregroundColor(.gray)
+                                    }
+                                    .padding()
+                                }
+                            }
+                            .padding(.trailing)
+                        }
+                    }
+
+                   
+
+                }
+//                Section(header: Text("Expenses today")){
+//                    ForEach(expenses, id: \.self) { item in
+//                        NavigationLink(destination: ExpenseDetailView(expense: item)) {
+//                            HStack {
+//                                Image(systemName: item.category.sFSymbol)
+//                                    .font(.title2)
+//                                
+//                                VStack(alignment: .leading, spacing: 4) {
+//                                    Text(item.name)
+//                                        .bold()
+//                                }
+//                                
+//                                Spacer()
+//                                
+//                                Text("$\(item.amount, specifier: "%.2f")")
+//                                    .bold()
+//                                
+//                             
+//                            }
+//                            .frame(maxWidth: .infinity)
+//                            .cornerRadius(12)
+//                        }
+//                        .foregroundStyle(item.category.categoryColor)
+//                    }
+//                    
+//                }
+                
+//                Section(header: HStack(spacing: 10) {
+//                    Image(systemName: "dollarsign.circle")
+//                        .font(.title3)
+//                        .foregroundColor(.yellow)
+//                    Text("Today's Spending")
+//                        .font(.headline)
+//                        .fontWeight(.bold)
+//                    Spacer()
+//                    HStack {
+//                        Text("Total: $\(todaySpent, specifier: "%.2f")")
+//                            .fontWeight(.bold)
+//                    }
+//                }) {
+//                    ScrollView {
+//                        VStack(spacing: 12) {
+//                            
+//                        }
+//                        .padding(.horizontal, 6)
+//                        .padding(.vertical, 8)
+//                    }
+//                }
+                
+               
             }
             .listStyle(.insetGrouped)
             .navigationTitle("Home")
