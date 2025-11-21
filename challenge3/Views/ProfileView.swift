@@ -74,14 +74,7 @@ struct ProfileView: View {
     
     private var profileCard: some View {
         HStack(spacing: 16) {
-            Circle()
-                .fill(Color.blue.opacity(0.2))
-                .frame(width: 120, height: 120)
-                .overlay(
-                    Image(systemName: "person.fill")
-                        .font(.system(size: 55))
-                        .foregroundColor(.blue)
-                )
+           
             
             VStack(spacing: 12) {
                 VStack(spacing: 4) {
