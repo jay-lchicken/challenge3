@@ -170,9 +170,6 @@ struct FinanceView: View {
             }
 
             HStack {
-                Text("Duration:")
-                    .font(.headline)
-                Spacer()
                 DatePicker("Start", selection: $dateRangeStart, displayedComponents: .date)
                     .padding(-10)
                     .scaleEffect(0.8)
