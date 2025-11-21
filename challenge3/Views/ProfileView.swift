@@ -182,9 +182,10 @@ struct ProfileView: View {
     
     private var subscriptionSection: some View {
         VStack(spacing: 16) {
-            let totalMonthlyCost = subscriptionExpenses.reduce(0) { total, expense in
-                total + (expense.frequency?.monthlyAmount(from: expense.amount) ?? 0)
+            let totalMonthlyCost = subscriptionExpenses.reduce(0.0) { total, expense in
+                total + (expense.frequency?.monthlyAmount(from: expense.amount) ?? 0.0)
             }
+
             
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
