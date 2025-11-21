@@ -29,9 +29,15 @@ struct AddExpenseView: View {
                         }
                     }
                     .pickerStyle(.menu)
+                    .foregroundStyle(.yellow)
                 }
                 Section("Expense Name") {
                     TextField("Expense name", text: $name)
+                        .onChange(of: name) { _, newValue in
+                            if name.count > 17 {
+                                name = String(newValue.prefix(17))
+                            }
+                        }
                 }
                 Section("Date") {
                     DatePicker("Date", selection: $date, displayedComponents: .date)

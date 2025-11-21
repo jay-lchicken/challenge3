@@ -59,6 +59,11 @@ struct ExpenseDetailView: View {
                 Section("Expense Name") {
                     TextField("Expense name", text: $expense.name)
                         .disabled(!isEditing)
+                        .onChange(of: expense.name) { _, newValue in
+                            if newValue.count > 17 {
+                                expense.name = String(newValue.prefix(17))
+                            }
+                        }
                 }
                 Section("Date") {
                     DatePicker("Date", selection: dateBinding, displayedComponents: .date)
@@ -73,13 +78,10 @@ struct ExpenseDetailView: View {
                     }
                 }
                 if isEditing {
-                    
+
                 }
-
-
             }
-
-                    }
+        }
         .navigationTitle(expense.name)
         .toolbar {
             ToolbarItem(placement: .principal) {
@@ -91,6 +93,15 @@ struct ExpenseDetailView: View {
                 }
             }
 
+            if isEditing {
+                ToolbarItem(placement: .topBarTrailing){
+                    Button {
+                        showDelete = true
+                    } label: {
+                        Image(systemName: "trash")
+                    }
+                }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     isEditing.toggle()
@@ -101,22 +112,9 @@ struct ExpenseDetailView: View {
                         Image(systemName: "pencil")
                     }
                 }
-                .buttonStyle(.plain)
-                
-            }
-            if isEditing{
-                ToolbarItem(placement: .topBarTrailing){
-                    Button {
-                        showDelete = true
-
-                    }label:{
-                        Image(systemName: "trash")
-                    }
-                }
             }
         }
         .navigationBarTitleDisplayMode(.inline)
-
         .alert("Are you sure?", isPresented: $showDelete) {
             Button("Yes", role: .destructive) {
                 modelContext.delete(expense)

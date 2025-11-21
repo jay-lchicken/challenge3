@@ -492,6 +492,7 @@ struct AddExpenseTool: Tool {
     @Generable
     struct Arguments {
         @Guide(description: "Name of the expense") var name: String
+        
         @Guide(description: "Amount spent") var amount: Double
         @Guide(description: "Category of the expense") var category: String
     }

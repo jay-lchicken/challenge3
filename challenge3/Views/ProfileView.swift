@@ -53,11 +53,15 @@ struct ProfileView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     if selectedSegment == 1 {
-                        Button(isEditing ? "Done" : "Edit") {
+                        Button {
                             withAnimation {
                                 isEditing.toggle()
                             }
+                            
+                        }label: {
+                            Image(systemName: isEditing ? "checkmark":"pencil")
                         }
+                        
                     }
                 }
             }

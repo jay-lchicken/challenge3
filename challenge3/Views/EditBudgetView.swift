@@ -31,8 +31,7 @@ struct EditBudgetsView: View {
                             Text(category.capitalized)
                             Spacer()
                             HStack(spacing: 6) {
-                                Text("$")
-                                    .foregroundColor(.secondary)
+                                
                                 TextField(
                                     "0",
                                     value: Binding(
@@ -49,10 +48,12 @@ struct EditBudgetsView: View {
                     }
                 }
             }
-            .navigationTitle("Edit Budgets")
+            .navigationTitle("Edit Budgets ($)")
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { saveAll() }
+                    Button{ saveAll() }label:{
+                        Image(systemName: "checkmark")
+                    }
                 }
             }
             .onAppear { loadInitialValues() }

@@ -173,6 +173,10 @@ struct ChatView: View {
                         .font(.system(size:40,weight: .heavy, width: .expanded))
                     Text("Your Personal Finance Assistant")
                         .font(.system(size: 20, weight: .regular))
+                    Text("Start by asking Bro finance-related questions. You can add, edit, delete expenses, and ask it for feedback")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                        .padding(.horizontal)
                 }
             }
             VStack{

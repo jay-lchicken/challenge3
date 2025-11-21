@@ -20,7 +20,7 @@ struct FinanceView: View {
     @State private var showAddGoal = false
     @State private var showEditBudgets = false
     @State private var showDateRangePicker = false
-    @State private var dateRangeStart = Calendar.current.date(byAdding: .day, value: -7, to: Date())!
+    @State private var dateRangeStart = Date()
     @State private var dateRangeEnd = Date()
     @State private var showAddExpense = false
 
@@ -162,7 +162,7 @@ struct FinanceView: View {
                                         dateRangeEnd = newStart
                                     }
                                 }
-                Text("to")
+                Image(systemName: "arrow.right")
                 DatePicker("End", selection: $dateRangeEnd, displayedComponents: .date)
                     .padding(-10)
                 
@@ -173,11 +173,13 @@ struct FinanceView: View {
                                         dateRangeStart = newEnd
                                     }
                                 }
+                Spacer()
 
                 
+                
             }
-            .padding(.horizontal)
-            
+            .padding(.horizontal, 10.5)
+        
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     ForEach(expense_categories, id: \.self) { cat in
@@ -254,7 +256,6 @@ struct FinanceView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
-                .padding(.horizontal)
                 
             }
         }

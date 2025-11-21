@@ -73,9 +73,11 @@ struct BudgetView: View {
             .navigationTitle("Budgets")
             .toolbar{
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Edit") {
+                    Button{
                         showEditBudgets = true
                         
+                    }label:{
+                        Image(systemName: "pencil")
                     }
                 }
             }
