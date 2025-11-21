@@ -70,7 +70,7 @@ struct BudgetView: View {
             .navigationTitle("Budgets")
             .toolbar{
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Edit Budget") {
+                    Button("Edit") {
                         showEditBudgets = true
                         
                     }
