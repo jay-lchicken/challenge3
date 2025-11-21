@@ -788,7 +788,7 @@ class FoundationModelViewModel {
 
                        3. **GetIncomeTool**
                           - Always fetch monthly/annual income before giving goal advice.
-                          - If unavailable, ask for it before calculating contributions.
+                          - If returned value is -1, it means that the user did not set any income and you are to ignore it.
 
                        4. **GetExpenseTool**
                           - Use historical expenses to calculate average monthly spending.

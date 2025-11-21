@@ -25,11 +25,12 @@ struct FinanceView: View {
     let categories = CategoryOptionsModel().category
 
     let timeRanges = ["Daily", "Monthly", "Yearly"]
-    let tabs = [ "Budget", "Expenses"]
+    let tabs = ["Budget", "Expenses"]
     
     @State private var expense_searchText: String = ""
     @State private var expense_selectedCategory: String = "All"
-
+    // DONT DELETE THIS
+    private var expense_categories: [String] { ["All"] + categories }
 
     private var filteredExpenses: [ExpenseItem] {
         let calendar = Calendar.current
@@ -155,14 +156,14 @@ struct FinanceView: View {
     private var expensesTab: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("Expenses")
+                Text("Duration:")
                     .font(.headline)
                 Spacer()
                 DatePicker("Start", selection: $dateRangeStart, displayedComponents: .date)
                     .padding(-10)
                     .scaleEffect(0.8)
                     .labelsHidden()
-                Image(systemName: "arrow.right")
+                Text("to")
                 DatePicker("End", selection: $dateRangeEnd, displayedComponents: .date)
                     .padding(-10)
                     .scaleEffect(0.8)
@@ -172,11 +173,9 @@ struct FinanceView: View {
             }
             .padding(.horizontal)
             
-            
-
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    ForEach(categories, id: \.self) { cat in
+                    ForEach(expense_categories, id: \.self) { cat in
                         Button {
                             expense_selectedCategory = cat
                         } label: {
@@ -275,3 +274,4 @@ struct FinanceView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
+

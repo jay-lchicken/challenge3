@@ -9,16 +9,17 @@ import SwiftUI
 import SwiftData
 struct BudgetView: View {
     @State private var showEditBudgets = false
+    
     @Environment(\.modelContext) var modelContext
     @Query(sort: \ExpenseItem.date, order: .reverse) var expenses: [ExpenseItem]
     @Query(sort: \GoalItem.dateCreated, order: .reverse) var goals: [GoalItem]
     @Query(sort: \BudgetItem.category, order: .forward) var budgets: [BudgetItem]
     @State private var selectedTimeRange = "Monthly"
-   
 
     let timeRanges = ["Daily", "Monthly", "Yearly"]
 
     let categories = CategoryOptionsModel().category
+    
     private func capForCategory(_ cat: String) -> Double {
         budgets.first(where: { $0.category.lowercased() == cat.lowercased() })?.cap ?? 200
     }
@@ -27,6 +28,7 @@ struct BudgetView: View {
         filteredExpenses.filter { $0.category.lowercased() == category.lowercased() }
                 .reduce(0) { $0 + $1.amount }
     }
+    
     private var filteredExpenses: [ExpenseItem] {
         let calendar = Calendar.current
         return expenses.filter { exp in
@@ -39,15 +41,31 @@ struct BudgetView: View {
             }
         }
     }
+    
+    func dangerColor(for percent: Double) -> Color {
+        let p = min(max(percent, 0), 100) / 100
+            
+            if p < 0.5 {
+                let t = p / 0.5
+                return Color(red: 1 * t, green: 1, blue: 0)
+            } else {
+                let t = (p - 0.5) / 0.5
+                return Color(red: 1, green: 1 - t, blue: 0)
+            }
+    }
+    
     var body: some View {
         NavigationStack{
             ScrollView{
                 VStack(spacing: 12) {
                     ForEach(categories, id: \.self) { cat in
-                        categoryBudgetCard(cat)
+                        categoryBudgetCard(cat.capitalized)
                     }
                 }
                 .padding(.horizontal)
+                .sheet(isPresented: $showEditBudgets) {
+                    EditBudgetsView(categories: categories)
+                }
             }
             .navigationTitle("Budgets")
             .toolbar{
@@ -70,9 +88,11 @@ struct BudgetView: View {
                 Text(cat)
                     .font(.subheadline)
                 Spacer()
-                Text("Budget $\(Int(capForCategory(cat)))")
+                let percent = (Double(spent(for: cat)) / Double(capForCategory(cat))) * 100
+                let percentText: String = percent.isFinite ? "\(Int(percent.rounded()))%" : "0%"
+                Text(percentText)
                     .font(.caption)
-                    .foregroundColor(.gray)
+                    .foregroundColor(dangerColor(for: percent))
             }
 
             GeometryReader { geo in
@@ -89,15 +109,24 @@ struct BudgetView: View {
             }
             .frame(height: 18)
 
-            Text("Spent: $\(Int(spent(for: cat)))")
-                .font(.caption)
-                .foregroundColor(.gray)
+            HStack {
+                Text("Spent: $\(Int(spent(for: cat)))")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                
+                Spacer()
+                
+                Text("Budget: $\(Int(capForCategory(cat)))")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
+            .padding()
         }
         .padding()
         .background(Color(.systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
-        .padding(.horizontal)
+        
     }
 
 }

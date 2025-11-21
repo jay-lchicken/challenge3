@@ -190,9 +190,7 @@ struct ProfileView: View {
                 HStack {
                     Image(systemName: "creditcard.fill")
                         .foregroundColor(.green)
-                        .font(.title2)
                     Text("Subscriptions")
-                        .font(.title2)
                         .fontWeight(.bold)
                     Spacer()
                 }
