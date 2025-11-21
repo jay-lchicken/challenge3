@@ -15,6 +15,7 @@ import AppIntents
 struct challenge3App: App {
     private let model = SystemLanguageModel.default
     @State var showAddExpense = false
+    @AppStorage("inteEnabled") var isInteEnabled: Bool = false
     
 
 
@@ -28,6 +29,10 @@ struct challenge3App: App {
                     .sheet(isPresented: $showAddExpense) {
                         AddExpenseView()
                     }
+                    .task{
+                        isInteEnabled = true
+                        
+                    }
                     
                     .onOpenURL { url in
                         handleDeepLink(url)
@@ -37,14 +42,26 @@ struct challenge3App: App {
                         print("Received AppIntent: LaunchAddExpenseIntent")
                         showAddExpense = true
                     }
-            case .unavailable(.appleIntelligenceNotEnabled):
-                Text("Apple Intelligence is not enabled. Please enable it in Settings.")
-            case .unavailable(.deviceNotEligible):
-                Text("This device does not support Apple Intelligence.")
-            case .unavailable(.modelNotReady):
-                Text("Foundation Model is not yet ready. Please try again later.")
             default:
-                Text("Foundation Model is unavailable. Check device settings and try again.")
+                ContentView()
+                    .tint(.yellow)
+                    .modelContainer(for: [ExpenseItem.self, GoalItem.self, BudgetItem.self], isUndoEnabled: true)
+                    .sheet(isPresented: $showAddExpense) {
+                        AddExpenseView()
+                    }
+                    .task{
+                        isInteEnabled = false
+
+                    }
+                    
+                    .onOpenURL { url in
+                        handleDeepLink(url)
+                    }
+                   
+                    .onContinueUserActivity("LaunchAddExpenseIntent") { _ in
+                        print("Received AppIntent: LaunchAddExpenseIntent")
+                        showAddExpense = true
+                    }
             }
         }
     }

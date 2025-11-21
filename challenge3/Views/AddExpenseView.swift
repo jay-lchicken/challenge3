@@ -72,9 +72,7 @@ struct AddExpenseView: View {
                         parseAmount(amount) == nil
                     )
                 }
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
+                
             }
         }
     }

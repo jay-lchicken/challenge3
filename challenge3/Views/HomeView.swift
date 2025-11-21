@@ -4,9 +4,12 @@ import SwiftData
 import FoundationModels
 import MarkdownUI
 import Charts
- 
 struct HomeView: View {
+    @AppStorage("inteEnabled") var isInteEnabled: Bool = false
+    @AppStorage("showPopup") var showPopup: Bool = true
     @State private var foundationVM = FoundationModelViewModel()
+    private let model = SystemLanguageModel.default
+
     
     @Environment(\.modelContext) var modelContext
     @Query var expenses: [ExpenseItem]
@@ -81,16 +84,46 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section(header: HStack(spacing: 10) {
-                    Image(systemName: "bubble.left.fill")
-                    Text("Feedback")
-                    Spacer()
-                }) {
-                    feedbackSection
+                if isInteEnabled{
+                    Section(header: HStack(spacing: 10) {
+                        Image(systemName: "bubble.left.fill")
+                        Text("Feedback")
+                        Spacer()
+                    }) {
+                        feedbackSection
+                    }
+                }else{
+                    if showPopup{
+                        HStack{
+                            switch model.availability{
+                            case .unavailable(.appleIntelligenceNotEnabled):
+                                Text("Please enable Apple Intelligence for AI-Powered Features")
+                            case .unavailable(.deviceNotEligible):
+                                Text("Your device does not suppoer Apple Intelligence. Some features are unavailable")
+                            case .unavailable(.modelNotReady):
+                                Text("Please enable Apple Intelligence for AI-Powered Features")
+                            default:
+                                EmptyView()
+
+                                
+                            }
+                            Spacer()
+                            Button{
+                                showPopup.toggle()
+                            }label:{
+                                Text("Dismiss")
+                            }
+                            .padding()
+                            .glassEffect(.clear.interactive(), in:.capsule)
+                        }
+                    }
+                    
+                    
                 }
+            
                 Section(header: HStack(spacing: 10) {
                     Image(systemName: "dollarsign.circle.fill")
-                    Text("Expenses")
+                    Text("Expenses Statistics")
                     Spacer()
                 }) {
                     VStack{
@@ -127,6 +160,8 @@ struct HomeView: View {
                                 }
                                 .padding(.trailing)
                             }
+                        }else{
+                            ContentUnavailableView("No Expenses Found", systemImage: "dollarsign.circle")
                         }
                     }
                 }

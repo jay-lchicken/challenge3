@@ -10,58 +10,91 @@ import SwiftUI
 struct ContentView: View {
     @State var currentTab: Int = 0
     @State var showSheet = false
+    @AppStorage("inteEnabled") var isInteEnabled: Bool = false
     
     var body: some View {
-        
-        
-        TabView(){
-            Tab("Home", systemImage: "house"){
-                HomeView()
-            }
-
-            Tab("Expenses", systemImage: "dollarsign.circle"){
-                FinanceView()
-            }
-            
-            Tab("Budgets", systemImage: "list.bullet"){
-                BudgetView()
-            }
-
-        }
-        .tabBarMinimizeBehavior(.onScrollDown)
-        .font(.custom("Roboto-Regular", size: 16))
-        .onChange(of: currentTab) { newValue, oldValue in
-            if newValue == 2 {
-                showSheet = true
-                currentTab = oldValue
-            }
-        }
-        .tabViewBottomAccessory{
-            Button{
-                showSheet.toggle()
-            }label:{
-                HStack{
-                    Text("What would you like to do today?")
-                        .foregroundStyle(.gray)
-                        .padding()
-                    Spacer()
-                        
-                    Button{
-                        
-                    }label:{
-                        Image(systemName: "arrow.up.circle")
-                            .font(.title2)
-                            .padding()
-                    }
-
+        if isInteEnabled{
+            TabView(){
+                Tab("Home", systemImage: "house"){
+                    HomeView()
                 }
 
-                           
+                Tab("Expenses", systemImage: "dollarsign.circle"){
+                    FinanceView()
+                }
+                
+                Tab("Budgets", systemImage: "list.bullet"){
+                    BudgetView()
+                }
+
             }
-        }
-        .sheet(isPresented: $showSheet){
-            ChatView()
-        }
+            .tabBarMinimizeBehavior(.onScrollDown)
+            .font(.custom("Roboto-Regular", size: 16))
+            .onChange(of: currentTab) { newValue, oldValue in
+                if newValue == 2 {
+                    showSheet = true
+                    currentTab = oldValue
+                }
+            }
+            
+            .tabViewBottomAccessory{
+                Button{
+                    showSheet.toggle()
+                }label:{
+                    HStack{
+                        Text("What would you like to do today?")
+                            .foregroundStyle(.gray)
+                            .padding()
+                        Spacer()
+                            
+                        Button{
+                            
+                        }label:{
+                            Image(systemName: "arrow.up.circle")
+                                .font(.title2)
+                                .padding()
+                        }
+
+                    }
+
+                               
+                }
+                
+                
+            }
+            .sheet(isPresented: $showSheet){
+                ChatView()
+            }
+
+            
+        }else{
+            TabView(){
+                Tab("Home", systemImage: "house"){
+                    HomeView()
+                }
+                
+                Tab("Expenses", systemImage: "dollarsign.circle"){
+                    FinanceView()
+                }
+                
+                Tab("Budgets", systemImage: "list.bullet"){
+                    BudgetView()
+                }
+                
+            }
+            .tabBarMinimizeBehavior(.onScrollDown)
+            .font(.custom("Roboto-Regular", size: 16))
+            .onChange(of: currentTab) { newValue, oldValue in
+                if newValue == 2 {
+                    showSheet = true
+                    currentTab = oldValue
+                }
+            }
+            
+                    }
+        
+        
+        
         
     }
 }
