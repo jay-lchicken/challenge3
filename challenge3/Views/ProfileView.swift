@@ -8,10 +8,12 @@ struct ProfileView: View {
     
     @State private var isEditing = false
     @State private var selectedSegment = 0
+    @State private var showAddGoal = false
+    @State private var contributingGoal: GoalItem? = nil
     
-    // We only need the primary expense query
     @Query var expenses: [ExpenseItem]
-    
+    @Query(sort: \GoalItem.dateCreated, order: .reverse) var goals: [GoalItem]
+
     var subscriptionExpenses: [ExpenseItem] {
         expenses.filter { $0.category.lowercased() == "subscriptions" }
     }
@@ -28,7 +30,13 @@ struct ProfileView: View {
 
                 ScrollView {
                     if selectedSegment == 0 {
-                        profileCard.padding(.top)
+                        VStack(spacing: 24) {
+                            profileCard
+                            
+                            
+                            goalsSection
+                        }
+                        .padding(.top)
                     } else {
                         subscriptionSection
                     }
@@ -55,65 +63,94 @@ struct ProfileView: View {
             }
         }
     }
-
-    struct SubscriptionRowView: View {
-        @Bindable var expense: ExpenseItem
-        var isEditing: Bool
-
-        var body: some View {
-            let isRecurringBinding = Binding(
-                get: { expense.isRecurring ?? true },
-                set: { expense.isRecurring = $0 }
-            )
-
-            let frequencyBinding = Binding(
-                get: { expense.frequency ?? .monthly },
-                set: { expense.frequency = $0 }
-            )
-
-            VStack(alignment: .leading, spacing: 6) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(expense.name).bold().foregroundColor(.primary)
-                        Text(Date(timeIntervalSince1970: expense.date), style: .date)
-                            .font(.caption).foregroundColor(.gray)
-                    }
-                    Spacer()
-                    VStack(alignment: .trailing) {
-                        Text("$\(expense.amount, specifier: "%.2f")").bold()
-                            .foregroundColor(isRecurringBinding.wrappedValue ? .green : .gray)
-                        Text(frequencyBinding.wrappedValue.rawValue.capitalized)
-                            .font(.caption).foregroundColor(.gray)
-                    }
-                }
-
-                if isEditing {
-                    Toggle(isOn: isRecurringBinding) {
-                        Text("Automatically renew?").font(.caption).foregroundColor(.gray)
-                    }
-                    Picker("Frequency", selection: frequencyBinding) {
-                        ForEach(ExpenseItem.Frequency.allCases) { freq in
-                            Text(freq.rawValue.capitalized).tag(freq)
-                        }
-                    }
-                    .pickerStyle(.segmented)
+    
+    
+    private var goalsSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Text("Goals").font(.title2).bold()
+                Spacer()
+                Button {
+                    showAddGoal = true
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.green)
                 }
             }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
-            .shadow(color: .black.opacity(0.05), radius: 3, x: 0, y: 2)
+            .padding(.horizontal)
+            
+            if goals.isEmpty {
+                Text("No goals yet")
+                    .foregroundColor(.gray)
+                    .padding(.horizontal)
+            } else {
+                VStack(spacing: 12) {
+                    ForEach(goals) { goal in
+                        NavigationLink {
+                            GoalDetailView(goal: goal)
+                        } label: {
+                            goalCard(goal)
+                        }
+                        .buttonStyle(.plain)
+                        .sheet(item: $contributingGoal) { goal in
+                            ContributeSheetView(goal: goal)
+                                .presentationDetents([.medium, .large])
+                                .presentationDragIndicator(.visible)
+                        }
+                    }
+                }
+                .padding(.horizontal)
+            }
         }
     }
 
+    private func goalCard(_ goal: GoalItem) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(goal.title).font(.headline)
+                    Text("$\(Int(goal.current)) / $\(Int(goal.target))")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
+                Spacer()
+                
+                Button {
+                    contributingGoal = goal
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title2)
+                }
+                
+                Image(systemName: "chevron.right")
+                    .font(.subheadline)
+                    .foregroundColor(.gray.opacity(0.7))
+            }
+            
+            GeometryReader { geo in
+                let w = geo.size.width
+                let ratio = CGFloat(min(goal.current / goal.target, 1))
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Color.gray.opacity(0.3)).frame(height: 18)
+                    Capsule().fill(Color.green).frame(width: w * ratio, height: 18)
+                }
+            }
+            .frame(height: 18)
+        }
+        .padding()
+        .background(Color.orange.opacity(0.2))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
 
+    
     private var subscriptionSection: some View {
         VStack(spacing: 16) {
             let totalMonthlyCost = subscriptionExpenses.reduce(0) { total, expense in
-                expense.frequency?.monthlyAmount(from: expense.amount)
+                total + (expense.frequency?.monthlyAmount(from: expense.amount) ?? 0)
             }
 
-            // Total card
+            
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Image(systemName: "creditcard.fill")
@@ -130,7 +167,7 @@ struct ProfileView: View {
                         Text("Total Estimated Monthly Cost")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
-                        Text("$\(totalMonthlyCost ?? 0, specifier: "%.2f")")
+                        Text("$\(totalMonthlyCost, specifier: "%.2f")")
                             .font(.largeTitle)
                             .fontWeight(.heavy)
                             .foregroundColor(.green)
@@ -171,6 +208,7 @@ struct ProfileView: View {
         }
     }
 
+   
     private var profileCard: some View {
         HStack(spacing: 16) {
             Circle()
@@ -230,5 +268,99 @@ struct ProfileView: View {
         formatter.currencySymbol = "$"
         formatter.maximumFractionDigits = 2
         return formatter.string(from: NSNumber(value: number)) ?? "$0.00"
+    }
+
+    
+    struct SubscriptionRowView: View {
+        @Bindable var expense: ExpenseItem
+        var isEditing: Bool
+
+        var body: some View {
+            let isRecurringBinding = Binding(
+                get: { expense.isRecurring ?? true },
+                set: { expense.isRecurring = $0 }
+            )
+
+            let frequencyBinding = Binding(
+                get: { expense.frequency ?? .monthly },
+                set: { expense.frequency = $0 }
+            )
+
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(expense.name).bold().foregroundColor(.primary)
+                        Text(Date(timeIntervalSince1970: expense.date), style: .date)
+                            .font(.caption).foregroundColor(.gray)
+                    }
+                    Spacer()
+                    VStack(alignment: .trailing) {
+                        Text("$\(expense.amount, specifier: "%.2f")").bold()
+                            .foregroundColor(isRecurringBinding.wrappedValue ? .green : .gray)
+                        Text(frequencyBinding.wrappedValue.rawValue.capitalized)
+                            .font(.caption).foregroundColor(.gray)
+                    }
+                }
+
+                if isEditing {
+                    Toggle(isOn: isRecurringBinding) {
+                        Text("Automatically renew?").font(.caption).foregroundColor(.gray)
+                    }
+                    Picker("Frequency", selection: frequencyBinding) {
+                        ForEach(ExpenseItem.Frequency.allCases) { freq in
+                            Text(freq.rawValue.capitalized).tag(freq)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                }
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
+            .shadow(color: .black.opacity(0.05), radius: 3, x: 0, y: 2)
+        }
+    }
+}
+
+
+struct ContributeSheetView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Bindable var goal: GoalItem
+    @State private var amount: Double = 0
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 20) {
+                Text("Add Contribution")
+                    .font(.title2).bold()
+                
+                TextField("Enter amount", value: $amount, format: .number)
+                    .keyboardType(.decimalPad)
+                    .padding()
+                    .background(Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                
+                Button {
+                    goal.current += amount
+                    dismiss()
+                } label: {
+                    Text("Add $\(Int(amount))")
+                        
+                }
+                .disabled(amount <= 0)
+                .foregroundStyle(amount<=0 ? .white : .black)
+                .glassEffect(amount<=0 ? .clear.interactive() : .clear.interactive().tint(.green) , in: .capsule)
+                
+                Spacer()
+            }
+            .padding()
+            .navigationTitle("Contribute")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
+        }
     }
 }
