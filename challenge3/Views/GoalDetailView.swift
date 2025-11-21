@@ -88,5 +88,12 @@ struct GoalDetailView: View {
         .sheet(isPresented: $showContribute) {
             ContributeSheetView(goal: goal)
         }
+        .onChange(of: goal.current) { newValue in
+            if newValue >= goal.target {
+                modelContext.delete(goal)
+                dismiss()
+            }
+        }
+
     }
 }
