@@ -98,7 +98,7 @@ struct ProfileView: View {
                             } label: {
                                 Image(systemName: isEditing ? "checkmark.circle.fill" : "pencil")
                                     .font(.title3)
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(.yellow)
                             }
                         }
                     }
@@ -124,7 +124,7 @@ struct ProfileView: View {
                     Image(systemName: "plus.circle.fill")
                 }
                 .font(.subheadline.bold())
-                .foregroundColor(.green)
+                .foregroundColor(.yellow)
             }
             .padding(.horizontal)
             
