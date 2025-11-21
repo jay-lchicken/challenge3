@@ -57,7 +57,7 @@ struct ChatView: View {
     var body: some View {
         ZStack{
             VStack{
-                if viewModel.generatedResponse != nil{
+                if viewModel.session.transcript.count != 1{
                     NavigationView{
                         ScrollView{
                             ForEach(viewModel.session.transcript){ entry in
@@ -136,10 +136,24 @@ struct ChatView: View {
                                     EmptyView()
                                 }
                             }
+                            if viewModel.session.transcript.count % 2 == 0{
+                                HStack{
+                                    ProgressView()
+                                        .progressViewStyle(.circular)
+                                        .padding()
+                                        .background(.green.opacity(0.3))
+                                        .cornerRadius(12)
+                                        .padding(.horizontal)
+                                    Spacer()
+                                }
+                                
+                            }
                             Spacer(minLength: 100)
                         }
                         .scrollPosition($scrollPosition)
                         .navigationTitle("Bro")
+                        .sensoryFeedback(.increase, trigger: viewModel.generatedResponse)
+
                         .onChange(of: viewModel.generatedResponse, {
                             withAnimation{
                                 scrollPosition.scrollTo(edge: .bottom)
