@@ -60,7 +60,10 @@ struct BudgetView: View {
                 VStack(spacing: 12) {
                     ForEach(categories, id: \.self) { cat in
                         categoryBudgetCard(cat.capitalized)
+                            .padding(.vertical)
                     }
+                    
+                
                 }
                 .padding(.horizontal)
                 .sheet(isPresented: $showEditBudgets) {
@@ -120,12 +123,8 @@ struct BudgetView: View {
                     .font(.caption)
                     .foregroundColor(.gray)
             }
-            .padding()
         }
-        .padding()
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+      
         
     }
 
