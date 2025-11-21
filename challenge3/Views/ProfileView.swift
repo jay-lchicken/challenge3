@@ -122,16 +122,15 @@ struct ProfileView: View {
                     showAddGoal = true
                 }) {
                     Image(systemName: "plus.circle.fill")
+                        .font(.largeTitle)
+                        .foregroundStyle(.yellow)
                 }
-                .font(.subheadline.bold())
-                .foregroundColor(.green)
+                .font(.subheadline)
             }
             .padding(.horizontal)
             
             if goals.isEmpty {
-                Text("No goals yet")
-                    .foregroundColor(.gray)
-                    .padding(.horizontal)
+                ContentUnavailableView("No Goals Set", systemImage: "target")
             } else {
                 VStack(spacing: 12) {
                     ForEach(goals) { goal in
@@ -336,10 +335,10 @@ struct ContributeSheetView: View {
                       .bold()
                       .frame(maxWidth: .infinity)
                       .padding()
-                      .background(amount > 0 ? Color.green : Color.gray.opacity(0.3))
-                      .foregroundColor(.white)
-                      .cornerRadius(12)
+                      .glassEffect(amount > 0 ? .clear.interactive().tint(.yellow) : .clear.interactive(), in: .capsule)
+                      .foregroundStyle(.white)
                 }
+                
                 .disabled(amount <= 0)
                 
                 Spacer()
