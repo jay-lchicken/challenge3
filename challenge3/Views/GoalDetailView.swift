@@ -48,6 +48,20 @@ struct GoalDetailView: View {
                     .frame(maxWidth: .infinity)
                 }
                 .padding(.vertical)
+
+                if isEditing {
+                    Section {
+                        Button(role: .destructive) {
+                            showDelete = true
+                        } label: {
+                            HStack {
+                                Image(systemName: "trash")
+                                Text("Delete Goal")
+                            }
+                            .frame(maxWidth: .infinity, alignment: .center)
+                        }
+                    }
+                }
             }
         }
         .navigationTitle("Goal Details")
