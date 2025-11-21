@@ -73,39 +73,57 @@ struct ExpenseDetailView: View {
                     }
                 }
                 if isEditing {
-                    Section {
-                        Button("Delete", role: .destructive) {
-                            showDelete = true
-                        }
-                        .frame(maxWidth: .infinity, alignment: .center)
+                    
+                }
+
+
+            }
+
                     }
+        .navigationTitle(expense.name)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                VStack(spacing: 2) {
+                    Image(systemName: expense.category.sFSymbol)
+                        .font(.title2)
+                    Text(expense.name)
+                        .font(.headline)
                 }
             }
-            .navigationTitle(expense.name)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
+
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    isEditing.toggle()
+                } label: {
                     if isEditing {
-                        Button("Save") {
-                            isEditing = false
-                            dismiss()
-                        }
+                        Image(systemName: "checkmark")
+                    } else {
+                        Image(systemName: "pencil")
                     }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    if !isEditing {
-                        Button("Edit") {
-                            isEditing = true
-                        }
+                .buttonStyle(.plain)
+                
+            }
+            if isEditing{
+                ToolbarItem(placement: .topBarTrailing){
+                    Button {
+                        showDelete = true
+
+                    }label:{
+                        Image(systemName: "trash")
                     }
                 }
             }
-            .alert("Are you sure you want to delete this expense?", isPresented: $showDelete) {
-                Button("Delete", role: .destructive) {
-                    modelContext.delete(expense)
-                    dismiss()
-                }
-                Button("Cancel", role: .cancel) {}
+        }
+        .navigationBarTitleDisplayMode(.inline)
+
+        .alert("Are you sure?", isPresented: $showDelete) {
+            Button("Yes", role: .destructive) {
+                modelContext.delete(expense)
+                dismiss()
             }
+            .buttonStyle(.plain)
+            Button("Cancel", role: .cancel) {}
         }
     }
 }
