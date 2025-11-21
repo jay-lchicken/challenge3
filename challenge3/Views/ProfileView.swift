@@ -121,7 +121,7 @@ struct ProfileView: View {
                 Button(action: {
                     showAddGoal = true
                 }) {
-                    Label("Add New Goal", systemImage: "plus.circle.fill")
+                    Image(systemName: "plus.circle.fill")
                 }
                 .font(.subheadline.bold())
                 .foregroundColor(.green)
@@ -310,9 +310,10 @@ struct ProfileView: View {
 
 struct ContributeSheetView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext // Add this!
     @Bindable var goal: GoalItem
     @State private var amount: Double = 0
-    
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
@@ -326,15 +327,18 @@ struct ContributeSheetView: View {
                 
                 Button {
                     goal.current += amount
+                    if goal.current >= goal.target {
+                        modelContext.delete(goal)
+                    }
                     dismiss()
                 } label: {
                     Text("Add $\(Int(amount))")
-                        .bold()
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(amount > 0 ? Color.green : Color.gray.opacity(0.3))
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
+                      .bold()
+                      .frame(maxWidth: .infinity)
+                      .padding()
+                      .background(amount > 0 ? Color.green : Color.gray.opacity(0.3))
+                      .foregroundColor(.white)
+                      .cornerRadius(12)
                 }
                 .disabled(amount <= 0)
                 
