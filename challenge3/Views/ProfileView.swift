@@ -128,7 +128,7 @@ struct ProfileView: View {
                 Button(action: {
                     showAddGoal = true
                 }) {
-                    Label("Add New Goal", systemImage: "plus.circle.fill")
+                    Image(systemName: "plus.circle.fill")
                 }
                 .font(.subheadline.bold())
                 .foregroundColor(.green)
