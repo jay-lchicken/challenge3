@@ -244,7 +244,6 @@ struct FinanceView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
-                .padding(.horizontal)
                 
             }
         }
