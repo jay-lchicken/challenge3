@@ -72,21 +72,7 @@ struct ExpenseDetailView: View {
                         .disabled(!isEditing)
                 }
                 if isEditing {
-                    Button {
-                        showDelete = true
-                    } label: {
-                        HStack {
-                            Image(systemName: "trash")
-                            Text("Delete")
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .glassEffect(.regular.tint(.red).interactive(), in: Capsule())
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundStyle(.white)
-                    .padding(.horizontal)
-                    .padding(.bottom)
+                    
                 }
 
 
@@ -109,12 +95,23 @@ struct ExpenseDetailView: View {
                     isEditing.toggle()
                 } label: {
                     if isEditing {
-                        Image(systemName: "checkmark.circle.fill").foregroundColor(.yellow)
+                        Image(systemName: "checkmark")
                     } else {
-                        Image(systemName: "pencil").foregroundColor(.yellow)
+                        Image(systemName: "pencil")
                     }
                 }
                 .buttonStyle(.plain)
+                
+            }
+            if isEditing{
+                ToolbarItem(placement: .topBarTrailing){
+                    Button {
+                        showDelete = true
+
+                    }label:{
+                        Image(systemName: "trash")
+                    }
+                }
             }
         }
         .navigationBarTitleDisplayMode(.inline)
