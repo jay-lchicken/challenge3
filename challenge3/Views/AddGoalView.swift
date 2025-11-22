@@ -16,6 +16,18 @@ struct AddGoalView: View {
     @State private var current = ""
     @State private var target = ""
 
+    private var isFormValid: Bool {
+        guard
+            !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+            let currentVal = Double(current),
+            let targetVal = Double(target),
+            currentVal >= 0,
+            targetVal > 0
+        else { return false }
+
+        return true
+    }
+
     var body: some View {
         NavigationStack {
             Form {
@@ -42,6 +54,8 @@ struct AddGoalView: View {
                         modelContext.insert(newGoal)
                         dismiss()
                     }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(!isFormValid)
                 }
 
                 ToolbarItem(placement: .cancellationAction) {
@@ -51,4 +65,3 @@ struct AddGoalView: View {
         }
     }
 }
-
