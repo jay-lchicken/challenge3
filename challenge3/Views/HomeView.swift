@@ -97,11 +97,17 @@ struct HomeView: View {
                         HStack{
                             switch model.availability{
                             case .unavailable(.appleIntelligenceNotEnabled):
-                                Text("Please enable Apple Intelligence for AI-Powered Features")
+                                VStack(alignment:.leading){
+                                    Text("Please enable Apple Intelligence for")
+                                    Text("AI-Powered Features")
+                                }
                             case .unavailable(.deviceNotEligible):
-                                Text("Your device does not suppoer Apple Intelligence. Some features are unavailable")
+                                Text("Your device does not support Apple Intelligence. Some features are unavailable")
                             case .unavailable(.modelNotReady):
-                                Text("Please enable Apple Intelligence for AI-Powered Features")
+                                VStack(alignment:.leading){
+                                    Text("Please enable Apple Intelligence for")
+                                    Text("AI-Powered Features")
+                                }
                             default:
                                 EmptyView()
 
@@ -111,7 +117,7 @@ struct HomeView: View {
                             Button{
                                 showPopup.toggle()
                             }label:{
-                                Text("Dismiss")
+                                Image(systemName: "xmark")
                             }
                             .padding()
                             .glassEffect(.clear.interactive(), in:.capsule)

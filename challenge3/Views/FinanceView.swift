@@ -240,7 +240,7 @@ struct FinanceView: View {
                                     .foregroundColor(.white)
                             }
                             .padding()
-                            .background(item.category.categoryColor)
+                            .background(item.category.categoryColor.brightness(-0.15))
                             .cornerRadius(12)
                         }
                         .buttonStyle(PlainButtonStyle())
