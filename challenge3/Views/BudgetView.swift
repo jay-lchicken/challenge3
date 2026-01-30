@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 struct BudgetView: View {
+    @AppStorage("didSeedBudgets") private var didSeedBudgets = false
     @State private var showEditBudgets = false
     
     @Environment(\.modelContext) var modelContext
@@ -22,6 +23,25 @@ struct BudgetView: View {
     
     private func capForCategory(_ cat: String) -> Double {
         budgets.first(where: { $0.category.lowercased() == cat.lowercased() })?.cap ?? 200
+    }
+    private func seedDefaultBudgetsIfNeeded() {
+        guard !didSeedBudgets else { return }
+
+        for category in categories {
+            let exists = budgets.contains {
+                $0.category.lowercased() == category.lowercased()
+            }
+
+            if !exists {
+                let budget = BudgetItem(
+                    category: category,
+                    cap: 200
+                )
+                modelContext.insert(budget)
+            }
+        }
+
+        didSeedBudgets = true
     }
 
     private func spent(for category: String) -> Double {
@@ -80,6 +100,9 @@ struct BudgetView: View {
                         Image(systemName: "pencil")
                     }
                 }
+            }
+            .onAppear {
+                seedDefaultBudgetsIfNeeded()
             }
             
         }

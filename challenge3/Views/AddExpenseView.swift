@@ -65,6 +65,11 @@ struct AddExpenseView: View {
                             category: category
                         )
                         modelContext.insert(expense)
+                        do {
+                            try modelContext.save()
+                        } catch {
+                            print("Failed to save expense:", error.localizedDescription)
+                        }
                         dismiss()
                     }
                     .disabled(

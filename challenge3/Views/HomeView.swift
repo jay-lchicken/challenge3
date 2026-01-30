@@ -129,7 +129,7 @@ struct HomeView: View {
             
                 Section(header: HStack(spacing: 10) {
                     Image(systemName: "dollarsign.circle.fill")
-                    Text("Expenses Statistics")
+                    Text("Expenses Statistics For Today")
                     Spacer()
                 }) {
                     VStack{

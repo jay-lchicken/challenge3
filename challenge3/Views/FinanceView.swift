@@ -259,6 +259,16 @@ struct FinanceView: View {
                 
             }
         }
+        .onAppear{
+            let results = expensesBetween(dateRangeStart, dateRangeEnd)
+                .filter { item in
+                    (expense_selectedCategory == "All" ||
+                     item.category.lowercased() == expense_selectedCategory.lowercased())
+                    && (expense_searchText.isEmpty ||
+                        item.name.lowercased().contains(expense_searchText.lowercased()))
+                }
+            print(results)
+        }
         .searchable(text: $expense_searchText, placement: .navigationBarDrawer)
         .sheet(isPresented: $showAddExpense) {
             AddExpenseView()

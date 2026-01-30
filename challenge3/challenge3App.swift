@@ -28,6 +28,8 @@ struct challenge3App: App {
                     .modelContainer(for: [ExpenseItem.self, GoalItem.self, BudgetItem.self], isUndoEnabled: true)
                     .sheet(isPresented: $showAddExpense) {
                         AddExpenseView()
+                            .modelContainer(for: [ExpenseItem.self, GoalItem.self, BudgetItem.self], isUndoEnabled: true)
+
                     }
                     .task{
                         isInteEnabled = true
